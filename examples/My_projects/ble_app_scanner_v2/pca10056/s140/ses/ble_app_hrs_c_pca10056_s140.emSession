@@ -1,0 +1,49 @@
+<!DOCTYPE CrossStudio_Session_File>
+<session>
+ <Bookmarks/>
+ <Breakpoints groups="Breakpoints" active_group="Breakpoints"/>
+ <ExecutionProfileWindow/>
+ <FrameBuffer/>
+ <Memory1/>
+ <Memory2/>
+ <Memory3/>
+ <Memory4/>
+ <Project>
+  <ProjectSessionItem path="ble_app_scanner_pca10056_s140"/>
+  <ProjectSessionItem path="ble_app_scanner_pca10056_s140;ble_app_hrs_c_pca10056_s140"/>
+  <ProjectSessionItem path="ble_app_scanner_pca10056_s140;ble_app_hrs_c_pca10056_s140;Application"/>
+  <ProjectSessionItem path="ble_app_scanner_pca10056_s140;ble_app_hrs_c_pca10056_s140;nRF_BLE"/>
+  <ProjectSessionItem path="ble_app_scanner_pca10056_s140;ble_app_hrs_c_pca10056_s140;nRF_Segger_RTT"/>
+  <ProjectSessionItem path="ble_app_scanner_pca10056_s140;ble_app_hrs_c_pca10056_s140;System Files"/>
+ </Project>
+ <Register1/>
+ <Register2/>
+ <Register3/>
+ <Register4/>
+ <Threads>
+  <ThreadsWindow showLists=""/>
+ </Threads>
+ <TraceWindow>
+  <Trace enabled="Yes"/>
+ </TraceWindow>
+ <Watch1>
+  <Watches active="1" update="Never"/>
+ </Watch1>
+ <Watch2>
+  <Watches active="0" update="Never"/>
+ </Watch2>
+ <Watch3>
+  <Watches active="0" update="Never"/>
+ </Watch3>
+ <Watch4>
+  <Watches active="0" update="Never"/>
+ </Watch4>
+ <Files>
+  <SessionOpenFile windowGroup="DockEditLeft" x="57" y="817" useTextEdit="1" path="../../../main.c" left="0" selected="1" top="814" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="276" useTextEdit="1" path="../config/sdk_config.h" left="0" top="254" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="67" y="303" useTextEdit="1" path="../../../../../../components/ble/nrf_ble_scan/nrf_ble_scan.h" left="0" top="287" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="9" y="75" useTextEdit="1" path="../../../../../../external/segger_rtt/SEGGER_RTT_Syscalls_SES.c" left="0" top="60" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="17" y="318" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_v2/main.c" path="../../../../../../components/ble/peer_manager/nrf_ble_lesc.c" left="0" top="311" codecName="Default"/>
+ </Files>
+ <EMStudioWindow activeProject="ble_app_hrs_c_pca10056_s140" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="" debugSearchPath="" autoConnectCapabilities="3199"/>
+</session>

@@ -1,0 +1,65 @@
+<!DOCTYPE CrossStudio_Session_File>
+<session>
+ <Bookmarks/>
+ <Breakpoints groups="Breakpoints" active_group="Breakpoints">
+  <BreakpointListItem trigger="" line="66" counter="0" hardwareBreakpoint="" isFunctionBreakpoint="false" action="" expression="" group="Breakpoints" type="Breakpoint" state="2" filename="../../../main.c" useHWbreakpoint="false"/>
+ </Breakpoints>
+ <ExecutionProfileWindow/>
+ <FrameBuffer/>
+ <Memory1/>
+ <Memory2/>
+ <Memory3/>
+ <Memory4/>
+ <Project>
+  <ProjectSessionItem path="ble_app_scanner_pca10056_s140"/>
+  <ProjectSessionItem path="ble_app_scanner_pca10056_s140;ble_app_scanner_pca10056_s140"/>
+  <ProjectSessionItem path="ble_app_scanner_pca10056_s140;ble_app_scanner_pca10056_s140;Application"/>
+  <ProjectSessionItem path="ble_app_scanner_pca10056_s140;ble_app_scanner_pca10056_s140;nRF_BLE"/>
+  <ProjectSessionItem path="ble_app_scanner_pca10056_s140;ble_app_scanner_pca10056_s140;nRF_Drivers"/>
+  <ProjectSessionItem path="ble_app_scanner_pca10056_s140;ble_app_scanner_pca10056_s140;nRF_Log"/>
+  <ProjectSessionItem path="ble_app_scanner_pca10056_s140;ble_app_scanner_pca10056_s140;nRF_Segger_RTT"/>
+  <ProjectSessionItem path="ble_app_scanner_pca10056_s140;ble_app_scanner_pca10056_s140;System Files"/>
+  <ProjectSessionItem path="ble_app_scanner_pca10056_s140;ble_app_scanner_pca10056_s140;UTF8/UTF16 converter"/>
+ </Project>
+ <Register1/>
+ <Register2/>
+ <Register3/>
+ <Register4/>
+ <Threads>
+  <ThreadsWindow showLists=""/>
+ </Threads>
+ <TraceWindow>
+  <Trace enabled="Yes"/>
+ </TraceWindow>
+ <Watch1>
+  <Watches active="1" update="Never"/>
+ </Watch1>
+ <Watch2>
+  <Watches active="0" update="Never"/>
+ </Watch2>
+ <Watch3>
+  <Watches active="0" update="Never"/>
+ </Watch3>
+ <Watch4>
+  <Watches active="0" update="Never"/>
+ </Watch4>
+ <Files>
+  <SessionOpenFile windowGroup="DockEditLeft" x="24" y="373" useTextEdit="1" path="../../../main.c" left="0" top="360" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="34" y="7713" useTextEdit="1" openedFrom="C:/nrf_sdk/components/libraries/log/src/nrf_log_backend_uart.c" path="../config/sdk_config.h" left="0" top="7711" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="473" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon_scanner/main.c" path="../../../../../../components/ble/nrf_ble_scan/nrf_ble_scan.h" left="0" top="460" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="109" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon_scanner/main.c" path="../../../../../../components/ble/nrf_ble_scan/nrf_ble_scan.c" left="0" top="109" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="26" y="1310" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon_scanner/main.c" path="../../../../../../components/softdevice/s140/headers/ble_gap.h" left="0" top="1293" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="2" y="202" useTextEdit="1" openedFrom="C:/nrf_sdk/components/ble/nrf_ble_scan/nrf_ble_scan.h" path="../../../../../../components/softdevice/s140/headers/ble_types.h" left="0" top="192" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="224" useTextEdit="1" openedFrom="C:/nrf_sdk/components/ble/nrf_ble_scan/nrf_ble_scan.c" path="../../../../../../components/softdevice/s140/headers/ble.h" left="0" top="208" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="80" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon_scanner/main.c" path="../../../../../../components/libraries/log/nrf_log_ctrl.h" left="0" top="80" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="8" y="61" useTextEdit="1" openedFrom="C:/nrf_sdk/components/libraries/log/nrf_log_ctrl.h" path="../../../../../../components/libraries/log/src/nrf_log_ctrl_internal.h" left="0" top="52" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="731" useTextEdit="1" openedFrom="C:/nrf_sdk/components/libraries/log/src/nrf_log_ctrl_internal.h" path="../../../../../../components/libraries/log/src/nrf_log_frontend.c" left="0" top="731" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="53" y="67" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon_scanner/main.c" path="../../../../../../components/libraries/log/nrf_log_default_backends.h" left="0" top="55" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="57" y="61" useTextEdit="1" openedFrom="C:/nrf_sdk/components/libraries/log/nrf_log_default_backends.h" path="../../../../../../components/libraries/log/src/nrf_log_default_backends.c" left="0" top="52" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="63" y="64" useTextEdit="1" path="../../../../../../components/libraries/log/src/nrf_log_backend_uart.c" left="0" top="45" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="53" y="93" useTextEdit="1" path="../../../../../../modules/nrfx/drivers/src/nrfx_uart.c" left="0" top="70" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="35" y="110" useTextEdit="1" path="../../../../../../modules/nrfx/drivers/src/nrfx_uarte.c" left="0" top="101" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="2" y="62" useTextEdit="1" openedFrom="C:/nrf_sdk/modules/nrfx/drivers/src/nrfx_uarte.c" path="../../../../../../modules/nrfx/drivers/include/nrfx_uarte.h" left="0" selected="1" top="51" codecName="Default"/>
+ </Files>
+ <EMStudioWindow activeProject="ble_app_beacon_pca10056_s140" fileDialogDefaultFilter="*" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="C:/nrf_sdk/components/ble/nrf_ble_scan" debugSearchPath="" autoConnectCapabilities="3711"/>
+</session>
