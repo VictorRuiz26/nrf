@@ -226,10 +226,18 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
                 // Comparar el UUID almacenado con el UUID definido
                 if (memcmp(uuid_data, APP_BEACON_UUID_POINTER, sizeof(uuid_data)) == 0)
                 {
+                    NRF_LOG_INFO("************************************************************");
                     NRF_LOG_INFO("UUID matches the defined UUID!");
                     NRF_LOG_INFO("Advertising packet received (length: %d):", p_adv_report->data.len);
+                    printf("Advertising packet received (length: %d):\n\r", p_adv_report->data.len);
                     //NRF_LOG_RAW_HEXDUMP_INFO(p_adv_report->data.p_data, p_adv_report->data.len);
                     NRF_LOG_RAW_HEXDUMP_INFO(p_adv_report->data.p_data, p_adv_report->data.len);  
+                    for (int i = 0; i < p_adv_report->data.len; i++) {
+                      printf("%02X ", p_adv_report->data.p_data[i]);
+                    }
+                    printf("\n\r");
+                    NRF_LOG_INFO("************************************************************");
+                    printf("************************************************************\n\r");
                 }
                 else
                 {

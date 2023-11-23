@@ -108,6 +108,7 @@
 "Output/Debug/Obj/ble_app_uuid_filter_pca10040_s132/thumb_crt0.o"
 "Output/Debug/Obj/ble_app_uuid_filter_pca10040_s132/utf.o"
 "C:/Program Files/SEGGER/SEGGER Embedded Studio for ARM 7.32/lib/libc_v7em_fpv4_sp_d16_hard_t_le_eabi_balanced.a"
+"C:/Program Files/SEGGER/SEGGER Embedded Studio for ARM 7.32/lib/prinops_rtt_v7em_fpv4_sp_d16_hard_t_le_eabi_balanced.a"
 "C:/Program Files/SEGGER/SEGGER Embedded Studio for ARM 7.32/lib/heapops_basic_v7em_fpv4_sp_d16_hard_t_le_eabi_balanced.a"
 "C:/Program Files/SEGGER/SEGGER Embedded Studio for ARM 7.32/lib/heapops_disable_interrupts_locking_v7em_fpv4_sp_d16_hard_t_le_eabi_balanced.a"
 "C:/Program Files/SEGGER/SEGGER Embedded Studio for ARM 7.32/lib/strops_unaligned_v7em_fpv4_sp_d16_hard_t_le_eabi_balanced.a"

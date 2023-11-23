@@ -235,6 +235,17 @@
 #ifndef NRF_BLE_SCAN_ENABLED
 #define NRF_BLE_SCAN_ENABLED 1
 #endif
+
+#ifndef NRF_BLE_SCAN_CONFIG_LOG_ENABLED
+#define NRF_BLE_SCAN_CONFIG_LOG_ENABLED 0
+#endif
+
+// <e> NRF_BLE_SCAN_LOG_ENABLED - nrf_ble_scan - Advertising packet logging
+//============================================================================
+#ifndef NRF_BLE_SCAN_LOG_ENABLED
+#define NRF_BLE_SCAN_LOG_ENABLED 0
+#endif
+
 // <o> NRF_BLE_SCAN_BUFFER - Data length for an advertising set. 
 #ifndef NRF_BLE_SCAN_BUFFER
 #define NRF_BLE_SCAN_BUFFER 31
