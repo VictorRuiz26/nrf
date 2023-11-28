@@ -6,6 +6,9 @@ Output/Debug/Obj/ble_app_uuid_filter_pca10040_s132/main.o: \
  C:/Program\ Files/SEGGER/SEGGER\ Embedded\ Studio\ for\ ARM\ 7.32/include/__SEGGER_RTL_ConfDefaults.h \
  C:/Program\ Files/SEGGER/SEGGER\ Embedded\ Studio\ for\ ARM\ 7.32/include/__SEGGER_RTL_Conf.h \
  C:/Program\ Files/SEGGER/SEGGER\ Embedded\ Studio\ for\ ARM\ 7.32/include/__SEGGER_RTL_Arm_Conf.h \
+ C:/Program\ Files/SEGGER/SEGGER\ Embedded\ Studio\ for\ ARM\ 7.32/include/stdio.h \
+ C:/Program\ Files/SEGGER/SEGGER\ Embedded\ Studio\ for\ ARM\ 7.32/include/stdlib.h \
+ C:/Program\ Files/SEGGER/SEGGER\ Embedded\ Studio\ for\ ARM\ 7.32/include/string.h \
  c:\nrf_git\nrf\components\libraries\util\nordic_common.h \
  c:\nrf_git\nrf\components\libraries\bsp\bsp.h \
  c:\nrf_git\nrf\components\boards\boards.h \
@@ -46,7 +49,6 @@ Output/Debug/Obj/ble_app_uuid_filter_pca10040_s132/main.o: \
  c:\nrf_git\nrf\components\softdevice\s132\headers\nrf_nvic.h \
  c:\nrf_git\nrf\components\libraries\util\nrf_assert.h \
  c:\nrf_git\nrf\components\libraries\util\app_error.h \
- C:/Program\ Files/SEGGER/SEGGER\ Embedded\ Studio\ for\ ARM\ 7.32/include/stdio.h \
  c:\nrf_git\nrf\components\libraries\util\sdk_errors.h \
  c:\nrf_git\nrf\components\softdevice\s132\headers\nrf_error.h \
  c:\nrf_git\nrf\components\libraries\util\app_error_weak.h \
@@ -75,7 +77,6 @@ Output/Debug/Obj/ble_app_uuid_filter_pca10040_s132/main.o: \
  c:\nrf_git\nrf\components\softdevice\s132\headers\ble_gattc.h \
  c:\nrf_git\nrf\components\softdevice\s132\headers\ble_gatts.h \
  c:\nrf_git\nrf\components\ble\common\ble_advdata.h \
- C:/Program\ Files/SEGGER/SEGGER\ Embedded\ Studio\ for\ ARM\ 7.32/include/string.h \
  c:\nrf_git\nrf\components\libraries\util\sdk_common.h \
  c:\nrf_git\nrf\components\libraries\util\sdk_os.h \
  c:\nrf_git\nrf\components\libraries\util\app_util.h \
@@ -95,7 +96,6 @@ Output/Debug/Obj/ble_app_uuid_filter_pca10040_s132/main.o: \
  c:\nrf_git\nrf\components\libraries\log\src\nrf_log_ctrl_internal.h \
  c:\nrf_git\nrf\components\libraries\log\nrf_log_backend_interface.h \
  c:\nrf_git\nrf\components\libraries\memobj\nrf_memobj.h \
- C:/Program\ Files/SEGGER/SEGGER\ Embedded\ Studio\ for\ ARM\ 7.32/include/stdlib.h \
  c:\nrf_git\nrf\components\libraries\balloc\nrf_balloc.h \
  c:\nrf_git\nrf\components\libraries\log\nrf_log_default_backends.h \
  c:\nrf_git\nrf\components\ble\peer_manager\nrf_ble_lesc.h \
