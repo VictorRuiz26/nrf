@@ -1207,19 +1207,19 @@ void nrf_ble_scan_on_ble_evt(ble_evt_t const * p_ble_evt, void * p_contex)
             {
                 if (p_adv_report->data.len > 0)
                 {
-                    NRF_LOG_INFO("Scan response received:");
-                    NRF_LOG_RAW_HEXDUMP_INFO(p_adv_report->data.p_data, p_adv_report->data.len);
+                    //NRF_LOG_INFO("Scan response received:");
+                    //NRF_LOG_RAW_HEXDUMP_INFO(p_adv_report->data.p_data, p_adv_report->data.len);
                 }
                 else
                 {
-                    NRF_LOG_INFO("Empty scan response received.");
+                    //NRF_LOG_INFO("Empty scan response received.");
                 }
             }
             else
             {
-                NRF_LOG_INFO("Advertising packet received:");
+                //NRF_LOG_INFO("Advertising packet received:");
                 //NRF_LOG_RAW_HEXDUMP_INFO(p_adv_report->data.p_data, p_adv_report->data.len);
-                NRF_LOG_RAW_HEXDUMP_INFO(p_adv_report->data.p_data, p_adv_report->data.len);
+                //NRF_LOG_RAW_HEXDUMP_INFO(p_adv_report->data.p_data, p_adv_report->data.len);
             }
  
             // Continue scanning.
