@@ -1,7 +1,47 @@
 <!DOCTYPE CrossStudio_Session_File>
 <session>
-  <ARMCrossStudioWindow activeProject="secure_bootloader_ble_s140_pca10100_debug" buildConfiguration="Release"/>
-  <Files>
-    <SessionOpenFile codecName="Default" debugPath="../../main.c" left="0" name="unnamed" path="../../main.c" selected="1" top="0" useBinaryEdit="0" useTextEdit="1" x="0" y="0"/>
-  </Files>
+ <Bookmarks/>
+ <Breakpoints groups="Breakpoints" active_group="Breakpoints"/>
+ <ExecutionProfileWindow/>
+ <FrameBuffer/>
+ <Memory1/>
+ <Memory2/>
+ <Memory3/>
+ <Memory4/>
+ <Project>
+  <ProjectSessionItem path="secure_bootloader_ble_s140_pca10100_debug"/>
+  <ProjectSessionItem path="secure_bootloader_ble_s140_pca10100_debug;secure_bootloader_ble_s140_pca10100_debug"/>
+  <ProjectSessionItem path="secure_bootloader_ble_s140_pca10100_debug;secure_bootloader_ble_s140_pca10100_debug;Application"/>
+  <ProjectSessionItem path="secure_bootloader_ble_s140_pca10100_debug;secure_bootloader_ble_s140_pca10100_debug;Board Definition"/>
+  <ProjectSessionItem path="secure_bootloader_ble_s140_pca10100_debug;secure_bootloader_ble_s140_pca10100_debug;nano-pb"/>
+  <ProjectSessionItem path="secure_bootloader_ble_s140_pca10100_debug;secure_bootloader_ble_s140_pca10100_debug;None"/>
+  <ProjectSessionItem path="secure_bootloader_ble_s140_pca10100_debug;secure_bootloader_ble_s140_pca10100_debug;nRF_SoftDevice"/>
+ </Project>
+ <Register1/>
+ <Register2/>
+ <Register3/>
+ <Register4/>
+ <Threads>
+  <ThreadsWindow showLists=""/>
+ </Threads>
+ <TraceWindow>
+  <Trace enabled="Yes"/>
+ </TraceWindow>
+ <Watch1>
+  <Watches active="1" update="Never"/>
+ </Watch1>
+ <Watch2>
+  <Watches active="0" update="Never"/>
+ </Watch2>
+ <Watch3>
+  <Watches active="0" update="Never"/>
+ </Watch3>
+ <Watch4>
+  <Watches active="0" update="Never"/>
+ </Watch4>
+ <Files>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" path="../../main.c" left="0" top="114" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="9" y="51" useTextEdit="1" path="../../../../../components/libraries/crypto/backend/micro_ecc/micro_ecc_backend_ecc.h" left="0" selected="1" top="1" codecName="Default"/>
+ </Files>
+ <EMStudioWindow activeProject="secure_bootloader_ble_s140_pca10100_debug" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Release" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="" debugSearchPath="" autoConnectCapabilities="3199"/>
 </session>

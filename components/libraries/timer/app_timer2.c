@@ -65,6 +65,7 @@ NRF_LOG_MODULE_REGISTER();
  * Maximum possible relative value is limited by safe window to detect cases when requested
  * compare event has already occured.
  */
+ #define APP_TIMER_SAFE_WINDOW_MS 300000
 #define APP_TIMER_SAFE_WINDOW APP_TIMER_TICKS(APP_TIMER_SAFE_WINDOW_MS)
 
 #define APP_TIMER_RTC_MAX_VALUE   (DRV_RTC_MAX_CNT - APP_TIMER_SAFE_WINDOW)
