@@ -169,21 +169,21 @@ static void cmd_phy_2m_set(nrf_cli_t const * p_cli, size_t argc, char ** argv)
 }
 
 
-#ifdef NRF52840_XXAA
+//#ifdef NRF52840_XXAA
 static void cmd_phy_coded_set(nrf_cli_t const * p_cli, size_t argc, char ** argv)
 {
     phy_set(p_cli, BLE_GAP_PHY_CODED);
 }
-#endif
+//#endif
 
 
 NRF_CLI_CREATE_STATIC_SUBCMD_SET(m_prephy_cmds)
 {
     NRF_CLI_CMD(1M,    NULL, "Set preferred PHY to 1Mbps", cmd_phy_1m_set),
     NRF_CLI_CMD(2M,    NULL, "Set preferred PHY to 2Mbps", cmd_phy_2m_set),
-#ifdef NRF52840_XXAA
+//#ifdef NRF52840_XXAA
     NRF_CLI_CMD(coded, NULL, "Set preferred PHY to Coded", cmd_phy_coded_set),
-#endif
+//#endif
     NRF_CLI_SUBCMD_SET_END
 };
 

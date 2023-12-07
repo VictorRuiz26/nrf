@@ -589,7 +589,7 @@ uint32_t ble_advertising_start(ble_advertising_t * const p_advertising,
     // Initialize advertising parameters with default values.
     memset(&p_advertising->adv_params, 0, sizeof(p_advertising->adv_params));
 
-    p_advertising->adv_params.properties.type = BLE_GAP_ADV_TYPE_CONNECTABLE_SCANNABLE_UNDIRECTED;
+    p_advertising->adv_params.properties.type = BLE_GAP_ADV_TYPE_EXTENDED_NONCONNECTABLE_SCANNABLE_UNDIRECTED;  // This was changed to use Long Range
 
     // Use 1MBIT as primary phy if no phy was selected.
     if (phy_is_valid(&p_advertising->adv_modes_config.ble_adv_primary_phy))
@@ -644,10 +644,11 @@ uint32_t ble_advertising_start(ble_advertising_t * const p_advertising,
 
     if (p_advertising->adv_mode_current != BLE_ADV_MODE_IDLE)
     {
-
+        /* IT FAILS AT THE FOLLOWING LINE */
         ret = sd_ble_gap_adv_set_configure(&p_advertising->adv_handle, p_advertising->p_adv_data, &p_advertising->adv_params);
         if (ret != NRF_SUCCESS)
         {
+            /* THUS ENTERING THIS CONDITION AND RETURNING ERROR 7 */
             return ret;
         }
         ret = sd_ble_gap_adv_start(p_advertising->adv_handle, p_advertising->conn_cfg_tag);
@@ -660,12 +661,12 @@ uint32_t ble_advertising_start(ble_advertising_t * const p_advertising,
 
     if (p_advertising->evt_handler != NULL)
     {
+				NRF_LOG_RAW_INFO("Still alive here 12...\r\n");
         p_advertising->evt_handler(p_advertising->adv_evt);
     }
 
     return NRF_SUCCESS;
 }
-
 
 void ble_advertising_on_ble_evt(ble_evt_t const * p_ble_evt, void * p_context)
 {

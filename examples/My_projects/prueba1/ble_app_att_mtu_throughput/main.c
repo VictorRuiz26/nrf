@@ -589,7 +589,8 @@ static void advertising_data_set(void)
     {
         .properties    =
         {
-          .type = BLE_GAP_ADV_TYPE_CONNECTABLE_SCANNABLE_UNDIRECTED,
+          //.type = BLE_GAP_ADV_TYPE_CONNECTABLE_SCANNABLE_UNDIRECTED,
+          .type = BLE_GAP_ADV_TYPE_EXTENDED_CONNECTABLE_NONSCANNABLE_UNDIRECTED,
         },
         .p_peer_addr   = NULL,
         .filter_policy = BLE_GAP_ADV_FP_ANY,
@@ -598,6 +599,7 @@ static void advertising_data_set(void)
 
         .primary_phy   = BLE_GAP_PHY_1MBPS, // Must be changed to connect in long range. (BLE_GAP_PHY_CODED)
         .secondary_phy = BLE_GAP_PHY_1MBPS,
+
     };
 
     ble_advdata_t const adv_data =

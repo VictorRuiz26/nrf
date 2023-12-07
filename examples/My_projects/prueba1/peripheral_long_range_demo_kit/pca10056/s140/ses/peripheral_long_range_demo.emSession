@@ -2,7 +2,7 @@
 <session>
  <Bookmarks/>
  <Breakpoints groups="Breakpoints" active_group="Breakpoints">
-  <BreakpointListItem trigger="" line="218" counter="0" hardwareBreakpoint="" isFunctionBreakpoint="false" action="" expression="" group="Breakpoints" type="Breakpoint" state="2" filename="C:/components/libraries/bsp/bsp.c" useHWbreakpoint="false"/>
+  <BreakpointListItem trigger="" line="218" counter="0" hardwareBreakpoint="" isFunctionBreakpoint="false" action="" expression="" group="Breakpoints" type="Breakpoint" state="2" filename="../../../../../../../components/libraries/bsp/bsp.c" useHWbreakpoint="false"/>
   <Exceptions set="MemManage;UsageFault_Coprocessor;UsageFault_CheckingError;UsageFault_StateError;BusFault;ExceptionEntryReturnFault;HardFault"/>
  </Breakpoints>
  <ExecutionProfileWindow/>
@@ -23,15 +23,9 @@
   <ProjectSessionItem path="peripheral_long_range_demo_pca10056_s140"/>
   <ProjectSessionItem path="peripheral_long_range_demo_pca10056_s140;peripheral_long_range_demo_pca10056_s140"/>
   <ProjectSessionItem path="peripheral_long_range_demo_pca10056_s140;peripheral_long_range_demo_pca10056_s140;Application"/>
-  <ProjectSessionItem path="peripheral_long_range_demo_pca10056_s140;peripheral_long_range_demo_pca10056_s140;Board Definition"/>
   <ProjectSessionItem path="peripheral_long_range_demo_pca10056_s140;peripheral_long_range_demo_pca10056_s140;Board Support"/>
   <ProjectSessionItem path="peripheral_long_range_demo_pca10056_s140;peripheral_long_range_demo_pca10056_s140;nRF_BLE"/>
-  <ProjectSessionItem path="peripheral_long_range_demo_pca10056_s140;peripheral_long_range_demo_pca10056_s140;nRF_Drivers"/>
   <ProjectSessionItem path="peripheral_long_range_demo_pca10056_s140;peripheral_long_range_demo_pca10056_s140;nRF_Libraries"/>
-  <ProjectSessionItem path="peripheral_long_range_demo_pca10056_s140;peripheral_long_range_demo_pca10056_s140;nRF_Log"/>
-  <ProjectSessionItem path="peripheral_long_range_demo_pca10056_s140;peripheral_long_range_demo_pca10056_s140;nRF_Segger_RTT"/>
-  <ProjectSessionItem path="peripheral_long_range_demo_pca10056_s140;peripheral_long_range_demo_pca10056_s140;nRF_SoftDevice"/>
-  <ProjectSessionItem path="peripheral_long_range_demo_pca10056_s140;peripheral_long_range_demo_pca10056_s140;Segger Startup Files"/>
  </Project>
  <Register1>
   <RegisterWindow visibleNodes="CPU - Current Context/r0;CPU - Current Context/r1;CPU - Current Context/r2;CPU - Current Context/r3;CPU - Current Context/r4;CPU - Current Context/r5;CPU - Current Context/r6;CPU - Current Context/r7;CPU - Current Context/r8;CPU - Current Context/r9;CPU - Current Context/r10;CPU - Current Context/r11;CPU - Current Context/r12;CPU - Current Context/sp(r13);CPU - Current Context/lr(r14);CPU - Current Context/pc(r15);CPU - Current Context/apsr;CPU/r0;CPU/r1;CPU/r2;CPU/r3;CPU/r4;CPU/r5;CPU/r6;CPU/r7;CPU/r8;CPU/r9;CPU/r10;CPU/r11;CPU/r12;CPU/sp(r13);CPU/lr(r14);CPU/pc(r15);CPU/xpsr;CPU/msp;CPU/psp;CPU/cfbp" binaryNodes="" asciiNodes="" openNodes="CPU - Current Context" name="peripheral_long_range_demo_pca10056_s140" decimalNodes="" octalNodes="" unsignedNodes=""/>
@@ -68,8 +62,8 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" path="../../../main.c" left="0" top="102" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" path="../config/sdk_config.h" left="0" selected="1" top="18" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="41" y="158" useTextEdit="1" path="../../../../../../../components/libraries/experimental_log/nrf_log_backend_interface.h" left="0" top="108" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="920" useTextEdit="1" path="../../../main.c" left="0" selected="1" top="870" codecName="Default"/>
  </Files>
- <EMStudioWindow activeProject="peripheral_long_range_demo_pca10056_s140" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="C:/nrf_git/nrf/components/libraries/experimental_log/src" debugSearchPath="" autoConnectCapabilities="3199"/>
+ <EMStudioWindow activeProject="peripheral_long_range_demo_pca10056_s140" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="" debugSearchPath="" autoConnectCapabilities="3199"/>
 </session>

@@ -66,10 +66,10 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="411" useTextEdit="1" path="../../../main.c" left="0" selected="1" top="393" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="411" useTextEdit="1" path="../../../main.c" left="0" selected="1" top="240" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="59" y="27" useTextEdit="1" path="flash_placement.xml" left="11" top="0" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="91" y="6885" useTextEdit="1" openedFrom="C:/nrf_git/nrf/examples/My_projects/ble_app_scanner_Filter_test/main.c" path="../config/sdk_config.h" left="0" top="6865" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="99" useTextEdit="1" path="C:/nrf_sdk/components/libraries/util/app_error_weak.c" left="0" top="55" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="99" useTextEdit="1" path="C:/nrf_sdk/components/libraries/util/app_error_weak.c" left="0" top="29" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" path="../../../../../../components/ble/nrf_ble_scan/nrf_ble_scan.h" left="0" top="0" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" path="../../../../../../components/libraries/log/nrf_log.h" left="0" top="149" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" path="../../../../../../components/softdevice/common/nrf_sdh_ble.h" left="0" top="0" codecName="Default"/>

@@ -50,9 +50,9 @@
  * @brief    The nrf_log backend interface.
  */
 
-#if NRF_MODULE_ENABLED(NRF_LOG)
-#include "nrf_memobj.h"
-#endif
+//#if NRF_MODULE_ENABLED(NRF_LOG)
+//#include "nrf_memobj.h"
+//#endif
 
 #include "nrf_section.h"
 #include "nordic_common.h"
@@ -66,7 +66,7 @@ extern "C" {
  * @brief nrf_log entry.
  */
 #if NRF_LOG_ENABLED
-typedef nrf_memobj_t nrf_log_entry_t;
+//typedef nrf_memobj_t nrf_log_entry_t;
 #else
 typedef void nrf_log_entry_t;
 #endif
@@ -82,7 +82,7 @@ typedef struct
     /**
      * @brief @ref nrf_log_backend_put
      */
-    void (*put)(nrf_log_backend_t const * p_backend, nrf_log_entry_t * p_entry);
+   // void (*put)(nrf_log_backend_t const * p_backend, nrf_log_entry_t * p_entry);
 
     /**
      * @brief @ref nrf_log_backend_panic_set

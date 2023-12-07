@@ -3,15 +3,6 @@
   Name="peripheral_long_range_demo_pca10056_s140"
   target="8"
   version="2">
-  <configuration
-    Name="Debug"
-    c_preprocessor_definitions="DEBUG; DEBUG_NRF"
-    gcc_enable_all_warnings="No"
-    gcc_optimization_level="None" />
-  <configuration
-    Name="Release"
-    c_preprocessor_definitions="NDEBUG"
-    gcc_optimization_level="Optimize For Size" />
   <project Name="peripheral_long_range_demo_pca10056_s140">
     <configuration
       Name="Common"
@@ -44,41 +35,16 @@
       macros="CMSIS_CONFIG_TOOL=../../../../../../../external_tools/cmsisconfig/CMSIS_Configuration_Wizard.jar"
       project_directory=""
       project_type="Executable" />
-    <configuration
-      Name="Debug"
-      c_user_include_directories=".;C:\\nrf_git\\nrf\\components" />
-    <folder Name="Application">
-      <file file_name="../../../main.c" />
-      <file file_name="../config/sdk_config.h" />
+    <folder Name="Segger Startup Files">
+      <file file_name="$(StudioDir)/source/thumb_crt0.s" />
     </folder>
-    <folder Name="Board Definition">
-      <file file_name="../../../../../../../components/boards/boards.c" />
-    </folder>
-    <folder Name="Board Support">
-      <file file_name="../../../../../../../components/libraries/bsp/bsp.c" />
-    </folder>
-    <folder Name="None">
-      <file file_name="../../../../../../../modules/nrfx/mdk/ses_nrf52840_Vectors.s" />
-      <file file_name="../../../../../../../modules/nrfx/mdk/ses_nRF_Startup.s" />
-      <file file_name="../../../../../../../modules/nrfx/mdk/system_nrf52840.c" />
-    </folder>
-    <folder Name="nRF_BLE">
-      <file file_name="../../../../../../../components/ble/common/ble_advdata.c" />
-      <file file_name="../../../../../../../components/ble/ble_db_discovery/ble_db_discovery.c" />
-      <file file_name="../../../../../../../components/ble/common/ble_srv_common.c" />
-      <file file_name="../../../../../../../components/ble/nrf_ble_gatt/nrf_ble_gatt.c" />
-      <file file_name="../../../../../../../components/ble/nrf_ble_qwr/nrf_ble_qwr.c" />
-    </folder>
-    <folder Name="nRF_Drivers">
-      <file file_name="../../../../../../../integration/nrfx/legacy/nrf_drv_clock.c" />
-      <file file_name="../../../../../../../integration/nrfx/legacy/nrf_drv_uart.c" />
-      <file file_name="../../../../../../../modules/nrfx/drivers/src/nrfx_clock.c" />
-      <file file_name="../../../../../../../modules/nrfx/drivers/src/nrfx_gpiote.c" />
-      <file file_name="../../../../../../../modules/nrfx/drivers/src/nrfx_power_clock.c" />
-      <file file_name="../../../../../../../modules/nrfx/drivers/src/prs/nrfx_prs.c" />
-      <file file_name="../../../../../../../modules/nrfx/drivers/src/nrfx_rtc.c" />
-      <file file_name="../../../../../../../modules/nrfx/drivers/src/nrfx_uart.c" />
-      <file file_name="../../../../../../../modules/nrfx/drivers/src/nrfx_uarte.c" />
+    <folder Name="nRF_Log">
+      <file file_name="../../../../../../../components/libraries/experimental_log/src/nrf_log_backend_rtt.c" />
+      <file file_name="../../../../../../../components/libraries/experimental_log/src/nrf_log_backend_serial.c" />
+      <file file_name="../../../../../../../components/libraries/experimental_log/src/nrf_log_backend_uart.c" />
+      <file file_name="../../../../../../../components/libraries/experimental_log/src/nrf_log_default_backends.c" />
+      <file file_name="../../../../../../../components/libraries/experimental_log/src/nrf_log_frontend.c" />
+      <file file_name="../../../../../../../components/libraries/experimental_log/src/nrf_log_str_formatter.c" />
     </folder>
     <folder Name="nRF_Libraries">
       <file file_name="../../../../../../../components/libraries/button/app_button.c" />
@@ -99,7 +65,6 @@
       <file file_name="../../../../../../../components/libraries/cli/uart/nrf_cli_uart.c" />
       <file file_name="../../../../../../../external/fprintf/nrf_fprintf.c" />
       <file file_name="../../../../../../../external/fprintf/nrf_fprintf_format.c" />
-      <file file_name="../../../../../components/libraries/experimental_log/src/nrf_log_backend_rtt.c" />
       <file file_name="../../../../../../../components/libraries/experimental_memobj/nrf_memobj.c" />
       <file file_name="../../../../../../../components/libraries/pwr_mgmt/nrf_pwr_mgmt.c" />
       <file file_name="../../../../../../../components/libraries/queue/nrf_queue.c" />
@@ -107,26 +72,57 @@
       <file file_name="../../../../../../../components/libraries/experimental_section_vars/nrf_section_iter.c" />
       <file file_name="../../../../../../../components/libraries/strerror/nrf_strerror.c" />
     </folder>
-    <folder Name="nRF_Log">
-      <file file_name="../../../../../../../components/libraries/experimental_log/src/nrf_log_backend_rtt.c" />
-      <file file_name="../../../../../../../components/libraries/experimental_log/src/nrf_log_backend_serial.c" />
-      <file file_name="../../../../../../../components/libraries/experimental_log/src/nrf_log_backend_uart.c" />
-      <file file_name="../../../../../../../components/libraries/experimental_log/src/nrf_log_default_backends.c" />
-      <file file_name="../../../../../../../components/libraries/experimental_log/src/nrf_log_frontend.c" />
-      <file file_name="../../../../../../../components/libraries/experimental_log/src/nrf_log_str_formatter.c" />
+    <folder Name="None">
+      <file file_name="../../../../../../../modules/nrfx/mdk/ses_nRF_Startup.s" />
+      <file file_name="../../../../../../../modules/nrfx/mdk/ses_nrf52840_Vectors.s" />
+      <file file_name="../../../../../../../modules/nrfx/mdk/system_nrf52840.c" />
+    </folder>
+    <folder Name="Board Definition">
+      <file file_name="../../../../../../../components/boards/boards.c" />
+    </folder>
+    <folder Name="nRF_Drivers">
+      <file file_name="../../../../../../../integration/nrfx/legacy/nrf_drv_clock.c" />
+      <file file_name="../../../../../../../integration/nrfx/legacy/nrf_drv_uart.c" />
+      <file file_name="../../../../../../../modules/nrfx/drivers/src/nrfx_clock.c" />
+      <file file_name="../../../../../../../modules/nrfx/drivers/src/nrfx_gpiote.c" />
+      <file file_name="../../../../../../../modules/nrfx/drivers/src/nrfx_power_clock.c" />
+      <file file_name="../../../../../../../modules/nrfx/drivers/src/prs/nrfx_prs.c" />
+      <file file_name="../../../../../../../modules/nrfx/drivers/src/nrfx_rtc.c" />
+      <file file_name="../../../../../../../modules/nrfx/drivers/src/nrfx_uart.c" />
+      <file file_name="../../../../../../../modules/nrfx/drivers/src/nrfx_uarte.c" />
+    </folder>
+    <folder Name="Board Support">
+      <file file_name="../../../../../../../components/libraries/bsp/bsp.c" />
+    </folder>
+    <folder Name="Application">
+      <file file_name="../../../main.c" />
+      <file file_name="../config/sdk_config.h" />
     </folder>
     <folder Name="nRF_Segger_RTT">
       <file file_name="../../../../../../../external/segger_rtt/SEGGER_RTT.c" />
-      <file file_name="../../../../../../../external/segger_rtt/SEGGER_RTT_printf.c" />
       <file file_name="../../../../../../../external/segger_rtt/SEGGER_RTT_Syscalls_SES.c" />
+      <file file_name="../../../../../../../external/segger_rtt/SEGGER_RTT_printf.c" />
+    </folder>
+    <folder Name="nRF_BLE">
+      <file file_name="../../../../../../../components/ble/common/ble_advdata.c" />
+      <file file_name="../../../../../../../components/ble/ble_db_discovery/ble_db_discovery.c" />
+      <file file_name="../../../../../../../components/ble/common/ble_srv_common.c" />
+      <file file_name="../../../../../../../components/ble/nrf_ble_gatt/nrf_ble_gatt.c" />
+      <file file_name="../../../../../../../components/ble/nrf_ble_qwr/nrf_ble_qwr.c" />
     </folder>
     <folder Name="nRF_SoftDevice">
       <file file_name="../../../../../../../components/softdevice/common/nrf_sdh.c" />
       <file file_name="../../../../../../../components/softdevice/common/nrf_sdh_ble.c" />
       <file file_name="../../../../../../../components/softdevice/common/nrf_sdh_soc.c" />
     </folder>
-    <folder Name="Segger Startup Files">
-      <file file_name="$(StudioDir)/source/thumb_crt0.s" />
-    </folder>
   </project>
+  <configuration
+    Name="Release"
+    c_preprocessor_definitions="NDEBUG"
+    gcc_optimization_level="Optimize For Size" />
+  <configuration
+    Name="Debug"
+    c_preprocessor_definitions="DEBUG; DEBUG_NRF"
+    gcc_enable_all_warnings="No"
+    gcc_optimization_level="None" />
 </solution>
