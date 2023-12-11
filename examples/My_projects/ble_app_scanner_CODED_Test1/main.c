@@ -306,6 +306,8 @@ static void rssi_measurements_start(void)
  */
 static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
 {
+    NRF_LOG_INFO("NUEVA LLEGADA - ADV_REPORT");
+
     static int8_t   rssi_value = 0;
     ret_code_t err_code;
     bool adv_target_name_found = ble_advdata_name_find(p_adv_report->data.p_data,
@@ -484,6 +486,11 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
     uint8_t                    channel_rssi;
     uint32_t              err_code;
     ble_gap_evt_t const * p_gap_evt = &p_ble_evt->evt.gap_evt;
+    ble_gap_evt_adv_report_t const * p_adv_report = &p_ble_evt->evt.gap_evt.params.adv_report;
+
+    NRF_LOG_INFO("************************************************************");
+    NRF_LOG_INFO("Advertising packet received (length: %d):", p_adv_report->data.len);
+    NRF_LOG_RAW_HEXDUMP_INFO(p_adv_report->data.p_data, p_adv_report->data.len);
 
     switch (p_ble_evt->header.evt_id)
     {
