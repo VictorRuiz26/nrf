@@ -1,0 +1,470 @@
+--- thumb_crt0.s -- 355 ------------------------------------
+ldr r3, [r0]
+adds r0, r0, #4
+str r3, [r1]
+adds r1, r1, #4
+subs r2, r2, #4
+    3A04        subs r2, #4
+--- thumb_crt0.s -- 360 ------------------------------------
+bne 1b
+    D1F9        bne 0x00000338
+--- thumb_crt0.s -- 361 ------------------------------------
+bx lr
+    4770        bx lr
+--- thumb_crt0.s -- 362 ------------------------------------
+/* byte copy */
+2:
+ldrb r3, [r0]
+    7803        ldrb r3, [r0]
+--- thumb_crt0.s -- 365 ------------------------------------
+adds r0, r0, #1
+    3001        adds r0, #1
+--- thumb_crt0.s -- 366 ------------------------------------
+strb r3, [r1]
+    700B        strb r3, [r1]
+--- thumb_crt0.s -- 367 ------------------------------------
+adds r1, r1, #1
+    3101        adds r1, #1
+--- thumb_crt0.s -- 368 ------------------------------------
+subs r2, r2, #1
+    3A01        subs r2, #1
+--- thumb_crt0.s -- 369 ------------------------------------
+bne 2b
+    D1F9        bne 0x00000346
+--- thumb_crt0.s -- 370 ------------------------------------
+3:
+bx lr
+    4770        bx lr
+--- thumb_crt0.s -- 372 ------------------------------------
+.thumb_func
+memory_set:
+cmp r0, r1
+    4288        cmp r0, r1
+--- thumb_crt0.s -- 376 ------------------------------------
+beq 1f
+    D002        beq 0x0000035E
+--- thumb_crt0.s -- 377 ------------------------------------
+strb r2, [r0]
+    7002        strb r2, [r0]
+--- thumb_crt0.s -- 378 ------------------------------------
+adds r0, r0, #1
+    3001        adds r0, #1
+--- thumb_crt0.s -- 379 ------------------------------------
+b memory_set
+    E7FA        b 0x00000354 <memory_set>
+--- thumb_crt0.s -- 380 ------------------------------------
+1:
+bx lr
+    4770        bx lr
+--- thumb_crt0.s -- 112 ------------------------------------
+ldr r1, =__stack_end__
+    20040000    .word 0x20040000
+--- thumb_crt0.s -- 113 ------------------------------------
+ldr r0, =__stack_start__
+    2003E000    .word 0x2003E000
+--- thumb_crt0.s -- 131 ------------------------------------
+msr msplim, r0
+#endif
+1:
+/* Set up process stack if size > 0 */
+ldr r1, =__stack_process_end__
+    20040000    .word 0x20040000
+--- thumb_crt0.s -- 136 ------------------------------------
+ldr r0, =__stack_process_start__
+    20040000    .word 0x20040000
+--- thumb_crt0.s -- 153 ------------------------------------
+#endif
+1:
+/* Copy initialized memory sections into RAM (if necessary). */
+ldr r0, =__data_load_start__
+    000107B4    .word 0x000107B4
+--- thumb_crt0.s -- 158 ------------------------------------
+ldr r1, =__data_start__
+    200001EC    .word 0x200001EC
+--- thumb_crt0.s -- 159 ------------------------------------
+ldr r2, =__data_end__
+    20000308    .word 0x20000308
+--- thumb_crt0.s -- 160 ------------------------------------
+bl memory_copy
+ldr r0, =__text_load_start__
+    000003E4    .word 0x000003E4
+--- thumb_crt0.s -- 162 ------------------------------------
+ldr r1, =__text_start__
+    000003E4    .word 0x000003E4
+--- thumb_crt0.s -- 163 ------------------------------------
+ldr r2, =__text_end__
+    0000C95C    .word 0x0000C95C
+--- thumb_crt0.s -- 164 ------------------------------------
+bl memory_copy
+ldr r0, =__fast_load_start__
+    000107B4    .word 0x000107B4
+--- thumb_crt0.s -- 166 ------------------------------------
+ldr r1, =__fast_start__
+    200001EC    .word 0x200001EC
+--- thumb_crt0.s -- 167 ------------------------------------
+ldr r2, =__fast_end__
+    200001EC    .word 0x200001EC
+--- thumb_crt0.s -- 168 ------------------------------------
+bl memory_copy
+ldr r0, =__ctors_load_start__
+    0000CD98    .word 0x0000CD98
+--- thumb_crt0.s -- 170 ------------------------------------
+ldr r1, =__ctors_start__
+    0000CD98    .word 0x0000CD98
+--- thumb_crt0.s -- 171 ------------------------------------
+ldr r2, =__ctors_end__
+    0000CD98    .word 0x0000CD98
+--- thumb_crt0.s -- 172 ------------------------------------
+bl memory_copy
+ldr r0, =__dtors_load_start__
+    0000CD98    .word 0x0000CD98
+--- thumb_crt0.s -- 174 ------------------------------------
+ldr r1, =__dtors_start__
+    0000CD98    .word 0x0000CD98
+--- thumb_crt0.s -- 175 ------------------------------------
+ldr r2, =__dtors_end__
+    0000CD98    .word 0x0000CD98
+--- thumb_crt0.s -- 176 ------------------------------------
+bl memory_copy
+ldr r0, =__rodata_load_start__
+    0000CD98    .word 0x0000CD98
+--- thumb_crt0.s -- 178 ------------------------------------
+ldr r1, =__rodata_start__
+    0000CD98    .word 0x0000CD98
+--- thumb_crt0.s -- 179 ------------------------------------
+ldr r2, =__rodata_end__
+    000107B1    .word 0x000107B1
+--- thumb_crt0.s -- 180 ------------------------------------
+bl memory_copy
+ldr r0, =__tdata_load_start__
+    000108D0    .word 0x000108D0
+--- thumb_crt0.s -- 182 ------------------------------------
+ldr r1, =__tdata_start__
+    20000308    .word 0x20000308
+--- thumb_crt0.s -- 183 ------------------------------------
+ldr r2, =__tdata_end__
+    20000308    .word 0x20000308
+--- thumb_crt0.s -- 211 ------------------------------------
+bl memory_copy
+#endif /* #ifdef INITIALIZE_TCM_SECTIONS */
+/* Zero the bss. */
+ldr r0, =__bss_start__
+    20000308    .word 0x20000308
+--- thumb_crt0.s -- 216 ------------------------------------
+ldr r1, =__bss_end__
+    20001FC8    .word 0x20001FC8
+--- thumb_crt0.s -- 217 ------------------------------------
+movs r2, #0
+bl memory_set
+ldr r0, =__tbss_start__
+    20001FC8    .word 0x20001FC8
+--- thumb_crt0.s -- 220 ------------------------------------
+ldr r1, =__tbss_end__
+    20001FC8    .word 0x20001FC8
+--- thumb_crt0.s -- 234 ------------------------------------
+#endif /* #ifdef INITIALIZE_TCM_SECTIONS */
+#if !defined(__HEAP_SIZE__) || (__HEAP_SIZE__)
+/* Initialize the heap */
+ldr r0, = __heap_start__
+    20001FC8    .word 0x20001FC8
+--- thumb_crt0.s -- 239 ------------------------------------
+ldr r1, = __heap_end__
+    20003FC8    .word 0x20003FC8
+--- thumb_crt0.s -- 250 ------------------------------------
+#endif
+#endif
+#ifdef INITIALIZE_USER_SECTIONS
+ldr r2, =InitializeUserMemorySections
+    00000241    .word 0x00000241
+--- thumb_crt0.s -- 290 ------------------------------------
+#else
+movs r0, #0
+movs r1, #0
+#endif
+ldr r2, =APP_ENTRY_POINT
+    00000441    .word 0x00000441
+--- nrfx_coredep.h -- 133 ----------------------------------
+#else // NRFX_CHECK(NRFX_DELAY_DWT_BASED)
+__STATIC_INLINE void nrfx_coredep_delay_us(uint32_t time_us)
+{
+    B500        push {lr}
+    B085        sub sp, sp, #20
+    9001        str r0, [sp, #4]
+--- nrfx_coredep.h -- 138 ----------------------------------
+if (time_us == 0)
+    9B01        ldr r3, [sp, #4]
+    2B00        cmp r3, #0
+    D00A        beq 0x00000406
+--- nrfx_coredep.h -- 167 ----------------------------------
+typedef void (* delay_func_t)(uint32_t);
+const delay_func_t delay_cycles =
+// Set LSB to 1 to execute the code in the Thumb mode.
+(delay_func_t)((((uint32_t)delay_machine_code) | 1));
+    4B07        ldr r3, =0x0000CE20 <delay_machine_code.0>
+    F0430301    orr r3, r3, #1
+--- nrfx_coredep.h -- 169 ----------------------------------
+const delay_func_t delay_cycles =
+    9303        str r3, [sp, #12]
+--- nrfx_coredep.h -- 170 ----------------------------------
+// Set LSB to 1 to execute the code in the Thumb mode.
+(delay_func_t)((((uint32_t)delay_machine_code) | 1));
+uint32_t cycles = time_us * NRFX_DELAY_CPU_FREQ_MHZ;
+    9B01        ldr r3, [sp, #4]
+    019B        lsls r3, r3, #6
+    9302        str r3, [sp, #8]
+--- nrfx_coredep.h -- 173 ----------------------------------
+delay_cycles(cycles);
+    9B03        ldr r3, [sp, #12]
+    9802        ldr r0, [sp, #8]
+    4798        blx r3
+    E000        b 0x00000408
+--- nrfx_coredep.h -- 140 ----------------------------------
+return;
+    BF00        nop
+--- nrfx_coredep.h -- 170 ----------------------------------
+// Set LSB to 1 to execute the code in the Thumb mode.
+(delay_func_t)((((uint32_t)delay_machine_code) | 1));
+uint32_t cycles = time_us * NRFX_DELAY_CPU_FREQ_MHZ;
+delay_cycles(cycles);
+}
+    B005        add sp, sp, #20
+    F85DFB04    pop.w {pc}
+    BF00        nop
+    0000CE20    .word 0x0000CE20
+--- nrf_delay.h -- 61 --------------------------------------
+* @param ms_time Number of milliseconds to wait.
+*/
+__STATIC_INLINE void nrf_delay_ms(uint32_t ms_time)
+{
+    B500        push {lr}
+    B083        sub sp, sp, #12
+    9001        str r0, [sp, #4]
+--- nrf_delay.h -- 66 --------------------------------------
+if (ms_time == 0)
+    9B01        ldr r3, [sp, #4]
+    2B00        cmp r3, #0
+    D00A        beq 0x00000436
+--- nrf_delay.h -- 68 --------------------------------------
+return;
+}
+do {
+nrf_delay_us(1000);
+    F44F707A    mov.w r0, #0x03E8
+    F7FFFFDE    bl 0x000003E4 <nrfx_coredep_delay_us>
+--- nrf_delay.h -- 73 --------------------------------------
+} while (--ms_time);
+    9B01        ldr r3, [sp, #4]
+    3B01        subs r3, #1
+    9301        str r3, [sp, #4]
+    9B01        ldr r3, [sp, #4]
+    2B00        cmp r3, #0
+    D1F5        bne 0x00000420
+    E000        b 0x00000438
+--- nrf_delay.h -- 68 --------------------------------------
+return;
+    BF00        nop
+--- nrf_delay.h -- 70 --------------------------------------
+do {
+nrf_delay_us(1000);
+} while (--ms_time);
+}
+    B003        add sp, sp, #12
+    F85DFB04    pop.w {pc}
+    0000        movs r0, r0
+--- main.c -- 15 -------------------------------------------
+/**
+* @brief Function for application main entry.
+*/
+int main(void)
+{
+    B500        push {lr}
+    B083        sub sp, sp, #12
+--- main.c -- 20 -------------------------------------------
+APP_ERROR_CHECK(NRF_LOG_INIT(NULL));
+    F44F4180    mov.w r1, #0x4000
+    2000        movs r0, #0
+    F00AFA17    bl 0x0000A87C <nrf_log_init>
+    9000        str r0, [sp]
+    9B00        ldr r3, [sp]
+    2B00        cmp r3, #0
+    D004        beq 0x00000460
+    4A18        ldr r2, =0x0000CD98 <__rodata_start__>
+    2115        movs r1, #21
+    9800        ldr r0, [sp]
+    F005F9BC    bl 0x000057D8 <app_error_handler>
+--- main.c -- 22 -------------------------------------------
+NRF_LOG_DEFAULT_BACKENDS_INIT();
+    F00AF984    bl 0x0000A76C <nrf_log_default_backends_init>
+--- main.c -- 23 -------------------------------------------
+//Dos tipos, en modo defered (no lo manda directamente y lo manda cuando se entra en modo reposo) y modo normal
+//Esto se configura en sdk_confih.h NRF_LOG_DEFERRED
+NRF_LOG_INFO("This is log data from nrf52840 device!");
+    4B15        ldr r3, =0x20000070 <m_nrf_log_app_logs_data_dynamic>
+    885B        ldrh r3, [r3, #2]
+    2B02        cmp r3, #2
+    D90A        bls 0x00000482
+    4A14        ldr r2, =0x0000CA30 <m_nrf_log_app_logs_data_const>
+    4B15        ldr r3, =0x0000C978 <__pwr_mgmt_data_end__>
+    1AD3        subs r3, r2, r3
+    08DB        lsrs r3, r3, #3
+    041B        lsls r3, r3, #16
+    F0430303    orr r3, r3, #3
+    4913        ldr r1, =0x0000CDE4
+    4618        mov r0, r3
+    F00AFDF9    bl 0x0000B074 <nrf_log_frontend_std_0>
+--- main.c -- 27 -------------------------------------------
+uint32_t count = 0;
+    2300        movs r3, #0
+    9301        str r3, [sp, #4]
+--- main.c -- 29 -------------------------------------------
+while (true)
+{
+NRF_LOG_INFO("Counter value: %d", count);
+    4B0D        ldr r3, =0x20000070 <m_nrf_log_app_logs_data_dynamic>
+    885B        ldrh r3, [r3, #2]
+    2B02        cmp r3, #2
+    D90B        bls 0x000004A6
+    4A0C        ldr r2, =0x0000CA30 <m_nrf_log_app_logs_data_const>
+    4B0C        ldr r3, =0x0000C978 <__pwr_mgmt_data_end__>
+    1AD3        subs r3, r2, r3
+    08DB        lsrs r3, r3, #3
+    041B        lsls r3, r3, #16
+    F0430303    orr r3, r3, #3
+    9A01        ldr r2, [sp, #4]
+    490B        ldr r1, =0x0000CE0C
+    4618        mov r0, r3
+    F00AFDF5    bl 0x0000B090 <nrf_log_frontend_std_1>
+--- main.c -- 34 -------------------------------------------
+nrf_delay_ms(500);
+    F44F70FA    mov.w r0, #0x01F4
+    F7FFFFB3    bl 0x00000414 <nrf_delay_ms>
+--- main.c -- 35 -------------------------------------------
+count++;
+    9B01        ldr r3, [sp, #4]
+    3301        adds r3, #1
+    9301        str r3, [sp, #4]
+--- main.c -- 33 -------------------------------------------
+NRF_LOG_INFO("Counter value: %d", count);
+    E7E7        b 0x00000486
+    BF00        nop
+    0000CD98    .word 0x0000CD98
+    20000070    .word 0x20000070
+    0000CA30    .word 0x0000CA30
+    0000C978    .word 0x0000C978
+    0000CDE4    .word 0x0000CDE4
+    0000CE0C    .word 0x0000CE0C
+--- core_cm4.h -- 1930 -------------------------------------
+\brief System Reset
+\details Initiates a system reset request to reset the MCU.
+*/
+__NO_RETURN __STATIC_INLINE void __NVIC_SystemReset(void)
+{
+    F3BF8F4F    dsb sy
+--- cmsis_gcc.h -- 943 -------------------------------------
+*/
+__STATIC_FORCEINLINE void __DSB(void)
+{
+__ASM volatile ("dsb 0xF":::"memory");
+}
+    BF00        nop
+--- core_cm4.h -- 1934 -------------------------------------
+{
+__DSB(); /* Ensure all outstanding memory accesses included
+buffered write are completed before reset */
+SCB->AIRCR = (uint32_t)((0x5FAUL << SCB_AIRCR_VECTKEY_Pos) |
+(SCB->AIRCR & SCB_AIRCR_PRIGROUP_Msk) |
+    4B06        ldr r3, =0xE000ED00
+    68DB        ldr r3, [r3, #12]
+    F40362E0    and r2, r3, #0x0700
+--- core_cm4.h -- 1937 -------------------------------------
+SCB->AIRCR = (uint32_t)((0x5FAUL << SCB_AIRCR_VECTKEY_Pos) |
+    4904        ldr r1, =0xE000ED00
+    4B04        ldr r3, =0x05FA0004
+    4313        orrs r3, r2
+    60CB        str r3, [r1, #12]
+--- cmsis_gcc.h -- 942 -------------------------------------
+It completes when all explicit memory accesses before this instruction complete.
+*/
+__STATIC_FORCEINLINE void __DSB(void)
+{
+__ASM volatile ("dsb 0xF":::"memory");
+    F3BF8F4F    dsb sy
+--- cmsis_gcc.h -- 947 -------------------------------------
+}
+    BF00        nop
+--- core_cm4.h -- 1940 -------------------------------------
+__DSB(); /* Ensure completion of memory access */
+for(;;) /* wait until reset */
+{
+__NOP();
+    BF00        nop
+    E7FD        b 0x000004EC
+    E000ED00    .word 0xE000ED00
+    05FA0004    .word 0x05FA0004
+--- nrf52_erratas.h -- 1787 --------------------------------
+#define NRF52_ERRATA_36_ENABLE_WORKAROUND NRF52_ERRATA_36_PRESENT
+#endif
+static bool nrf52_errata_36(void)
+{
+    B082        sub sp, sp, #8
+--- nrf52_erratas.h -- 1812 --------------------------------
+|| defined (NRF52811_XXAA) || defined (DEVELOP_IN_NRF52811)\
+|| defined (NRF52820_XXAA) || defined (DEVELOP_IN_NRF52820)\
+|| defined (NRF52833_XXAA) || defined (DEVELOP_IN_NRF52833)\
+|| defined (NRF52840_XXAA) || defined (DEVELOP_IN_NRF52840)
+uint32_t var1 = *(uint32_t *)0x10000130ul;
+    4B16        ldr r3, =0x10000130
+    681B        ldr r3, [r3]
+    9301        str r3, [sp, #4]
+--- nrf52_erratas.h -- 1817 --------------------------------
+uint32_t var2 = *(uint32_t *)0x10000134ul;
+    4B15        ldr r3, =0x10000134
+    681B        ldr r3, [r3]
+    9300        str r3, [sp]
+--- nrf52_erratas.h -- 1837 --------------------------------
+}
+}
+#endif
+#if defined (NRF52840_XXAA) || defined (DEVELOP_IN_NRF52840)
+if (var1 == 0x08)
+    9B01        ldr r3, [sp, #4]
+    2B08        cmp r3, #8
+    D11F        bne 0x0000054C
+--- nrf52_erratas.h -- 1842 --------------------------------
+{
+switch(var2)
+    9B00        ldr r3, [sp]
+    2B05        cmp r3, #5
+    D81A        bhi 0x00000548
+    A201        adr r2, 0x00000518
+    F852F023    ldr.w pc, [r2, r3, lsl #2]
+    00000531    .word 0x00000531
+    00000535    .word 0x00000535
+    00000539    .word 0x00000539
+    0000053D    .word 0x0000053D
+    00000541    .word 0x00000541
+    00000545    .word 0x00000545
+--- nrf52_erratas.h -- 1844 --------------------------------
+{
+case 0x00ul:
+return true;
+    2301        movs r3, #1
+    E00C        b 0x0000054E
+--- nrf52_erratas.h -- 1847 --------------------------------
+case 0x01ul:
+return true;
+    2301        movs r3, #1
+    E00A        b 0x0000054E
+--- nrf52_erratas.h -- 1849 --------------------------------
+case 0x02ul:
+return true;
+    2301        movs r3, #1
+    E008        b 0x0000054E
+--- nrf52_erratas.h -- 1851 --------------------------------
+case 0x03ul:
+return true;
+    2301        movs r3, #1
+    E006        b 0x0000054E
+--- nrf52_erratas.h -- 1853 --------------------------------
+case 0x04ul:
+return true;

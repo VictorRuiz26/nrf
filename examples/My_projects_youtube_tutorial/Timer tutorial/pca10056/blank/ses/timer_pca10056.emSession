@@ -1,0 +1,48 @@
+<!DOCTYPE CrossStudio_Session_File>
+<session>
+ <Bookmarks/>
+ <Breakpoints groups="Breakpoints" active_group="Breakpoints"/>
+ <ExecutionProfileWindow/>
+ <FrameBuffer/>
+ <Memory1/>
+ <Memory2/>
+ <Memory3/>
+ <Memory4/>
+ <Project>
+  <ProjectSessionItem path="timer_pca10056"/>
+  <ProjectSessionItem path="timer_pca10056;timer_pca10056"/>
+  <ProjectSessionItem path="timer_pca10056;timer_pca10056;Application"/>
+  <ProjectSessionItem path="timer_pca10056;timer_pca10056;Board Definition"/>
+  <ProjectSessionItem path="timer_pca10056;timer_pca10056;System Files"/>
+ </Project>
+ <Register1/>
+ <Register2/>
+ <Register3/>
+ <Register4/>
+ <Threads>
+  <ThreadsWindow showLists=""/>
+ </Threads>
+ <TraceWindow>
+  <Trace enabled="Yes"/>
+ </TraceWindow>
+ <Watch1>
+  <Watches active="1" update="Never"/>
+ </Watch1>
+ <Watch2>
+  <Watches active="0" update="Never"/>
+ </Watch2>
+ <Watch3>
+  <Watches active="0" update="Never"/>
+ </Watch3>
+ <Watch4>
+  <Watches active="0" update="Never"/>
+ </Watch4>
+ <Files>
+  <SessionOpenFile windowGroup="DockEditLeft" x="34" y="63" useTextEdit="1" path="../../../main.c" left="0" selected="1" top="36" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="14" y="39" useTextEdit="1" path="../../../../../../components/boards/boards.c" left="0" top="30" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="17" y="66" useTextEdit="1" openedFrom="C:/nrf_sdk/components/boards/boards.c" path="../../../../../../components/boards/boards.h" left="0" top="50" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="13" y="52" useTextEdit="1" openedFrom="C:/nrf_sdk/components/boards/boards.h" path="../../../../../../components/boards/pca10056.h" left="0" top="30" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="48" y="908" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects_youtube_tutorial/Timer tutorial/main.c" path="../../../../../../components/toolchain/cmsis/include/cmsis_gcc.h" left="0" top="872" codecName="Default"/>
+ </Files>
+ <EMStudioWindow activeProject="timer_pca10056" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="" debugSearchPath="" autoConnectCapabilities="3711"/>
+</session>

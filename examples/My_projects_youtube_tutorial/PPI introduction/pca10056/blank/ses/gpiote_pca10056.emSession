@@ -1,0 +1,48 @@
+<!DOCTYPE CrossStudio_Session_File>
+<session>
+ <Bookmarks/>
+ <Breakpoints groups="Breakpoints" active_group="Breakpoints"/>
+ <ExecutionProfileWindow/>
+ <FrameBuffer/>
+ <Memory1/>
+ <Memory2/>
+ <Memory3/>
+ <Memory4/>
+ <Project>
+  <ProjectSessionItem path="gpiote_pca10056"/>
+  <ProjectSessionItem path="gpiote_pca10056;gpiote_pca10056"/>
+  <ProjectSessionItem path="gpiote_pca10056;gpiote_pca10056;Application"/>
+  <ProjectSessionItem path="gpiote_pca10056;gpiote_pca10056;None"/>
+  <ProjectSessionItem path="gpiote_pca10056;gpiote_pca10056;System Files"/>
+ </Project>
+ <Register1/>
+ <Register2/>
+ <Register3/>
+ <Register4/>
+ <Threads>
+  <ThreadsWindow showLists=""/>
+ </Threads>
+ <TraceWindow>
+  <Trace enabled="Yes"/>
+ </TraceWindow>
+ <Watch1>
+  <Watches active="1" update="Never"/>
+ </Watch1>
+ <Watch2>
+  <Watches active="0" update="Never"/>
+ </Watch2>
+ <Watch3>
+  <Watches active="0" update="Never"/>
+ </Watch3>
+ <Watch4>
+  <Watches active="0" update="Never"/>
+ </Watch4>
+ <Files>
+  <SessionOpenFile windowGroup="DockEditLeft" x="78" y="40" useTextEdit="1" path="../../../main.c" left="0" top="18" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="59" y="15" useTextEdit="1" path="flash_placement.xml" left="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="55" y="83" useTextEdit="1" path="../../../../../../integration/nrfx/legacy/nrf_drv_gpiote.h" left="0" top="52" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="52" y="192" useTextEdit="1" openedFrom="C:/nrf_sdk/integration/nrfx/legacy/nrf_drv_gpiote.h" path="../../../../../../modules/nrfx/drivers/include/nrfx_gpiote.h" left="0" top="171" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="256" useTextEdit="1" path="../../../../../../modules/nrfx/mdk/ses_startup_nrf52840.s" left="0" selected="1" top="230" codecName="Default"/>
+ </Files>
+ <EMStudioWindow activeProject="gpiote_pca10056" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="" debugSearchPath="" autoConnectCapabilities="3711"/>
+</session>
