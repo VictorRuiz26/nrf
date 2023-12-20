@@ -56,10 +56,13 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="13" y="209" useTextEdit="1" path="../../../main.c" left="0" selected="1" top="209" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="15" y="7869" useTextEdit="1" path="../config/sdk_config.h" left="0" top="7851" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="27" y="365" useTextEdit="1" path="../../../main.c" left="0" top="347" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="8" y="7908" useTextEdit="1" openedFrom="C:/nrf_sdk/components/libraries/log/src/nrf_log_default_backends.c" path="../config/sdk_config.h" left="0" selected="1" top="7920" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="18" y="1221" useTextEdit="1" path="../../../../../../components/ble/nrf_ble_scan/nrf_ble_scan.c" left="0" top="1190" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="42" y="96" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_BUENO/main.c" path="../../../../../../components/ble/nrf_ble_scan/nrf_ble_scan.h" left="0" top="96" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="8" y="80" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_BUENO/main.c" path="../../../../../../components/libraries/log/nrf_log_ctrl.h" left="0" top="67" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="55" y="67" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_BUENO/main.c" path="../../../../../../components/libraries/log/nrf_log_default_backends.h" left="0" top="54" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="30" y="68" useTextEdit="1" openedFrom="C:/nrf_sdk/components/libraries/log/nrf_log_default_backends.h" path="../../../../../../components/libraries/log/src/nrf_log_default_backends.c" left="0" top="50" codecName="Default"/>
  </Files>
- <EMStudioWindow activeProject="ble_app_hrs_c_pca10056_s140" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="" debugSearchPath="" autoConnectCapabilities="3711"/>
+ <EMStudioWindow activeProject="ble_app_hrs_c_pca10056_s140" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="" debugSearchPath="" autoConnectCapabilities="3199"/>
 </session>

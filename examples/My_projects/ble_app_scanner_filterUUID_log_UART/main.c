@@ -34,8 +34,12 @@
 #include "app_uart.h"
 #include "app_error.h"
 
+#include "nrf_gpio.h"
+
 #define FILE_NAME   "pruebaLog.txt"
 
+#define IDX_MAJOR 25 //8 bytes de inicio y 16 del uuid
+#define IDX_MINOR 27
 
 // ********************** CONFIGURACION UART **********************
 #define UART_TX_BUFF_SIZE 128
@@ -56,6 +60,34 @@ void myPrintf(char *message)
     app_uart_put(message[i++]);
   }
 }
+
+
+// Aquí es donde crearé el paquete definido para luego escanear con python. Se llamará en el handler del ble
+void send_adv (const ble_gap_evt_adv_report_t *adv_data) {
+  
+  uint8_t *pChar;
+
+  app_uart_put(0x7E); //Inicio trama
+  
+  app_uart_put(0xAA); //2 Bytes fijos de relleno
+  app_uart_put(0xBB);
+
+  for (int i = 0; i < BLE_GAP_ADDR_LEN; i++)
+  {
+    app_uart_put(adv_data->peer_addr.addr[i]);
+  }
+
+  app_uart_put(adv_data->data.p_data[IDX_MAJOR]);
+  app_uart_put(adv_data->data.p_data[IDX_MAJOR+1]);
+
+  app_uart_put(adv_data->data.p_data[IDX_MINOR]);
+  app_uart_put(adv_data->data.p_data[IDX_MINOR+1]);
+
+  app_uart_put(adv_data->rssi);
+
+  app_uart_put(0xFF);
+}
+
 
 const app_uart_comm_params_t comms_params = 
 {
@@ -241,6 +273,12 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
                     NRF_LOG_INFO("************************************************************");
                     printf("************************************************************\n\r");
                     //fprintf(archivo, "************************************************************\n\r");
+
+
+                    // Mando paquete por UART
+                    send_adv(p_adv_report);
+        
+
                 }
                 else
                 {
@@ -410,6 +448,7 @@ int main(void)
     APP_UART_FIFO_INIT(&comms_params, UART_RX_BUFF_SIZE, UART_TX_BUFF_SIZE, uart_err_handle, APP_IRQ_PRIORITY_LOWEST, err_code);
     APP_ERROR_CHECK(err_code);
 
+    nrf_gpio_cfg_input(BUTTON_4, NRF_GPIO_PIN_PULLUP);
     
 
     // Start scanning.
@@ -417,9 +456,14 @@ int main(void)
     scan_start();
 
     // Enter main loop.
-    for (;;)
+    while (true)
     {
-        NRF_LOG_PROCESS();
+      if (nrf_gpio_pin_read(BUTTON_4) == 0)
+      {
+        app_uart_put(0xFF);
+        while (nrf_gpio_pin_read(BUTTON_4) == 0); //Stay here until button is released
+      }
+      NRF_LOG_PROCESS();
     }
 }
 

@@ -19,11 +19,11 @@
   <MemoryWindow addressSpace="" dataSize="1" autoEvaluate="0" viewMode="0" viewType="4" addressOrder="0" columnsText="" refreshPeriod="0" name="ble_app_hrs_c_pca10056_s140_Debug" sizeText="" addressText=""/>
  </Memory4>
  <Project>
-  <ProjectSessionItem path="ble_app_hrs_c_pca10056_s140"/>
-  <ProjectSessionItem path="ble_app_hrs_c_pca10056_s140;ble_app_hrs_c_pca10056_s140"/>
-  <ProjectSessionItem path="ble_app_hrs_c_pca10056_s140;ble_app_hrs_c_pca10056_s140;Application"/>
-  <ProjectSessionItem path="ble_app_hrs_c_pca10056_s140;ble_app_hrs_c_pca10056_s140;nRF_Log"/>
-  <ProjectSessionItem path="ble_app_hrs_c_pca10056_s140;ble_app_hrs_c_pca10056_s140;nRF_Segger_RTT"/>
+  <ProjectSessionItem path="ble_scan_UUID_log_UART"/>
+  <ProjectSessionItem path="ble_scan_UUID_log_UART;ble_app_hrs_c_pca10056_s140"/>
+  <ProjectSessionItem path="ble_scan_UUID_log_UART;ble_app_hrs_c_pca10056_s140;Application"/>
+  <ProjectSessionItem path="ble_scan_UUID_log_UART;ble_app_hrs_c_pca10056_s140;nRF_Libraries"/>
+  <ProjectSessionItem path="ble_scan_UUID_log_UART;ble_app_hrs_c_pca10056_s140;nRF_Segger_RTT"/>
  </Project>
  <Register1>
   <RegisterWindow visibleNodes="CPU - Current Context/r0;CPU - Current Context/r1;CPU - Current Context/r2;CPU - Current Context/r3;CPU - Current Context/r4;CPU - Current Context/r5;CPU - Current Context/r6;CPU - Current Context/r7;CPU - Current Context/r8;CPU - Current Context/r9;CPU - Current Context/r10;CPU - Current Context/r11;CPU - Current Context/r12;CPU - Current Context/sp(r13);CPU - Current Context/lr(r14);CPU - Current Context/pc(r15);CPU - Current Context/apsr;CPU/r0;CPU/r1;CPU/r2;CPU/r3;CPU/r4;CPU/r5;CPU/r6;CPU/r7;CPU/r8;CPU/r9;CPU/r10;CPU/r11;CPU/r12;CPU/sp(r13);CPU/lr(r14);CPU/pc(r15);CPU/xpsr;CPU/MSP;CPU/PSP;CPU/PRIMASK;CPU/BASEPRI;CPU/FAULTMASK;CPU/CONTROL;CPU/internal" binaryNodes="" asciiNodes="" openNodes="CPU - Current Context" name="ble_app_hrs_c_pca10056_s140_Debug" decimalNodes="" octalNodes="" unsignedNodes=""/>
@@ -56,10 +56,13 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="13" y="209" useTextEdit="1" path="../../../main.c" left="0" selected="1" top="209" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="15" y="7869" useTextEdit="1" path="../config/sdk_config.h" left="0" top="7851" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="17" y="33" useTextEdit="1" path="../../../main.c" left="0" top="25" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="38" y="8034" useTextEdit="1" path="../config/sdk_config.h" left="0" top="8010" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="18" y="1221" useTextEdit="1" path="../../../../../../components/ble/nrf_ble_scan/nrf_ble_scan.c" left="0" top="1190" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="42" y="96" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_BUENO/main.c" path="../../../../../../components/ble/nrf_ble_scan/nrf_ble_scan.h" left="0" top="96" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="10" y="117" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_log_UART/main.c" path="C:/Program Files/SEGGER/SEGGER Embedded Studio for ARM 7.32/include/stdio.h" left="0" top="96" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="22" y="136" useTextEdit="1" path="../../../../../../components/libraries/uart/app_uart_fifo.c" left="0" top="128" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="9" y="84" useTextEdit="1" path="../../../../../../components/libraries/uart/app_uart.c" left="0" selected="1" top="73" codecName="Default"/>
  </Files>
- <EMStudioWindow activeProject="ble_app_hrs_c_pca10056_s140" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="" debugSearchPath="" autoConnectCapabilities="3711"/>
+ <EMStudioWindow activeProject="ble_app_hrs_c_pca10056_s140" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="C:/nrf_sdk/components/libraries/uart" debugSearchPath="" autoConnectCapabilities="3199"/>
 </session>

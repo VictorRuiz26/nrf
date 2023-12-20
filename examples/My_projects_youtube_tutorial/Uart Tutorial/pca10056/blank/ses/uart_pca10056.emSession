@@ -57,14 +57,13 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="13" y="46" useTextEdit="1" path="../../../main.c" left="0" selected="1" top="25" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="61" useTextEdit="1" path="../../../../../../components/boards/boards.c" left="0" top="35" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="15" y="66" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects_youtube_tutorial/Uart Tutorial/main.c" path="../../../../../../components/boards/boards.h" left="0" top="30" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="12" y="90" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects_youtube_tutorial/Uart Tutorial/main.c" path="../../../../../../components/boards/pca10056.h" left="0" top="80" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="1" y="85" useTextEdit="1" path="../../../../../../components/libraries/uart/retarget.c" left="0" top="69" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="26" y="593" useTextEdit="1" path="../config/sdk_config.h" left="0" top="568" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="57" y="6" useTextEdit="1" path="flash_placement.xml" left="0" top="0" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="77" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects_youtube_tutorial/Uart Tutorial/main.c" path="../../../../../../components/libraries/uart/app_uart.h" left="0" top="54" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="21" y="8" useTextEdit="1" path="../../../main.c" left="0" selected="1" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects_youtube_tutorial/Uart Tutorial/main.c" path="../../../../../../modules/nrfx/hal/nrf_uart.h" left="0" top="45" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="157" useTextEdit="1" openedFrom="C:/nrf_sdk/components/libraries/uart/app_uart_fifo.c" path="../../../../../../components/libraries/uart/app_uart.h" left="0" top="131" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="9" y="48" useTextEdit="1" openedFrom="C:/nrf_sdk/components/libraries/uart/app_uart.h" path="../../../../../../components/libraries/uart/app_uart_fifo.c" left="0" top="27" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" openedFrom="C:/nrf_sdk/components/libraries/uart/app_uart.h" path="../../../../../../components/libraries/util/app_util_platform.h" left="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" path="../config/sdk_config.h" left="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" openedFrom="C:/nrf_sdk/components/libraries/uart/app_uart_fifo.c" path="../../../../../../components/libraries/fifo/app_fifo.h" left="0" top="20" codecName="Default"/>
  </Files>
- <EMStudioWindow activeProject="uart_pca10056" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="" debugSearchPath="" autoConnectCapabilities="3711"/>
+ <EMStudioWindow activeProject="uart_pca10056" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="" debugSearchPath="" autoConnectCapabilities="3199"/>
 </session>
