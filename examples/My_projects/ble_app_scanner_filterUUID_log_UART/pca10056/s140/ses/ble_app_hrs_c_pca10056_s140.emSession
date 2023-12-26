@@ -22,7 +22,9 @@
   <ProjectSessionItem path="ble_scan_UUID_log_UART"/>
   <ProjectSessionItem path="ble_scan_UUID_log_UART;ble_app_hrs_c_pca10056_s140"/>
   <ProjectSessionItem path="ble_scan_UUID_log_UART;ble_app_hrs_c_pca10056_s140;Application"/>
+  <ProjectSessionItem path="ble_scan_UUID_log_UART;ble_app_hrs_c_pca10056_s140;nRF_BLE"/>
   <ProjectSessionItem path="ble_scan_UUID_log_UART;ble_app_hrs_c_pca10056_s140;nRF_Libraries"/>
+  <ProjectSessionItem path="ble_scan_UUID_log_UART;ble_app_hrs_c_pca10056_s140;nRF_Log"/>
   <ProjectSessionItem path="ble_scan_UUID_log_UART;ble_app_hrs_c_pca10056_s140;nRF_Segger_RTT"/>
  </Project>
  <Register1>
@@ -56,13 +58,27 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="17" y="33" useTextEdit="1" path="../../../main.c" left="0" top="25" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="38" y="8034" useTextEdit="1" path="../config/sdk_config.h" left="0" top="8010" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="18" y="1221" useTextEdit="1" path="../../../../../../components/ble/nrf_ble_scan/nrf_ble_scan.c" left="0" top="1190" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="20" y="41" useTextEdit="1" path="../../../main.c" left="0" selected="1" top="28" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="8082" useTextEdit="1" openedFrom="C:/nrf_sdk/components/libraries/log/src/nrf_log_internal.h" path="../config/sdk_config.h" left="0" top="8059" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="128" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_log_UART/main.c" path="../../../../../../components/ble/nrf_ble_scan/nrf_ble_scan.c" left="0" top="108" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="42" y="96" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_BUENO/main.c" path="../../../../../../components/ble/nrf_ble_scan/nrf_ble_scan.h" left="0" top="96" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="10" y="117" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_log_UART/main.c" path="C:/Program Files/SEGGER/SEGGER Embedded Studio for ARM 7.32/include/stdio.h" left="0" top="96" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="22" y="136" useTextEdit="1" path="../../../../../../components/libraries/uart/app_uart_fifo.c" left="0" top="128" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="9" y="84" useTextEdit="1" path="../../../../../../components/libraries/uart/app_uart.c" left="0" selected="1" top="73" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="36" y="238" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_log_UART/main.c" path="../../../../../../components/libraries/uart/app_uart_fifo.c" left="0" top="204" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="9" y="84" useTextEdit="1" path="../../../../../../components/libraries/uart/app_uart.c" left="0" top="73" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="80" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_log_UART/main.c" path="../../../../../../components/libraries/log/nrf_log_ctrl.h" left="0" top="72" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="8" y="81" useTextEdit="1" openedFrom="C:/nrf_sdk/components/libraries/log/nrf_log_ctrl.h" path="../../../../../../components/libraries/log/src/nrf_log_ctrl_internal.h" left="0" top="40" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="99" useTextEdit="1" openedFrom="C:/nrf_sdk/components/libraries/uart/app_uart_fifo.c" path="../../../../../../components/libraries/fifo/app_fifo.c" left="0" top="62" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="54" y="45" useTextEdit="1" openedFrom="C:/nrf_sdk/components/libraries/uart/app_uart_fifo.c" path="../../../../../../integration/nrfx/legacy/nrf_drv_uart.h" left="0" top="25" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" openedFrom="C:/nrf_sdk/integration/nrfx/legacy/nrf_drv_uart.h" path="../../../../../../modules/nrfx/drivers/include/nrfx_uarte.h" left="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="26" y="81" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_log_UART/main.c" path="../../../../../../components/boards/pca10056.h" left="0" top="66" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="27" y="72" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_log_UART/main.c" path="../../../../../../components/libraries/log/nrf_log_default_backends.h" left="0" top="40" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="23" y="68" useTextEdit="1" path="../../../../../../components/libraries/log/src/nrf_log_default_backends.c" left="0" top="35" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="147" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_log_UART/main.c" path="../../../../../../components/libraries/util/app_error.h" left="0" top="129" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="46" useTextEdit="1" openedFrom="C:/nrf_sdk/components/libraries/util/app_error.h" path="../../../../../../components/libraries/util/app_error_handler_gcc.c" left="0" top="42" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="112" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_log_UART/main.c" path="../../../../../../components/libraries/log/nrf_log.h" left="0" top="92" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="261" useTextEdit="1" openedFrom="C:/nrf_sdk/components/libraries/log/nrf_log.h" path="../../../../../../components/libraries/log/src/nrf_log_internal.h" left="0" top="222" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="5" y="1295" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_log_UART/main.c" path="../../../../../../components/softdevice/s140/headers/ble_gap.h" left="0" top="1283" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="18" y="200" useTextEdit="1" openedFrom="C:/nrf_sdk/components/softdevice/s140/headers/ble_gap.h" path="../../../../../../components/softdevice/s140/headers/ble_types.h" left="0" top="176" codecName="Default"/>
  </Files>
- <EMStudioWindow activeProject="ble_app_hrs_c_pca10056_s140" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="C:/nrf_sdk/components/libraries/uart" debugSearchPath="" autoConnectCapabilities="3199"/>
+ <EMStudioWindow activeProject="ble_app_hrs_c_pca10056_s140" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="C:/nrf_sdk/components/libraries/uart" debugSearchPath="" autoConnectCapabilities="3711"/>
 </session>

@@ -254,6 +254,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
                 // Comparar el UUID almacenado con el UUID definido
                 if (memcmp(uuid_data, APP_BEACON_UUID_POINTER, sizeof(uuid_data)) == 0)
                 {               
+                    nrf_gpio_pin_toggle(LED_1);
     
                     //FILE *archivo = fopen("pruebaLog.txt", "w");  // Abre el archivo para escribir (sobrescribe si ya existe)
 
@@ -277,7 +278,6 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
 
                     // Mando paquete por UART
                     send_adv(p_adv_report);
-        
 
                 }
                 else
