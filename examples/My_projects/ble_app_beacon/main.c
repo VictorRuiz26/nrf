@@ -68,8 +68,7 @@
 #define APP_BLE_CONN_CFG_TAG            1                                  /**< A tag identifying the SoftDevice BLE configuration. */
 
 // ################# VALOR QUE INDICA EL INTERVALO DE ADVERTISEMENT
-//#define NON_CONNECTABLE_ADV_INTERVAL    MSEC_TO_UNITS(100, UNIT_0_625_MS)  /**< The advertising interval for non-connectable advertisement (100 ms). This value can vary between 100ms to 10.24s). */
-#define NON_CONNECTABLE_ADV_INTERVAL    MSEC_TO_UNITS(500, UNIT_0_625_MS)
+#define NON_CONNECTABLE_ADV_INTERVAL    MSEC_TO_UNITS(ADV_INTERVAL_MS, UNIT_0_625_MS)  /**< The advertising interval for non-connectable advertisement (100 ms). This value can vary between 100ms to 10.24s */
 
 #define APP_BEACON_INFO_LENGTH          0x17                               /**< Total length of information advertised by the Beacon. */
 #define APP_ADV_DATA_LENGTH             0x15                               /**< Length of manufacturer specific data in the advertisement. */
@@ -197,12 +196,19 @@ static void advertising_init(void)
     m_beacon_info[index++] = LSB_16(minor_value);
 #endif
 
-    // ***** Actualización de los valores de major y minor (número de secuencia)
-    m_beacon_info[APP_MINOR_POSITION] = m_beacon_info[APP_MINOR_POSITION] + 0x0001;
+    m_beacon_info[APP_MINOR_POSITION] += 1;
 
-    if (m_beacon_info[APP_MINOR_POSITION] >= 65535){
-      m_beacon_info[APP_MAJOR_POSITION]++;
+    if (m_beacon_info[APP_MINOR_POSITION] == 0) {
+      // Incrementa el MSB minor solo si el LSB minor ha desbordado
+      m_beacon_info[APP_MINOR_POSITION-1] += 1;
+      if (m_beacon_info[APP_MINOR_POSITION-1] == 0) {
+          m_beacon_info[APP_MAJOR_POSITION] += 1;
+          if (m_beacon_info[APP_MAJOR_POSITION] == 0) {
+            m_beacon_info[APP_MAJOR_POSITION-1] += 1;
+          }
+      }
     }
+
 
     NRF_LOG_INFO("Información de advertisement");
     NRF_LOG_INFO(m_beacon_info);
@@ -227,7 +233,7 @@ static void advertising_init(void)
     m_adv_params.duration        = 0;       // Never time out.
 
     // Variable que controla el número máximo de advertisements enviados
-    m_adv_params.max_adv_evts    = 10;
+    m_adv_params.max_adv_evts    = NUM_ADVERTISEMENTS;
 
     err_code = ble_advdata_encode(&advdata, m_adv_data.adv_data.p_data, &m_adv_data.adv_data.len);
     APP_ERROR_CHECK(err_code);
@@ -374,7 +380,7 @@ int main(void)
 
     NRF_LOG_INFO("Beacon example started.");
 
-    for(;; ) {
+    for(;;) {
       // Inicializamos características advertisement
       advertising_init();
 
@@ -384,8 +390,8 @@ int main(void)
       // Paramos el escaner
       advertising_stop();
 
-      // 10 segundos en standby (se suman 5 segundos por retardo de envío)
-      nrf_delay_ms(15000);
+      // MINUTOS_DELAY*60 segundos en standby (se suman los segundos retardo de envío advs)
+      nrf_delay_ms(NUM_ADVERTISEMENTS*ADV_INTERVAL_MS+MINUTOS_DELAY*60*1000);
 
     }
 

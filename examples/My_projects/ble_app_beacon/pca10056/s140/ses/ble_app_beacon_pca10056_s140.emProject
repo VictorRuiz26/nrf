@@ -1,5 +1,6 @@
 <!DOCTYPE CrossStudio_Project_File>
 <solution Name="ble_app_beacon_pca10056_s140" target="8" version="2">
+  <configuration Name="500ms-1min" macros="" />
   <configuration
     Name="Debug"
     c_preprocessor_definitions="DEBUG; DEBUG_NRF"
@@ -10,6 +11,10 @@
     gcc_optimization_level="Optimize For Size"
     link_time_optimization="No" />
   <project Name="ble_app_beacon_pca10056_s140">
+    <configuration
+      Name="500ms-1min"
+      c_preprocessor_definitions="ADV_INTERVAL_MS=500;NUM_ADVERTISEMENTS=5;MINUTOS_DELAY=1"
+      macros="" />
     <configuration
       Name="Common"
       arm_architecture="v7EM"
@@ -39,7 +44,7 @@
       linker_section_placement_file="flash_placement.xml"
       linker_section_placement_macros="FLASH_PH_START=0x0;FLASH_PH_SIZE=0x100000;RAM_PH_START=0x20000000;RAM_PH_SIZE=0x40000;FLASH_START=0x27000;FLASH_SIZE=0xd9000;RAM_START=0x200018d8;RAM_SIZE=0x3e728"
       linker_section_placements_segments="FLASH1 RX 0x0 0x100000;RAM1 RWX 0x20000000 0x40000"
-      macros="CMSIS_CONFIG_TOOL=../../../../../../external_tools/cmsisconfig/CMSIS_Configuration_Wizard.jar"
+      macros="CMSIS_CONFIG_TOOL=../../../../../../external_tools/cmsisconfig/CMSIS_Configuration_Wizard.jar\;;INTERVAL_MS=100\;;NUM_ADVERTISEMENTS=1\;;MINUTOS_DELAY=1\;"
       project_directory=""
       project_type="Executable" />
     <configuration
@@ -109,9 +114,6 @@
     <folder Name="nRF_Segger_RTT">
       <file file_name="../../../../../../external/segger_rtt/SEGGER_RTT.c" />
       <file file_name="../../../../../../external/segger_rtt/SEGGER_RTT_printf.c" />
-      <file file_name="../../../../../../external/segger_rtt/SEGGER_RTT_Syscalls_SES.c">
-        <configuration Name="Debug" build_exclude_from_build="Yes" />
-      </file>
     </folder>
     <folder Name="nRF_SoftDevice">
       <file file_name="../../../../../../components/softdevice/common/nrf_sdh.c" />
