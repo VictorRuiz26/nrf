@@ -1,5 +1,6 @@
 <!DOCTYPE CrossStudio_Project_File>
 <solution Name="ble_app_beacon_pca10056_s140" target="8" version="2">
+  <configuration Name="1adv_seg" />
   <configuration Name="500ms-1min" macros="" />
   <configuration
     Name="Debug"
@@ -11,6 +12,9 @@
     gcc_optimization_level="Optimize For Size"
     link_time_optimization="No" />
   <project Name="ble_app_beacon_pca10056_s140">
+    <configuration
+      Name="1adv_seg"
+      c_preprocessor_definitions="ADV_INTERVAL_MS=100;NUM_ADVERTISEMENTS=1;MINUTOS_DELAY=0.01667" />
     <configuration
       Name="500ms-1min"
       c_preprocessor_definitions="ADV_INTERVAL_MS=500;NUM_ADVERTISEMENTS=5;MINUTOS_DELAY=1"
