@@ -48,12 +48,21 @@
 #endif
 // <h> nRF_BLE 
 
+// <s> DEVICE_NAME - Name of device. Will be included in the advertising data.
+#ifndef DEVICE_NAME
+#define DEVICE_NAME "Long range demo"
+#endif
+
+#ifndef DEBUG
+#define DEBUG 1
+#endif
+
 //==========================================================
 // <q> BLE_ADVERTISING_ENABLED  - ble_advertising - Advertising module
  
 
 #ifndef BLE_ADVERTISING_ENABLED
-#define BLE_ADVERTISING_ENABLED 0
+#define BLE_ADVERTISING_ENABLED 1
 #endif
 
 // <e> BLE_DTM_ENABLED - ble_dtm - Module for testing RF/PHY using DTM commands

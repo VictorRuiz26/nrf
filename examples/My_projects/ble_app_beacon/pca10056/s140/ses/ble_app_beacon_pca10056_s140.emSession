@@ -24,9 +24,13 @@
   <ProjectSessionItem path="ble_app_beacon_pca10056_s140;ble_app_beacon_pca10056_s140;Application"/>
   <ProjectSessionItem path="ble_app_beacon_pca10056_s140;ble_app_beacon_pca10056_s140;Board Definition"/>
   <ProjectSessionItem path="ble_app_beacon_pca10056_s140;ble_app_beacon_pca10056_s140;Board Support"/>
+  <ProjectSessionItem path="ble_app_beacon_pca10056_s140;ble_app_beacon_pca10056_s140;None"/>
   <ProjectSessionItem path="ble_app_beacon_pca10056_s140;ble_app_beacon_pca10056_s140;nRF_BLE"/>
   <ProjectSessionItem path="ble_app_beacon_pca10056_s140;ble_app_beacon_pca10056_s140;nRF_Libraries"/>
   <ProjectSessionItem path="ble_app_beacon_pca10056_s140;ble_app_beacon_pca10056_s140;nRF_Segger_RTT"/>
+  <ProjectSessionItem path="ble_app_beacon_pca10056_s140;ble_app_beacon_pca10056_s140;nRF_SoftDevice"/>
+  <ProjectSessionItem path="ble_app_beacon_pca10056_s140;ble_app_beacon_pca10056_s140;System Files"/>
+  <ProjectSessionItem path="ble_app_beacon_pca10056_s140;ble_app_beacon_pca10056_s140;UTF8/UTF16 converter"/>
   <SourceCodeControlLogin password="F9BB6682F5D56822" user="VictorRuiz26 &lt;victorcopero00@gmail.com>"/>
  </Project>
  <Register1>
@@ -60,23 +64,31 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="28" y="371" useTextEdit="1" folds0="176" path="../../../main.c" left="0" top="347" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="23" y="7650" useTextEdit="1" path="../config/sdk_config.h" left="0" top="7626" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="472" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/libraries/bsp/bsp.c" left="0" top="448" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="598" useTextEdit="1" openedFrom="C:/nrf_sdk/components/libraries/bsp/bsp.c" path="../../../../../../components/libraries/timer/app_timer2.c" left="0" top="598" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="508" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/ble/common/ble_advdata.c" left="0" top="503" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="1953" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/softdevice/s140/headers/ble_gap.h" left="0" top="1929" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="1" y="279" useTextEdit="1" folds0="420" path="../../../main.c" left="0" selected="1" top="272" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="19" y="52" useTextEdit="1" path="../config/sdk_config.h" left="0" top="40" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="528" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/libraries/bsp/bsp.c" left="0" top="505" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="511" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/ble/common/ble_advdata.c" left="0" top="511" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="43" y="353" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/libraries/util/app_util.h" left="0" top="340" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="4" y="115" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/libraries/bsp/bsp.h" left="0" top="107" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="11" y="194" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/ble/common/ble_advdata.h" left="0" top="185" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="4" y="115" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/libraries/bsp/bsp.h" left="0" top="115" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="11" y="178" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/ble/common/ble_advdata.h" left="0" top="155" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="17" y="154" useTextEdit="1" path="../../../../../../components/ble/common/ble_srv_common.h" left="0" top="137" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="2" y="202" useTextEdit="1" openedFrom="C:/nrf_sdk/components/softdevice/s140/headers/ble_gap.h" path="../../../../../../components/softdevice/s140/headers/ble_types.h" left="0" top="179" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="26" y="348" useTextEdit="1" path="../../../../../../components/libraries/pwr_mgmt/nrf_pwr_mgmt.c" left="0" top="348" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="119" useTextEdit="1" openedFrom="C:/nrf_sdk/components/libraries/bsp/bsp.c" path="../../../../../../components/libraries/bsp/bsp_config.h" left="0" top="97" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="5" y="339" useTextEdit="1" path="../../../../../../components/libraries/pwr_mgmt/nrf_pwr_mgmt.c" left="0" top="322" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="8" y="119" useTextEdit="1" openedFrom="C:/nrf_sdk/components/libraries/bsp/bsp.c" path="../../../../../../components/libraries/bsp/bsp_config.h" left="0" top="97" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="16" y="58" useTextEdit="1" openedFrom="C:/nrf_sdk/components/libraries/bsp/bsp.c" path="../../../../../../components/boards/boards.c" left="0" top="44" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="58" useTextEdit="1" openedFrom="C:/nrf_sdk/components/boards/boards.c" path="../../../../../../components/boards/pca10056.h" left="0" top="46" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="8" y="202" useTextEdit="1" openedFrom="C:/nrf_sdk/components/libraries/bsp/bsp_config.h" path="../../../../../../components/boards/boards.h" left="0" top="190" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="54" y="26" useTextEdit="1" path="C:/Users/Usuario/AppData/Local/SEGGER/SEGGER Embedded Studio/v3/tools.xml" left="0" selected="1" top="9" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="8" y="202" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/boards/boards.h" left="0" top="190" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="18" y="45" useTextEdit="1" path="../../../../../../components/libraries/hardfault/hardfault_implementation.c" left="0" top="33" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="4" y="190" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/libraries/timer/app_timer.h" left="0" top="178" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="38" y="127" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/softdevice/s140/headers/ble_gap.h" left="0" top="119" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="7" y="165" useTextEdit="1" path="../../../../../../components/libraries/atomic_fifo/nrf_atfifo.c" left="0" top="152" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="45" y="238" useTextEdit="1" path="../../../../../../components/libraries/atomic_fifo/nrf_atfifo.h" left="0" top="223" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="5" y="134" useTextEdit="1" path="../../../../../../components/libraries/pwr_mgmt/nrf_pwr_mgmt.h" left="0" top="119" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="988" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/libraries/timer/app_timer.c" left="0" top="986" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="61" useTextEdit="1" openedFrom="C:/nrf_sdk/components/ble/common/ble_advdata.c" path="../../../../../../components/softdevice/s140/headers/nrf_error.h" left="0" top="59" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="26" y="227" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/softdevice/common/nrf_sdh_ble.c" left="0" top="212" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="11" y="208" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/softdevice/s140/headers/ble.h" left="0" top="196" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="82" y="64" useTextEdit="1" path="../../../../../../components/softdevice/s140/headers/ble_err.h" left="0" top="57" codecName="Default"/>
  </Files>
- <EMStudioWindow activeProject="ble_app_beacon_pca10056_s140" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="" debugSearchPath="" autoConnectCapabilities="3199"/>
+ <EMStudioWindow activeProject="ble_app_beacon_pca10056_s140" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="500ms-1min" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="C:/nrf_sdk/components/libraries/timer" debugSearchPath="" autoConnectCapabilities="3711"/>
 </session>
