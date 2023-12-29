@@ -14,10 +14,10 @@
   <project Name="ble_app_beacon_pca10056_s140">
     <configuration
       Name="1adv_seg"
-      c_preprocessor_definitions="ADV_INTERVAL_MS=100;NUM_ADVERTISEMENTS=1;MINUTOS_DELAY=0.01666666666666666666666666666667" />
+      c_preprocessor_definitions="ADV_INTERVAL_MS=100;NUM_ADVERTISEMENTS=1;SEGUNDOS_DELAY=1" />
     <configuration
       Name="500ms-1min"
-      c_preprocessor_definitions="ADV_INTERVAL_MS=500;NUM_ADVERTISEMENTS=5;MINUTOS_DELAY=1"
+      c_preprocessor_definitions="ADV_INTERVAL_MS=500;NUM_ADVERTISEMENTS=5;SEGUNDOS_DELAY=60"
       macros="" />
     <configuration
       Name="Common"
@@ -48,7 +48,7 @@
       linker_section_placement_file="flash_placement.xml"
       linker_section_placement_macros="FLASH_PH_START=0x0;FLASH_PH_SIZE=0x100000;RAM_PH_START=0x20000000;RAM_PH_SIZE=0x40000;FLASH_START=0x27000;FLASH_SIZE=0xd9000;RAM_START=0x200018d8;RAM_SIZE=0x3e728"
       linker_section_placements_segments="FLASH1 RX 0x0 0x100000;RAM1 RWX 0x20000000 0x40000"
-      macros="CMSIS_CONFIG_TOOL=../../../../../../external_tools/cmsisconfig/CMSIS_Configuration_Wizard.jar\;;INTERVAL_MS=100\;;NUM_ADVERTISEMENTS=1\;;MINUTOS_DELAY=1\;"
+      macros="CMSIS_CONFIG_TOOL=../../../../../../external_tools/cmsisconfig/CMSIS_Configuration_Wizard.jar"
       project_directory=""
       project_type="Executable" />
     <configuration
