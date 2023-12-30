@@ -102,7 +102,7 @@ APP_TIMER_DEF(m_timer_ble);
 APP_TIMER_DEF(m_adv_sent_led_show_timer_id);
 // *********************************
 
-
+static void advertising_stop(void);
 // ******* STRUCTS AND VARIABLES FOR MODE OPERATION ******
 // Type holding the two output power options for this application.
 typedef enum
@@ -134,6 +134,7 @@ static bool    m_app_initiated_disconnect  = false;                //The applica
 static bool    m_waiting_for_disconnect_evt     = false;          // Disconnect is initiated. The application has to wait for BLE_GAP_EVT_DISCONNECTED before proceeding.
 
 static void set_current_adv_params_and_start_advertising(void);
+static void disconnect_stop_adv(void);
 // *****************************************
 
 
@@ -285,6 +286,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
     switch (p_ble_evt->header.evt_id)
     {
         case BLE_GAP_EVT_ADV_SET_TERMINATED:
+            //disconnect_stop_adv();
             //NRF_LOG_INFO("Advertisement terminado");
             //bsp_board_led_off(SENDING_ADV_LED);
             //err_code = app_timer_stop(m_adv_sent_led_show_timer_id); 
@@ -923,6 +925,7 @@ static void adv_interval_timeout_handler (void *p_context)
 {
     UNUSED_PARAMETER(p_context);
     // Inicializamos características advertisement
+    disconnect_stop_adv();
     advertising_init();
     advertising_start();
 }
