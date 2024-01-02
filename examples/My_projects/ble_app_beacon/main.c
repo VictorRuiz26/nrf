@@ -182,7 +182,7 @@ static void instructions_print(void)
     NRF_LOG_INFO("Press the buttons to set up the advertiser in wanted mode:");
     NRF_LOG_INFO("Button 2: switch between coded phy and 1Mbps");
     NRF_LOG_INFO("Button 3: switch between 0 dbm and 8 dBm output power.");
-    NRF_LOG_INFO("Button 4: switch between non-connectable (slow blink LED 4) and connectable advertising (fast blink LED4).");
+    //NRF_LOG_INFO("Button 4: switch between non-connectable (slow blink LED 4) and connectable advertising (fast blink LED4).");
 }
 
 static uint8_t m_beacon_info[APP_BEACON_INFO_LENGTH] =                    /**< Information advertised by the Beacon. */
