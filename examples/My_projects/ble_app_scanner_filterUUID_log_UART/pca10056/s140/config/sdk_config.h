@@ -250,6 +250,10 @@
 #define NRF_BLE_SCAN_SHORT_NAME_MAX_LEN 32
 #endif
 
+// <s> DEVICE_NAME - Name of device. Will be included in the advertising data.
+#ifndef DEVICE_NAME
+#define DEVICE_NAME "Long range demo"
+#endif
 // <o> NRF_BLE_SCAN_SCAN_INTERVAL - Scanning interval. Determines the scan interval in units of 0.625 millisecond. 
 #ifndef NRF_BLE_SCAN_SCAN_INTERVAL
 #define NRF_BLE_SCAN_SCAN_INTERVAL 160
