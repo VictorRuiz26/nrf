@@ -22,7 +22,7 @@
 #define APP_BLE_CONN_CFG_TAG            1                                  /**< A tag identifying the SoftDevice BLE configuration. */
 
 // ################# VALOR QUE INDICA EL INTERVALO DE ADVERTISEMENT
-#define NON_CONNECTABLE_ADV_INTERVAL    MSEC_TO_UNITS(ADV_INTERVAL_MS, UNIT_0_625_MS)  /**< The advertising interval for non-connectable advertisement (100 ms). This value can vary between 100ms to 10.24s */
+#define TIME_BETWEEN_EACH_ADV    MSEC_TO_UNITS(ADV_INTERVAL_MS, UNIT_0_625_MS)  /**< The advertising interval for non-connectable advertisement (100 ms). This value can vary between 100ms to 10.24s */
 
 #define APP_BEACON_INFO_LENGTH          0x17                               /**< Total length of information advertised by the Beacon. */
 #define APP_ADV_DATA_LENGTH             0x15                               /**< Length of manufacturer specific data in the advertisement. */
@@ -88,7 +88,7 @@
 
 
 // ******* TIMER DEFINITIONS *******
-#define ADV_INTERVAL                    APP_TIMER_TICKS(SEGUNDOS_DELAY*1000)
+#define ADV_EVT_INTERVAL                APP_TIMER_TICKS(SEGUNDOS_DELAY*1000)
 #define FAST_BLINK_INTERVAL		APP_TIMER_TICKS(200)
 #define SLOW_BLINK_INTERVAL		APP_TIMER_TICKS(750)
 #define BLINK_SEDNDING_ADV              APP_TIMER_TICKS(100)
@@ -306,8 +306,8 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
             //disconnect_stop_adv();
             //NRF_LOG_INFO("Advertisement terminado");
             //bsp_board_led_off(SENDING_ADV_LED);
-            //err_code = app_timer_stop(m_adv_sent_led_show_timer_id); 
-           // APP_ERROR_CHECK(err_code);
+            err_code = app_timer_stop(m_adv_sent_led_show_timer_id); 
+            APP_ERROR_CHECK(err_code);
             break;
         case BLE_GAP_EVT_CONNECTED:
             on_ble_gap_evt_connected(p_gap_evt);
@@ -483,7 +483,7 @@ static void advertising_init(void)
         },
         .p_peer_addr   = NULL,
         .filter_policy = BLE_GAP_ADV_FP_ANY,
-        .interval      = ADV_INTERVAL,
+        .interval      = TIME_BETWEEN_EACH_ADV,
         .duration      = 0,
         .max_adv_evts  = NUM_ADVERTISEMENTS,
 
@@ -551,11 +551,10 @@ static void advertising_init(void)
             adv_params.properties.type = BLE_GAP_ADV_TYPE_EXTENDED_NONCONNECTABLE_NONSCANNABLE_UNDIRECTED;
 
 
-            ret = ble_advdata_encode(&adv_data, m_adv_data_ext.scan_rsp_data.p_data, &m_adv_data_ext.scan_rsp_data.len);
+            ret = ble_advdata_encode(&adv_data, m_adv_data_ext.adv_data.p_data, &m_adv_data_ext.adv_data.len);
             APP_ERROR_CHECK(ret);
 
             ret = sd_ble_gap_adv_set_configure(&m_adv_handle, &m_adv_data_ext, &adv_params);
-            NRF_LOG_INFO("err_code after sd_ble_gap_adv_set_configure in advertising_init: %d", ret); 
             APP_ERROR_CHECK(ret);			
         }
     }
@@ -576,8 +575,8 @@ static void advertising_start(void)
     APP_ERROR_CHECK(err_code);    
 
     //TODO: implementar timer de advertiser que maneje el led 1 rápido mientras se estén enviando
-   // err_code = app_timer_start(m_adv_sent_led_show_timer_id, BLINK_SEDNDING_ADV, NULL);
-   // APP_ERROR_CHECK(err_code);
+    err_code = app_timer_start(m_adv_sent_led_show_timer_id, BLINK_SEDNDING_ADV, NULL);
+    APP_ERROR_CHECK(err_code);
 
     m_app_initiated_disconnect = false;
 
@@ -1017,7 +1016,7 @@ static void set_current_adv_params_and_start_advertising(void)
   on_non_conn_or_conn_adv_selection_state_set(m_adv_scan_type_selected);
   output_power_selection_set(m_output_power_selected);
   
-  ret_code_t err_code = app_timer_start(m_timer_ble, ADV_INTERVAL, NULL);
+  ret_code_t err_code = app_timer_start(m_timer_ble, ADV_EVT_INTERVAL, NULL);
   APP_ERROR_CHECK(err_code);
   
   //Estas funciones se ejecutan en el handler del timer

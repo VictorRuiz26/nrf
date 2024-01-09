@@ -64,11 +64,12 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="27" y="522" useTextEdit="1" path="../../../main.c" left="0" selected="1" top="510" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="8" y="314" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/softdevice/s140/headers/ble_gap.h" left="0" top="302" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="2" y="202" useTextEdit="1" openedFrom="C:/nrf_sdk/components/softdevice/s140/headers/ble_gap.h" path="../../../../../../components/softdevice/s140/headers/ble_types.h" left="0" top="190" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="16" y="519" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/ble/common/ble_advdata.c" left="0" top="610" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="553" useTextEdit="1" path="../../../main.c" left="0" selected="1" top="517" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="8" y="389" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/softdevice/s140/headers/ble_gap.h" left="0" top="372" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="2" y="202" useTextEdit="1" openedFrom="C:/nrf_sdk/components/softdevice/s140/headers/ble_gap.h" path="../../../../../../components/softdevice/s140/headers/ble_types.h" left="0" top="157" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="16" y="519" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/ble/common/ble_advdata.c" left="0" top="519" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="147" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/ble/common/ble_advdata.h" left="0" top="123" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="988" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/libraries/timer/app_timer.c" left="0" top="970" codecName="Default"/>
  </Files>
- <EMStudioWindow activeProject="ble_app_beacon_pca10056_s140" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="500ms-1min" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="C:/nrf_sdk/components/libraries/timer" debugSearchPath="" autoConnectCapabilities="3711"/>
+ <EMStudioWindow activeProject="ble_app_beacon_pca10056_s140" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="1adv_seg" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="C:/nrf_sdk/components/libraries/timer" debugSearchPath="" autoConnectCapabilities="3711"/>
 </session>
