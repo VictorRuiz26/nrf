@@ -199,7 +199,7 @@ static void instructions_print(void)
     NRF_LOG_INFO("Press the buttons to set up the advertiser in wanted mode:");
     NRF_LOG_INFO("Button 2: switch between coded phy and 1Mbps");
     NRF_LOG_INFO("Button 3: switch between 0 dbm and 8 dBm output power.");
-    //NRF_LOG_INFO("Button 4: switch between non-connectable (slow blink LED 4) and connectable advertising (fast blink LED4).");
+    NRF_LOG_INFO("Button 4: switch between non-connectable (slow blink LED 4) and connectable advertising (fast blink LED4).");
 }
 
 static uint8_t m_beacon_info[APP_BEACON_INFO_LENGTH] =                    /**< Information advertised by the Beacon. */
@@ -850,7 +850,7 @@ void bsp_evt_handler(bsp_event_t event)
 
           case NON_CONN_OR_CONN_ADV_BUTTON_EVENT:
           {
-            //on_non_conn_or_conn_adv_selection(); DOES NOT WORK. Fatal error (nº18) NRF_ERROR_CONN_COUNT The limit of available connections for this connection configuration * tag has been reached; 
+            on_non_conn_or_conn_adv_selection(); //DOES NOT WORK. Fatal error (nº18) NRF_ERROR_CONN_COUNT The limit of available connections for this connection configuration * tag has been reached; 
           } break;
                         
           default:
@@ -1037,6 +1037,7 @@ int main(void)
     buttons_leds_init();
     power_management_init();
     ble_stack_init();
+    gap_params_init();
 
     instructions_print();
 
