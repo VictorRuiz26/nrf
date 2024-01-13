@@ -1,7 +1,7 @@
 <!DOCTYPE CrossStudio_Project_File>
 <solution Name="ble_app_beacon_pca10056_s140" target="8" version="2">
   <configuration Name="1adv_seg" />
-  <configuration Name="500ms-1min" macros="" />
+  <configuration Name="500ms-1min" />
   <configuration
     Name="Debug"
     c_preprocessor_definitions="DEBUG; DEBUG_NRF"
@@ -14,11 +14,10 @@
   <project Name="ble_app_beacon_pca10056_s140">
     <configuration
       Name="1adv_seg"
-      c_preprocessor_definitions="ADV_INTERVAL_MS=100;NUM_ADVERTISEMENTS=1;MINUTOS_DELAY=0.01666666666666666666666666666667" />
+      c_preprocessor_definitions="ADV_INTERVAL_MS=100;NUM_ADVERTISEMENTS=5;SEGUNDOS_DELAY=1" />
     <configuration
       Name="500ms-1min"
-      c_preprocessor_definitions="ADV_INTERVAL_MS=500;NUM_ADVERTISEMENTS=5;MINUTOS_DELAY=1"
-      macros="" />
+      c_preprocessor_definitions="ADV_INTERVAL_MS=500;NUM_ADVERTISEMENTS=5;SEGUNDOS_DELAY=60" />
     <configuration
       Name="Common"
       arm_architecture="v7EM"
@@ -46,9 +45,9 @@
       linker_printf_width_precision_supported="Yes"
       linker_scanf_fmt_level="long"
       linker_section_placement_file="flash_placement.xml"
-      linker_section_placement_macros="FLASH_PH_START=0x0;FLASH_PH_SIZE=0x100000;RAM_PH_START=0x20000000;RAM_PH_SIZE=0x40000;FLASH_START=0x27000;FLASH_SIZE=0xd9000;RAM_START=0x200018d8;RAM_SIZE=0x3e728"
+      linker_section_placement_macros="FLASH_PH_START=0x0;FLASH_PH_SIZE=0x100000;RAM_PH_START=0x20000000;RAM_PH_SIZE=0x40000;FLASH_START=0x27000;FLASH_SIZE=0xd9000;RAM_START=0x20003278;RAM_SIZE=0x3e728"
       linker_section_placements_segments="FLASH1 RX 0x0 0x100000;RAM1 RWX 0x20000000 0x40000"
-      macros="CMSIS_CONFIG_TOOL=../../../../../../external_tools/cmsisconfig/CMSIS_Configuration_Wizard.jar\;;INTERVAL_MS=100\;;NUM_ADVERTISEMENTS=1\;;MINUTOS_DELAY=1\;"
+      macros="CMSIS_CONFIG_TOOL=../../../../../../external_tools/cmsisconfig/CMSIS_Configuration_Wizard.jar"
       project_directory=""
       project_type="Executable" />
     <configuration
@@ -90,9 +89,12 @@
       <file file_name="../../../../../../components/libraries/util/app_error_handler_gcc.c" />
       <file file_name="../../../../../../components/libraries/util/app_error_weak.c" />
       <file file_name="../../../../../../components/libraries/scheduler/app_scheduler.c" />
-      <file file_name="../../../../../../components/libraries/timer/app_timer2.c" />
+      <file file_name="../../../../../../components/libraries/timer/app_timer.c" />
       <file file_name="../../../../../../components/libraries/util/app_util_platform.c" />
-      <file file_name="../../../../../../components/libraries/timer/drv_rtc.c" />
+      <file file_name="../../../../../../components/libraries/timer/drv_rtc.c">
+        <configuration Name="1adv_seg" build_exclude_from_build="Yes" />
+        <configuration Name="500ms-1min" build_exclude_from_build="Yes" />
+      </file>
       <file file_name="../../../../../../components/libraries/hardfault/hardfault_implementation.c" />
       <file file_name="../../../../../../components/libraries/util/nrf_assert.c" />
       <file file_name="../../../../../../components/libraries/atomic_fifo/nrf_atfifo.c" />

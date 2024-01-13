@@ -25,7 +25,6 @@
   <ProjectSessionItem path="ble_app_beacon_pca10056_s140;ble_app_beacon_pca10056_s140;Board Support"/>
   <ProjectSessionItem path="ble_app_beacon_pca10056_s140;ble_app_beacon_pca10056_s140;nRF_BLE"/>
   <ProjectSessionItem path="ble_app_beacon_pca10056_s140;ble_app_beacon_pca10056_s140;nRF_Segger_RTT"/>
-  <SourceCodeControlLogin password="F9BB6682F5D56822" user="VictorRuiz26 &lt;victorcopero00@gmail.com>"/>
  </Project>
  <Register1>
   <RegisterWindow visibleNodes="CPU - Current Context/r0;CPU - Current Context/r1;CPU - Current Context/r2;CPU - Current Context/r3;CPU - Current Context/r4;CPU - Current Context/r5;CPU - Current Context/r6;CPU - Current Context/r7;CPU - Current Context/r8;CPU - Current Context/r9;CPU - Current Context/r10;CPU - Current Context/r11;CPU - Current Context/r12;CPU - Current Context/sp(r13);CPU - Current Context/lr(r14);CPU - Current Context/pc(r15);CPU - Current Context/apsr;CPU/r0;CPU/r1;CPU/r2;CPU/r3;CPU/r4;CPU/r5;CPU/r6;CPU/r7;CPU/r8;CPU/r9;CPU/r10;CPU/r11;CPU/r12;CPU/sp(r13);CPU/lr(r14);CPU/pc(r15);CPU/xpsr;CPU/MSP;CPU/PSP;CPU/PRIMASK;CPU/BASEPRI;CPU/FAULTMASK;CPU/CONTROL;CPU/internal" binaryNodes="" asciiNodes="" openNodes="CPU - Current Context" name="ble_app_beacon_pca10056_s140_500ms-1min" decimalNodes="" octalNodes="" unsignedNodes=""/>
@@ -58,7 +57,7 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="237" useTextEdit="1" path="../../../main.c" left="0" selected="1" top="230" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="71" y="84" useTextEdit="1" path="../../../main.c" left="0" selected="1" top="61" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="23" y="7650" useTextEdit="1" path="../config/sdk_config.h" left="0" top="7626" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="464" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/libraries/bsp/bsp.c" left="0" top="446" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="598" useTextEdit="1" openedFrom="C:/nrf_sdk/components/libraries/bsp/bsp.c" path="../../../../../../components/libraries/timer/app_timer2.c" left="0" top="598" codecName="Default"/>
@@ -68,7 +67,7 @@
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="115" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/libraries/bsp/bsp.h" left="0" top="102" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="11" y="194" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/ble/common/ble_advdata.h" left="0" top="185" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="17" y="154" useTextEdit="1" path="../../../../../../components/ble/common/ble_srv_common.h" left="0" top="137" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="2" y="202" useTextEdit="1" openedFrom="C:/nrf_sdk/components/softdevice/s140/headers/ble_gap.h" path="../../../../../../components/softdevice/s140/headers/ble_types.h" left="0" top="177" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="2" y="202" useTextEdit="1" openedFrom="C:/nrf_sdk/components/softdevice/s140/headers/ble_gap.h" path="../../../../../../components/softdevice/s140/headers/ble_types.h" left="0" top="170" codecName="Default"/>
  </Files>
  <EMStudioWindow activeProject="ble_app_beacon_pca10056_s140" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="1adv_seg" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="" debugSearchPath="" autoConnectCapabilities="3199"/>
 </session>
