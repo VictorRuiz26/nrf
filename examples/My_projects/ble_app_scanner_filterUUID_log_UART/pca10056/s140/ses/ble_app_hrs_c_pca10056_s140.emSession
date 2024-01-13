@@ -28,6 +28,7 @@
   <ProjectSessionItem path="ble_scan_UUID_log_UART;ble_app_hrs_c_pca10056_s140;nRF_Libraries"/>
   <ProjectSessionItem path="ble_scan_UUID_log_UART;ble_app_hrs_c_pca10056_s140;nRF_Log"/>
   <ProjectSessionItem path="ble_scan_UUID_log_UART;ble_app_hrs_c_pca10056_s140;nRF_Segger_RTT"/>
+
   <SourceCodeControlLogin password="F9BB6682F5D56822" user="VictorRuiz26 &lt;victorcopero00@gmail.com>"/>
  </Project>
  <Register1>
@@ -74,5 +75,5 @@
   <SessionOpenFile windowGroup="DockEditLeft" x="37" y="553" useTextEdit="1" openedFrom="C:/nrf_sdk/components/boards/boards.c" path="../../../../../../modules/nrfx/hal/nrf_gpio.h" left="0" top="545" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="15" y="19" useTextEdit="1" path="C:/Users/Usuario/AppData/Local/SEGGER/SEGGER Embedded Studio/v3/tools.xml" left="0" selected="1" top="11" codecName="Default"/>
  </Files>
- <EMStudioWindow activeProject="ble_app_hrs_c_pca10056_s140" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="C:/nrf_sdk/components/libraries/uart" debugSearchPath="" autoConnectCapabilities="3199"/>
+ <EMStudioWindow activeProject="ble_app_hrs_c_pca10056_s140" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="C:/nrf_sdk/components/libraries/timer" debugSearchPath="" autoConnectCapabilities="3199"/>
 </session>
