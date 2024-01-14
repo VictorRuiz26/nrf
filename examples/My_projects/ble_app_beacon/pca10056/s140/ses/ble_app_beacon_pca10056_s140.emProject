@@ -14,7 +14,7 @@
   <project Name="ble_app_beacon_pca10056_s140">
     <configuration
       Name="1adv_seg"
-      c_preprocessor_definitions="ADV_INTERVAL_MS=100;NUM_ADVERTISEMENTS=5;SEGUNDOS_DELAY=1" />
+      c_preprocessor_definitions="ADV_INTERVAL_MS=100;NUM_ADVERTISEMENTS=1;SEGUNDOS_DELAY=1" />
     <configuration
       Name="500ms-1min"
       c_preprocessor_definitions="ADV_INTERVAL_MS=500;NUM_ADVERTISEMENTS=5;SEGUNDOS_DELAY=60" />
