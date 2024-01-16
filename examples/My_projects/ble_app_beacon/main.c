@@ -140,7 +140,7 @@ typedef enum
 } adv_codec_phy_data_size_t;
 
 static adv_scan_type_seclection_t   m_adv_scan_type_selected = SELECTION_NON_CONNECTABLE;   /**< Global variable holding the current scan selection mode. */
-static adv_scan_phy_seclection_t    m_adv_scan_phy_selected  = SELECTION_1M_PHY;      /**< Global variable holding the current phy selection. */
+static adv_scan_phy_seclection_t    m_adv_scan_phy_selected  = SELECTION_CODED_PHY;      /**< Global variable holding the current phy selection. */
 static output_power_seclection_t    m_output_power_selected  = SELECTION_8_dBm;          /**< Global variable holding the current output power selection. */
 static bool    m_app_initiated_disconnect  = false;                //The application has initiated disconnect. Used to "tell" on_ble_gap_evt_disconnected() to not start advertising.
 static bool    m_waiting_for_disconnect_evt     = false;          // Disconnect is initiated. The application has to wait for BLE_GAP_EVT_DISCONNECTED before proceeding.
@@ -1268,8 +1268,8 @@ static void set_current_adv_params_and_start_advertising(void)
   APP_ERROR_CHECK(err_code);
   
   //Estas funciones se ejecutan en el handler del timer
-  //advertising_init();
-  //advertising_start();
+  advertising_init();
+  advertising_start();
 
 }
 
