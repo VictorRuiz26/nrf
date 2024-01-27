@@ -379,7 +379,6 @@ static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
      if ((adv_target_name_found== true) || 
          (adv_report_non_conn_coded_phy == true))
      {   
-        bsp_board_led_invert(ADV_REPORT_LED);
 
         // TODO: "Enable" if-statement if RSSI shuold only be logged when changed.
         //if(rssi_value != p_adv_report->rssi)
