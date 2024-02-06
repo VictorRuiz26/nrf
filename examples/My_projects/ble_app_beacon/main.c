@@ -385,9 +385,13 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
     {
         case BLE_GAP_EVT_ADV_SET_TERMINATED:
             //disconnect_stop_adv();
-            //NRF_LOG_INFO("Advertisement terminado");
+           // NRF_LOG_INFO("Advertisement terminado. Motivo: %d", p_ble_evt->evt.gap_evt.params.adv_set_terminated.reason);
+           // NRF_LOG_INFO("Enviados %d adv de %d configurados (max)", p_ble_evt->evt.gap_evt.params.adv_set_terminated.num_completed_adv_events, NUM_ADVERTISEMENTS);
             //bsp_board_led_off(SENDING_ADV_LED);
             err_code = app_timer_stop(m_adv_sent_led_show_timer_id); 
+            APP_ERROR_CHECK(err_code);
+
+            ret_code_t err_code = app_timer_start(m_timer_ble, ADV_EVT_INTERVAL, NULL); 
             APP_ERROR_CHECK(err_code);
             break;
         case BLE_GAP_EVT_CONNECTED:
@@ -1226,7 +1230,8 @@ static void timers_init(void)
     ret_code_t err_code = app_timer_init();
     APP_ERROR_CHECK(err_code);
 
-    err_code = app_timer_create(&m_timer_ble, APP_TIMER_MODE_REPEATED, adv_interval_timeout_handler);
+    //Single shot! porque solo quiero que salte 1 vez, cuando nos vayamos a dormir (reposo ciclo envío adv)
+    err_code = app_timer_create(&m_timer_ble, APP_TIMER_MODE_SINGLE_SHOT, adv_interval_timeout_handler);
     APP_ERROR_CHECK(err_code);
 
     err_code = app_timer_create(&m_adv_sent_led_show_timer_id, APP_TIMER_MODE_REPEATED, adv_sent_led_show_timeout_handler);
@@ -1264,8 +1269,9 @@ static void set_current_adv_params_and_start_advertising(void)
   output_power_selection_set(m_output_power_selected);
   on_adv_data_size_selection_set(m_codec_phy_data_size);
   
-  ret_code_t err_code = app_timer_start(m_timer_ble, ADV_EVT_INTERVAL, NULL);
-  APP_ERROR_CHECK(err_code);
+  //NO!, es la cuenta para dormir, debo empezarla cuando se haya acabado el envío (BLE_GAP_EVT_ADV_SET_TERMINATED de ble_evt_handler)
+  //ret_code_t err_code = app_timer_start(m_timer_ble, ADV_EVT_INTERVAL, NULL); 
+  //APP_ERROR_CHECK(err_code);
   
   //Estas funciones se ejecutan en el handler del timer
   advertising_init();
