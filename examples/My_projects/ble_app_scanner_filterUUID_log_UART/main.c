@@ -84,6 +84,8 @@ void send_adv (const ble_gap_evt_adv_report_t *adv_data) {
 
   app_uart_put(adv_data->rssi);
 
+  app_uart_put(adv_data->data.len);
+
   app_uart_put(0xFF);
 }
 
@@ -178,7 +180,7 @@ typedef enum
 } adv_scan_phy_seclection_t;
 
 static scan_type_seclection_t    m_scan_type_selected    = SELECTION_SCAN_NON_CONN;
-static adv_scan_phy_seclection_t m_adv_scan_phy_selected = SELECTION_1M_PHY; 
+static adv_scan_phy_seclection_t m_adv_scan_phy_selected = SELECTION_CODED_PHY; 
 static output_power_seclection_t m_output_power_selected = SELECTION_8_dBm;
 static bool    m_app_initiated_disconnect   = false; //The application has initiated disconnect. Used to "tell" on_ble_gap_evt_disconnected() to not start scanning.
 static bool    m_waiting_for_disconnect_evt = false; // Disconnect is initiated. The application has to wait for BLE_GAP_EVT_DISCONNECTED before proceeding.
@@ -377,7 +379,6 @@ static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
      if ((adv_target_name_found== true) || 
          (adv_report_non_conn_coded_phy == true))
      {   
-        bsp_board_led_invert(ADV_REPORT_LED);
 
         // TODO: "Enable" if-statement if RSSI shuold only be logged when changed.
         //if(rssi_value != p_adv_report->rssi)
@@ -388,12 +389,12 @@ static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
               NRF_LOG_INFO("Received ADV report, RSSI %d, phy: 1 Mbps",rssi_value);
             }else if (p_adv_report->primary_phy == BLE_GAP_PHY_CODED )
             {
-               NRF_LOG_INFO("Received ADV report, RSSI %d, phy: coded",rssi_value);
+               NRF_LOG_INFO("Received ADV report, RSSI %d, phy: coded, data size: %d", rssi_value, p_adv_report->data.len);
             } else {
                NRF_LOG_INFO("Received ADV report, RSSI %d, phy: unknown",rssi_value);
             }
                                                                 
-            NRF_LOG_INFO("addr %02x:%02x:%02x:%02x:%02x:%02x",
+            /*NRF_LOG_INFO("addr %02x:%02x:%02x:%02x:%02x:%02x",
                          p_adv_report->peer_addr.addr[0],
                          p_adv_report->peer_addr.addr[1],
                          p_adv_report->peer_addr.addr[2],
@@ -401,7 +402,7 @@ static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
                          p_adv_report->peer_addr.addr[4],
                          p_adv_report->peer_addr.addr[5]
                          );
-                
+             */  
              
         //}  
     }
@@ -461,7 +462,12 @@ static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
      } else //m_scan_type_selected == SELECTION_SCAN_NON_CONN
      {
       //Procesamiento para solo quedarnos con los UUID
-        if (p_adv_report->data.len == 30)
+        if ((p_adv_report->data.len == 30)  || 
+            (p_adv_report->data.len == 255) || 
+            (p_adv_report->data.len == 205) || 
+            (p_adv_report->data.len == 155) || 
+            (p_adv_report->data.len == 105) ||
+            (p_adv_report->data.len == 55))
             {
                 // Extract and print UUID if it follows 0xFF in the advertisement
                 uint8_t *p_data = p_adv_report->data.p_data;
@@ -500,11 +506,11 @@ static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
                     //fprintf(archivo, "Advertising packet received (length: %d):\n\r", p_adv_report->data.len);
                     //NRF_LOG_RAW_HEXDUMP_INFO(p_adv_report->data.p_data, p_adv_report->data.len);
                     NRF_LOG_RAW_HEXDUMP_INFO(p_adv_report->data.p_data, p_adv_report->data.len);  
-                    for (int i = 0; i < p_adv_report->data.len; i++) {
-                      printf("%02X ", p_adv_report->data.p_data[i]);
+                //    for (int i = 0; i < p_adv_report->data.len; i++) {
+                //      printf("%02X ", p_adv_report->data.p_data[i]);
                       //fprintf(archivo, "%02X ", p_adv_report->data.p_data[i]);
-                    }
-                    printf("\n\r");
+                //    }
+                //    printf("\n\r");
                     //fprintf(archivo, "\n\r");
                     NRF_LOG_INFO("************************************************************");
                     printf("************************************************************\n\r");
@@ -512,7 +518,7 @@ static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
 
 
                     // Mando paquete por UART
-                    //send_adv(p_adv_report);
+                    send_adv(p_adv_report);
 
                 }
                 else
@@ -1029,7 +1035,7 @@ int main(void)
 {
     uint32_t err_code;
     // Initialize.
-    log_init();
+//    log_init();
 
     
     timers_init();

@@ -157,11 +157,13 @@
       <file file_name="../../../../../../components/libraries/util/app_error_weak.c" />
       <file file_name="../../../../../../components/libraries/fifo/app_fifo.c" />
       <file file_name="../../../../../../components/libraries/scheduler/app_scheduler.c" />
-      <file file_name="../../../../../../components/libraries/timer/app_timer2.c" />
+      <file file_name="../../../../../../components/libraries/timer/app_timer.c" />
       <file file_name="../../../../../../components/libraries/uart/app_uart_fifo.c" />
       <file file_name="../../../../../../components/libraries/util/app_util_platform.c" />
       <file file_name="../../../../../../components/libraries/crc16/crc16.c" />
-      <file file_name="../../../../../../components/libraries/timer/drv_rtc.c" />
+      <file file_name="../../../../../../components/libraries/timer/drv_rtc.c">
+        <configuration Name="Debug" build_exclude_from_build="Yes" />
+      </file>
       <file file_name="../../../../../../components/libraries/fds/fds.c" />
       <file file_name="../../../../../../components/libraries/hardfault/hardfault_implementation.c" />
       <file file_name="../../../../../../components/libraries/mem_manager/mem_manager.c" />

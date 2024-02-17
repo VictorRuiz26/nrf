@@ -89,12 +89,17 @@
 
 // ******* TIMER DEFINITIONS *******
 #define ADV_EVT_INTERVAL                APP_TIMER_TICKS(SEGUNDOS_DELAY*1000)
-#define FAST_BLINK_INTERVAL		APP_TIMER_TICKS(200)
-#define SLOW_BLINK_INTERVAL		APP_TIMER_TICKS(750)
+#define FAST_BLINK_INTERVAL		APP_TIMER_TICKS(300)
+#define MEDIUM_BLINK_INTERVAL		APP_TIMER_TICKS(650)
+#define SLOW_BLINK_INTERVAL		APP_TIMER_TICKS(1000)
 #define BLINK_SEDNDING_ADV              APP_TIMER_TICKS(100)
-    //De momento el modo conectable o no conectable no se contempla
-APP_TIMER_DEF(m_non_conn_fast_blink_timer_id);                /**< Timer used to toggle LED indicating non-connectable advertising on the dev. kit. */
-APP_TIMER_DEF(m_conn_adv_fast_blink_timer_id);                /**< Timer used to toggle LED indicating connectable advertising on the dev. kit. */
+
+//APP_TIMER_DEF(m_non_conn_fast_blink_timer_id);                /**< Timer used to toggle LED indicating non-connectable advertising on the dev. kit. Reusado para tamaño 100B */
+APP_TIMER_DEF(m_conn_adv_fast_blink_timer_id);                /**< Timer used to toggle LED indicating connectable advertising on the dev. kit.  */
+
+APP_TIMER_DEF(m_adv_data_size_100_codec_timer_id);
+APP_TIMER_DEF(m_adv_data_size_150_codec_timer_id);
+APP_TIMER_DEF(m_adv_data_size_200_codec_timer_id);
 
 APP_TIMER_DEF(m_1Mbps_led_slow_blink_timer_id);                /**< Timer used to toggle LED for phy selection indication on the dev.kit. */                        
 APP_TIMER_DEF(m_8dBm_led_slow_blink_timer_id);                 /**< Timer used to toggle LED for output power selection indication on the dev.kit. */ 
@@ -127,11 +132,23 @@ typedef enum
     SELECTION_CODED_PHY
 } adv_scan_phy_seclection_t;
 
+// Para asignar dinámicamente los datos del adv
+typedef enum
+{
+  CODEC_DATA_SIZE_50B  = 50-APP_BEACON_INFO_LENGTH-AD_TYPE_MANUF_SPEC_DATA_ID_SIZE,
+  CODEC_DATA_SIZE_100B = 100-APP_BEACON_INFO_LENGTH-AD_TYPE_MANUF_SPEC_DATA_ID_SIZE,
+  CODEC_DATA_SIZE_150B = 150-APP_BEACON_INFO_LENGTH-AD_TYPE_MANUF_SPEC_DATA_ID_SIZE,
+  CODEC_DATA_SIZE_200B = 200-APP_BEACON_INFO_LENGTH-AD_TYPE_MANUF_SPEC_DATA_ID_SIZE,
+  CODEC_DATA_SIZE_250B = 250-APP_BEACON_INFO_LENGTH-AD_TYPE_MANUF_SPEC_DATA_ID_SIZE
+} adv_codec_phy_data_size_t;
+
 static adv_scan_type_seclection_t   m_adv_scan_type_selected = SELECTION_NON_CONNECTABLE;   /**< Global variable holding the current scan selection mode. */
-static adv_scan_phy_seclection_t    m_adv_scan_phy_selected  = SELECTION_1M_PHY;      /**< Global variable holding the current phy selection. */
+static adv_scan_phy_seclection_t    m_adv_scan_phy_selected  = SELECTION_CODED_PHY;      /**< Global variable holding the current phy selection. */
 static output_power_seclection_t    m_output_power_selected  = SELECTION_8_dBm;          /**< Global variable holding the current output power selection. */
 static bool    m_app_initiated_disconnect  = false;                //The application has initiated disconnect. Used to "tell" on_ble_gap_evt_disconnected() to not start advertising.
 static bool    m_waiting_for_disconnect_evt     = false;          // Disconnect is initiated. The application has to wait for BLE_GAP_EVT_DISCONNECTED before proceeding.
+
+static adv_codec_phy_data_size_t m_codec_phy_data_size = CODEC_DATA_SIZE_50B;
 
 static void set_current_adv_params_and_start_advertising(void);
 static void disconnect_stop_adv(void);
@@ -197,12 +214,23 @@ static ble_gap_conn_params_t m_conn_param =
 static void instructions_print(void)
 {
     NRF_LOG_INFO("Press the buttons to set up the advertiser in wanted mode:");
-    NRF_LOG_INFO("Button 2: switch between coded phy and 1Mbps");
-    NRF_LOG_INFO("Button 3: switch between 0 dbm and 8 dBm output power.");
-    NRF_LOG_INFO("Button 4: switch between non-connectable (slow blink LED 4) and connectable advertising (fast blink LED4).");
+    NRF_LOG_INFO("Button 2: switch between coded phy (LED2 setted on) and 1Mbps (LED2 blinking)");
+    NRF_LOG_INFO("Button 3: switch between 0 dbm (LED3 setted on) and 8 dBm output power (LED3 blinkink).");
+    //NRF_LOG_INFO("Button 4: switch between non-connectable (slow blink LED 4) and connectable advertising (fast blink LED4).");
+    NRF_LOG_INFO("Button 4: rotate between 50B (LED4 Off), 100B(LED4 slow blinking), 150B(LED4 medium blinking), 200B(LED4 fast blinking) and 250B(LED4 on) adv data size (only codec PHY!)");
 }
 
-static uint8_t m_beacon_info[APP_BEACON_INFO_LENGTH] =                    /**< Information advertised by the Beacon. */
+/*uint8_t * m_beacon_info;
+m_beacon_info = (uint8_t *)calloc(APP_BEACON_INFO_LENGTH, sizeof(uint8_t));
+m_beacon_info[0] = APP_DEVICE_TYPE;
+m_beacon_info[1] = APP_ADV_DATA_LENGTH;
+memcpy(&m_beacon_info[2], &APP_BEACON_UUID, 16);
+memcpy(&m_beacon_info[18], &APP_MAJOR_VALUE, 2);
+memcpy(&m_beacon_info[20], &APP_MINOR_VALUE, 2);
+memcpy(&m_beacon_info[21], &APP_BEACON_UUID, 1);
+*/
+
+static uint8_t m_beacon_info[APP_BEACON_INFO_LENGTH] =                    //< Information advertised by the Beacon. 
 {
     APP_DEVICE_TYPE,     // Manufacturer specific information. Specifies the device type in this
                          // implementation.
@@ -211,8 +239,79 @@ static uint8_t m_beacon_info[APP_BEACON_INFO_LENGTH] =                    /**< I
     APP_BEACON_UUID,     // 128 bit UUID value.
     APP_MAJOR_VALUE,     // Major arbitrary value that can be used to distinguish between Beacons.
     APP_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
-    APP_MEASURED_RSSI    // Manufacturer specific information. The Beacon's measured TX power in
+    APP_MEASURED_RSSI,    // Manufacturer specific information. The Beacon's measured TX power in
                          // this implementation.
+};
+
+
+static uint8_t m_beacon_info_50B[CODEC_DATA_SIZE_50B+APP_BEACON_INFO_LENGTH] =                    //< Information advertised by the Beacon. 
+{
+    APP_DEVICE_TYPE,     // Manufacturer specific information. Specifies the device type in this
+                         // implementation.
+    APP_ADV_DATA_LENGTH, // Manufacturer specific information. Specifies the length of the
+                         // manufacturer specific data in this implementation.
+    APP_BEACON_UUID,     // 128 bit UUID value.
+    APP_MAJOR_VALUE,     // Major arbitrary value that can be used to distinguish between Beacons.
+    APP_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
+    APP_MEASURED_RSSI,    // Manufacturer specific information. The Beacon's measured TX power in
+                         // this implementation.
+    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_50B-1] = 0 //Dummy data for filling the array size
+};
+
+static uint8_t m_beacon_info_100B[CODEC_DATA_SIZE_100B+APP_BEACON_INFO_LENGTH] =                    //< Information advertised by the Beacon. 
+{
+    APP_DEVICE_TYPE,     // Manufacturer specific information. Specifies the device type in this
+                         // implementation.
+    APP_ADV_DATA_LENGTH, // Manufacturer specific information. Specifies the length of the
+                         // manufacturer specific data in this implementation.
+    APP_BEACON_UUID,     // 128 bit UUID value.
+    APP_MAJOR_VALUE,     // Major arbitrary value that can be used to distinguish between Beacons.
+    APP_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
+    APP_MEASURED_RSSI,    // Manufacturer specific information. The Beacon's measured TX power in
+                         // this implementation.
+    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_100B-1] = 0 //Dummy data for filling the array size
+};
+
+static uint8_t m_beacon_info_150B[CODEC_DATA_SIZE_150B+APP_BEACON_INFO_LENGTH] =                    //< Information advertised by the Beacon. 
+{
+    APP_DEVICE_TYPE,     // Manufacturer specific information. Specifies the device type in this
+                         // implementation.
+    APP_ADV_DATA_LENGTH, // Manufacturer specific information. Specifies the length of the
+                         // manufacturer specific data in this implementation.
+    APP_BEACON_UUID,     // 128 bit UUID value.
+    APP_MAJOR_VALUE,     // Major arbitrary value that can be used to distinguish between Beacons.
+    APP_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
+    APP_MEASURED_RSSI,    // Manufacturer specific information. The Beacon's measured TX power in
+                         // this implementation.
+    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_150B-1] = 0 //Dummy data for filling the array size
+};
+
+static uint8_t m_beacon_info_200B[CODEC_DATA_SIZE_200B+APP_BEACON_INFO_LENGTH] =                    //< Information advertised by the Beacon. 
+{
+    APP_DEVICE_TYPE,     // Manufacturer specific information. Specifies the device type in this
+                         // implementation.
+    APP_ADV_DATA_LENGTH, // Manufacturer specific information. Specifies the length of the
+                         // manufacturer specific data in this implementation.
+    APP_BEACON_UUID,     // 128 bit UUID value.
+    APP_MAJOR_VALUE,     // Major arbitrary value that can be used to distinguish between Beacons.
+    APP_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
+    APP_MEASURED_RSSI,    // Manufacturer specific information. The Beacon's measured TX power in
+                         // this implementation.
+    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_200B-1] = 0 //Dummy data for filling the array size
+};
+
+static uint8_t m_beacon_info_250B[CODEC_DATA_SIZE_250B+APP_BEACON_INFO_LENGTH] =                    //< Information advertised by the Beacon. 
+{
+    APP_DEVICE_TYPE,     // Manufacturer specific information. Specifies the device type in this
+                         // implementation.
+    APP_ADV_DATA_LENGTH, // Manufacturer specific information. Specifies the length of the
+                         // manufacturer specific data in this implementation.
+    APP_BEACON_UUID,     // 128 bit UUID value.
+    APP_MAJOR_VALUE,     // Major arbitrary value that can be used to distinguish between Beacons.
+    APP_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
+    APP_MEASURED_RSSI,    // Manufacturer specific information. The Beacon's measured TX power in
+                         // this implementation.
+    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_250B-1] = 0 //Dummy data for filling the array size
 };
 
 
@@ -304,9 +403,13 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
     {
         case BLE_GAP_EVT_ADV_SET_TERMINATED:
             //disconnect_stop_adv();
-            //NRF_LOG_INFO("Advertisement terminado");
+           // NRF_LOG_INFO("Advertisement terminado. Motivo: %d", p_ble_evt->evt.gap_evt.params.adv_set_terminated.reason);
+           // NRF_LOG_INFO("Enviados %d adv de %d configurados (max)", p_ble_evt->evt.gap_evt.params.adv_set_terminated.num_completed_adv_events, NUM_ADVERTISEMENTS);
             //bsp_board_led_off(SENDING_ADV_LED);
             err_code = app_timer_stop(m_adv_sent_led_show_timer_id); 
+            APP_ERROR_CHECK(err_code);
+
+            ret_code_t err_code = app_timer_start(m_timer_ble, ADV_EVT_INTERVAL, NULL); 
             APP_ERROR_CHECK(err_code);
             break;
         case BLE_GAP_EVT_CONNECTED:
@@ -433,6 +536,9 @@ static void advertising_init(void)
 {
     ret_code_t ret;
 
+    uint8_t * adv_pdu;
+    uint16_t size;
+
     ble_advdata_manuf_data_t manuf_specific_data;
 
     manuf_specific_data.company_identifier = APP_COMPANY_IDENTIFIER;
@@ -459,21 +565,62 @@ static void advertising_init(void)
     m_beacon_info[index++] = LSB_16(minor_value);
 #endif
 
-    m_beacon_info[APP_MINOR_POSITION] += 1;
+   // NRF_LOG_INFO("tengo seleccionado el %d PHY", m_adv_scan_phy_selected);
 
-    if (m_beacon_info[APP_MINOR_POSITION] == 0) {
+    if (m_adv_scan_phy_selected == SELECTION_1M_PHY) {
+   //   NRF_LOG_INFO("Entro a 1M");
+      adv_pdu = m_beacon_info;
+      size = APP_BEACON_INFO_LENGTH;
+    } else if (m_adv_scan_phy_selected == SELECTION_CODED_PHY) {
+   //   NRF_LOG_INFO("Entro a Codec");
+      switch (m_codec_phy_data_size) {
+        case CODEC_DATA_SIZE_50B:
+          adv_pdu = m_beacon_info_50B;
+          size = CODEC_DATA_SIZE_50B+APP_BEACON_INFO_LENGTH;
+        break;
+        case CODEC_DATA_SIZE_100B:
+   //     NRF_LOG_INFO("Selecciono 100B");
+          adv_pdu = m_beacon_info_100B;
+          size = CODEC_DATA_SIZE_100B+APP_BEACON_INFO_LENGTH;
+        break;
+        case CODEC_DATA_SIZE_150B:
+   //     NRF_LOG_INFO("Selecciono 150B, y tengo en memoria %d", CODEC_DATA_SIZE_150B+APP_BEACON_INFO_LENGTH);
+          adv_pdu = m_beacon_info_150B;
+          size = CODEC_DATA_SIZE_150B+APP_BEACON_INFO_LENGTH;
+        break;
+        case CODEC_DATA_SIZE_200B:
+   //     NRF_LOG_INFO("Selecciono 200B");
+          adv_pdu = m_beacon_info_200B;
+          size = CODEC_DATA_SIZE_200B+APP_BEACON_INFO_LENGTH;
+        break;
+        case CODEC_DATA_SIZE_250B:
+   //     NRF_LOG_INFO("Selecciono 250B");
+        default:
+          adv_pdu = m_beacon_info_250B;
+          size = CODEC_DATA_SIZE_250B+APP_BEACON_INFO_LENGTH;
+        break;
+      }
+    } else { // Por si un caso algo falla, cojo el del advertisement normal
+    NRF_LOG_INFO("Selecciono 30B defecto!");
+      adv_pdu = m_beacon_info;
+      size = APP_BEACON_INFO_LENGTH;
+    }
+
+    adv_pdu[APP_MINOR_POSITION] += 1;
+
+    if (adv_pdu[APP_MINOR_POSITION] == 0) {
       // Incrementa el MSB minor solo si el LSB minor ha desbordado
-      m_beacon_info[APP_MINOR_POSITION-1] += 1;
-      if (m_beacon_info[APP_MINOR_POSITION-1] == 0) {
-          m_beacon_info[APP_MAJOR_POSITION] += 1;
-          if (m_beacon_info[APP_MAJOR_POSITION] == 0) {
-            m_beacon_info[APP_MAJOR_POSITION-1] += 1;
+      adv_pdu[APP_MINOR_POSITION-1] += 1;
+      if (adv_pdu[APP_MINOR_POSITION-1] == 0) {
+          adv_pdu[APP_MAJOR_POSITION] += 1;
+          if (adv_pdu[APP_MAJOR_POSITION] == 0) {
+            adv_pdu[APP_MAJOR_POSITION-1] += 1;
           }
       }
     }
 
-    manuf_specific_data.data.p_data = (uint8_t *) m_beacon_info;
-    manuf_specific_data.data.size   = APP_BEACON_INFO_LENGTH;
+    manuf_specific_data.data.p_data = (uint8_t *) adv_pdu;
+    manuf_specific_data.data.size   = size;
 
     ble_gap_adv_params_t adv_params =
     {
@@ -569,12 +716,10 @@ static void advertising_start(void)
     err_code = sd_ble_gap_tx_power_set(BLE_GAP_TX_POWER_ROLE_ADV, m_adv_handle, m_output_power_selected);
     APP_ERROR_CHECK(err_code);
 
-    //TODO: Esto casca cuando pongo modo connectable no sé por qué!
     err_code = sd_ble_gap_adv_start(m_adv_handle, APP_BLE_CONN_CFG_TAG);
     //NRF_LOG_INFO("err_code after sd_ble_gap_adv_start: %d", err_code); 
     APP_ERROR_CHECK(err_code);    
 
-    //TODO: implementar timer de advertiser que maneje el led 1 rápido mientras se estén enviando
     err_code = app_timer_start(m_adv_sent_led_show_timer_id, BLINK_SEDNDING_ADV, NULL);
     APP_ERROR_CHECK(err_code);
 
@@ -690,6 +835,216 @@ static void on_output_power_selection_button(void)
   output_power_selection_set(new_output_power);
 }
 
+/**@brief Function setting the internal advertising state.
+ * Note: this function does only set the internal "advertising state", it does not start advertising.
+ *       The new advertising mode will be used when (re-)starting to advertise.
+ */
+static void on_non_conn_or_conn_adv_selection_state_set(adv_scan_type_seclection_t adv_selection)
+{
+ ret_code_t err_code;
+
+  m_adv_scan_type_selected = adv_selection;
+  bsp_board_led_off(CONN_ADV_CONN_STATE_LED);
+  switch (adv_selection)
+  {
+    case SELECTION_NON_CONNECTABLE: 
+    {
+      // Current state is non-connectable advertising. Start blinking associated LED.
+      NRF_LOG_INFO("Conn mode changed to NON_CONNECTABLE");
+        /*
+      err_code = app_timer_stop(m_conn_adv_fast_blink_timer_id); 
+      APP_ERROR_CHECK(err_code);
+      bsp_board_led_off(CONN_ADV_CONN_STATE_LED);
+
+      //err_code = app_timer_start(m_non_conn_fast_blink_timer_id, SLOW_BLINK_INTERVAL, NULL);
+      //APP_ERROR_CHECK(err_code);
+       bsp_board_led_off(NON_CONN_ADV_LED); //Always off, not using timer
+         */
+    } break;
+    
+    case SELECTION_CONNECTABLE:
+    {
+      // Current state is connectable advertising. Start blinking associated LED.
+      NRF_LOG_INFO("Conn mode changed to CONNECTABLE");
+        /* 
+     err_code = app_timer_stop(m_non_conn_fast_blink_timer_id); 
+      APP_ERROR_CHECK(err_code);
+      bsp_board_led_off(NON_CONN_ADV_LED);
+
+
+      err_code = app_timer_start(m_conn_adv_fast_blink_timer_id, FAST_BLINK_INTERVAL, NULL);
+      APP_ERROR_CHECK(err_code);
+        */
+
+    } break;
+  }
+}
+
+/**@brief Function for switching between "non-connectable and connectable advertising" selection.
+ * Note: this function does only set the internal "advertising state", it does not start advertising.
+ *       The new advertising mode will be used when (re-)starting to advertise.
+ */
+static void on_non_conn_or_conn_adv_selection(void)
+{
+ // Change the advertising type
+  adv_scan_type_seclection_t new_adv_selection;
+
+  switch (m_adv_scan_type_selected)
+  {
+    case SELECTION_CONNECTABLE:  // Connectable advertising is the previous state.
+    {
+      // Current state is non-connectable advertising. Start blinking associated LED.
+      new_adv_selection = SELECTION_NON_CONNECTABLE; 
+
+    } break;
+    
+    case SELECTION_NON_CONNECTABLE:
+    {
+      // Current state is connectable advertising. Start blinking associated LED.
+      new_adv_selection = SELECTION_CONNECTABLE;
+
+    } break;
+  }
+  on_non_conn_or_conn_adv_selection_state_set(new_adv_selection);
+
+}
+
+/**@brief Function setting the advertising data size.
+ * Note: this function does only set the adv data size, it does not start advertising.
+ *       The new advertising mode will be used when (re-)starting to advertise.
+ */
+static void on_adv_data_size_selection_set(adv_codec_phy_data_size_t adv_data_size)
+{
+ ret_code_t err_code;
+
+  if (m_adv_scan_phy_selected == SELECTION_1M_PHY) {
+    NRF_LOG_INFO("Data size using 1M PHY: %d", APP_BEACON_INFO_LENGTH); 
+  } else {
+    /* As the change adv size is supported, it is needed to restart the .len byte of m_adv_data_ext, because in ble_advdata_encode
+       a pointer to .len is passed, so next time the function is called, the size is setted to before len array. It is needed to restart 
+       each time the adv data size is changed.
+    */
+    m_adv_data_ext.adv_data.len = BLE_GAP_ADV_SET_DATA_SIZE_EXTENDED_MAX_SUPPORTED;
+    m_codec_phy_data_size = adv_data_size;
+
+    bsp_board_led_off(CONN_ADV_CONN_STATE_LED);
+    switch (adv_data_size)
+    {
+      case CODEC_DATA_SIZE_50B:
+      {
+        NRF_LOG_INFO("Adv size changed to 50 bytes");
+        err_code = app_timer_stop(m_adv_data_size_200_codec_timer_id); 
+        APP_ERROR_CHECK(err_code);
+        err_code = app_timer_stop(m_adv_data_size_150_codec_timer_id); 
+        APP_ERROR_CHECK(err_code);
+        err_code = app_timer_stop(m_adv_data_size_100_codec_timer_id); 
+        APP_ERROR_CHECK(err_code);
+
+        bsp_board_led_off(CONN_ADV_CONN_STATE_LED);
+      } break;
+
+      case CODEC_DATA_SIZE_100B: 
+      {
+        NRF_LOG_INFO("Adv size changed to 100 bytes");
+        bsp_board_led_off(CONN_ADV_CONN_STATE_LED); //Not necessary, led should start to blink
+        err_code = app_timer_stop(m_adv_data_size_200_codec_timer_id); 
+        APP_ERROR_CHECK(err_code);
+        err_code = app_timer_stop(m_adv_data_size_150_codec_timer_id); 
+        APP_ERROR_CHECK(err_code);
+
+        err_code = app_timer_start(m_adv_data_size_100_codec_timer_id, SLOW_BLINK_INTERVAL, NULL);
+        APP_ERROR_CHECK(err_code);
+      } break;
+    
+      case CODEC_DATA_SIZE_150B:
+      {
+        NRF_LOG_INFO("Adv size changed to 150 bytes");
+        bsp_board_led_off(CONN_ADV_CONN_STATE_LED); //Not necessary, led should start to blink
+        err_code = app_timer_stop(m_adv_data_size_200_codec_timer_id); 
+        APP_ERROR_CHECK(err_code);
+        err_code = app_timer_stop(m_adv_data_size_100_codec_timer_id); 
+        APP_ERROR_CHECK(err_code);
+
+        err_code = app_timer_start(m_adv_data_size_150_codec_timer_id, MEDIUM_BLINK_INTERVAL, NULL);
+        APP_ERROR_CHECK(err_code);
+      } break;
+
+      case CODEC_DATA_SIZE_200B:
+      {
+        NRF_LOG_INFO("Adv size changed to 200 bytes");
+        bsp_board_led_off(CONN_ADV_CONN_STATE_LED); //Not necessary, led should start to blink
+        err_code = app_timer_stop(m_adv_data_size_150_codec_timer_id); 
+        APP_ERROR_CHECK(err_code);
+        err_code = app_timer_stop(m_adv_data_size_100_codec_timer_id); 
+        APP_ERROR_CHECK(err_code);
+
+        err_code = app_timer_start(m_adv_data_size_200_codec_timer_id, FAST_BLINK_INTERVAL, NULL);
+        APP_ERROR_CHECK(err_code);
+      } break;
+
+      case CODEC_DATA_SIZE_250B:
+      {
+        NRF_LOG_INFO("Adv size changed to 250 bytes");
+        err_code = app_timer_stop(m_adv_data_size_200_codec_timer_id); 
+        APP_ERROR_CHECK(err_code);
+        err_code = app_timer_stop(m_adv_data_size_150_codec_timer_id); 
+        APP_ERROR_CHECK(err_code);
+        err_code = app_timer_stop(m_adv_data_size_100_codec_timer_id); 
+        APP_ERROR_CHECK(err_code);
+
+        bsp_board_led_on(CONN_ADV_CONN_STATE_LED);
+      } break;
+    }
+  }
+}
+
+/**@brief Function for switching between codec adv data size selection.
+ * Note: this function does only set the internal adv-data-size value, it does not start advertising.
+ *       The new advertising mode will be used when (re-)starting to advertise.
+ */
+static void on_adv_data_size_selection(void)
+{
+ // Change the advertising type
+  adv_codec_phy_data_size_t new_adv_data_size_selection;
+  
+  // Only do anything when in Codec
+  if (m_adv_scan_phy_selected == SELECTION_CODED_PHY) {
+    switch (m_codec_phy_data_size)
+    {
+      case CODEC_DATA_SIZE_50B:  // Connectable advertising is the previous state.
+      {
+        // Current state is 50 bytes of data. Set off associated LED
+        new_adv_data_size_selection = CODEC_DATA_SIZE_100B;
+      } break;
+
+      case CODEC_DATA_SIZE_100B:  // Connectable advertising is the previous state.
+      {
+        // Current state is 100 bytes of data. Set slow blinking associated LED
+        new_adv_data_size_selection = CODEC_DATA_SIZE_150B;
+      } break;
+    
+      case CODEC_DATA_SIZE_150B:
+      {
+        // Current state is 150 bytes of data. Start medimum blinking associated LED.
+        new_adv_data_size_selection = CODEC_DATA_SIZE_200B;
+      } break;
+
+      case CODEC_DATA_SIZE_200B:
+      {
+        // Current state is 200 bytes of data. Start fast blinking associated LED.
+        new_adv_data_size_selection = CODEC_DATA_SIZE_250B;
+      } break;
+
+      case CODEC_DATA_SIZE_250B:
+      {
+        // Current state is 250 bytes of data. Set on associated LED.
+        new_adv_data_size_selection = CODEC_DATA_SIZE_50B;
+      } break;
+    }
+    on_adv_data_size_selection_set(new_adv_data_size_selection);
+  }
+}
+
 /**@brief Function for setting new phy selection. LEDs start to blink according to the selected state.
  * Note: this function does only set the internal state, it does apply the new setting.
  *       The new phy will be be used when (re-)starting scanning.
@@ -717,6 +1072,7 @@ static void phy_selection_set_state(adv_scan_phy_seclection_t new_phy_selection)
       err_code = app_timer_stop(m_1Mbps_led_slow_blink_timer_id); 
       APP_ERROR_CHECK(err_code);
       bsp_board_led_on(PHY_SELECTION_LED);
+      on_adv_data_size_selection_set(m_codec_phy_data_size);
     } break;
   }
 
@@ -748,79 +1104,6 @@ static void on_phy_selection_button(void)
   }
   phy_selection_set_state(new_phy_selection);
 }
-
-/**@brief Function setting the internal advertising state.
- * Note: this function does only set the internal "advertising state", it does not start advertising.
- *       The new advertising mode will be used when (re-)starting to advertise.
- */
-static void on_non_conn_or_conn_adv_selection_state_set(adv_scan_type_seclection_t adv_selection)
-{
- ret_code_t err_code;
-
-  m_adv_scan_type_selected = adv_selection;
-  bsp_board_led_off(CONN_ADV_CONN_STATE_LED);
-  switch (adv_selection)
-  {
-    case SELECTION_NON_CONNECTABLE: 
-    {
-      // Current state is non-connectable advertising. Start blinking associated LED.
-      NRF_LOG_INFO("Conn mode changed to NON_CONNECTABLE");
-      err_code = app_timer_stop(m_conn_adv_fast_blink_timer_id); 
-      APP_ERROR_CHECK(err_code);
-      bsp_board_led_off(CONN_ADV_CONN_STATE_LED);
-
-      //err_code = app_timer_start(m_non_conn_fast_blink_timer_id, SLOW_BLINK_INTERVAL, NULL);
-      //APP_ERROR_CHECK(err_code);
-       bsp_board_led_off(NON_CONN_ADV_LED); //Always off, not using timer
-    } break;
-    
-    case SELECTION_CONNECTABLE:
-    {
-      // Current state is connectable advertising. Start blinking associated LED.
-      NRF_LOG_INFO("Conn mode changed to CONNECTABLE");
-      err_code = app_timer_stop(m_non_conn_fast_blink_timer_id); 
-      APP_ERROR_CHECK(err_code);
-      bsp_board_led_off(NON_CONN_ADV_LED);
-
-
-      err_code = app_timer_start(m_conn_adv_fast_blink_timer_id, FAST_BLINK_INTERVAL, NULL);
-      APP_ERROR_CHECK(err_code);
-
-    } break;
-  }
-
-
-
-}
-
-/**@brief Function for switching between "non-connectable and connectable advertising" selection.
- * Note: this function does only set the internal "advertising state", it does not start advertising.
- *       The new advertising mode will be used when (re-)starting to advertise.
- */
-static void on_non_conn_or_conn_adv_selection(void)
-{
- // Change the advertising type
-  adv_scan_type_seclection_t new_adv_selection;
-
-  switch (m_adv_scan_type_selected)
-  {
-    case SELECTION_CONNECTABLE:  // Connectable advertising is the previous state.
-    {
-      // Current state is non-connectable advertising. Start blinking associated LED.
-      new_adv_selection = SELECTION_NON_CONNECTABLE; 
-
-    } break;
-    
-    case SELECTION_NON_CONNECTABLE:
-    {
-      // Current state is connectable advertising. Start blinking associated LED.
-      new_adv_selection = SELECTION_CONNECTABLE;
-
-    } break;
-  }
-  on_non_conn_or_conn_adv_selection_state_set(new_adv_selection);
-
-}
 // ***********************************************************************************************************
 
 /**@brief Function for handling events from the button handler module.
@@ -848,9 +1131,10 @@ void bsp_evt_handler(bsp_event_t event)
             on_output_power_selection_button();
 	  } break;
 
-          case NON_CONN_OR_CONN_ADV_BUTTON_EVENT:
+          case NON_CONN_OR_CONN_ADV_BUTTON_EVENT: //Esto ahora actúa como modificador del tamaño de los datos!
           {
-            on_non_conn_or_conn_adv_selection(); //DOES NOT WORK. Fatal error (nº18) NRF_ERROR_CONN_COUNT The limit of available connections for this connection configuration * tag has been reached; 
+            //on_non_conn_or_conn_adv_selection(); 
+            on_adv_data_size_selection();
           } break;
                         
           default:
@@ -952,13 +1236,26 @@ static void adv_sent_led_show_timeout_handler (void *p_context)
     bsp_board_led_invert(SENDING_ADV_LED);
 }
 
-static void non_conn_adv_fast_blink_timeout_handler(void * p_context)
+
+static void conn_adv_fast_blink_timeout_handler(void *p_context)
 {
-  UNUSED_PARAMETER(p_context); 
+  UNUSED_PARAMETER(p_context);
   bsp_board_led_invert(NON_CONN_ADV_LED);
 }
 
-static void conn_adv_fast_blink_timeout_handler(void * p_context)
+static void adv_data_size_100_codec_timeout_handler(void * p_context)
+{
+  UNUSED_PARAMETER(p_context); 
+  bsp_board_led_invert(CONN_ADV_CONN_STATE_LED);
+}
+
+static void adv_data_size_200_codec_timeout_handler(void * p_context)
+{
+  UNUSED_PARAMETER(p_context);  
+  bsp_board_led_invert(CONN_ADV_CONN_STATE_LED);
+}
+
+static void adv_data_size_150_codec_timeout_handler(void * p_context)
 {
   UNUSED_PARAMETER(p_context);  
   bsp_board_led_invert(CONN_ADV_CONN_STATE_LED);
@@ -985,22 +1282,29 @@ static void timers_init(void)
     ret_code_t err_code = app_timer_init();
     APP_ERROR_CHECK(err_code);
 
-    err_code = app_timer_create(&m_timer_ble, APP_TIMER_MODE_REPEATED, adv_interval_timeout_handler);
+    //Single shot! porque solo quiero que salte 1 vez, cuando nos vayamos a dormir (reposo ciclo envío adv)
+    err_code = app_timer_create(&m_timer_ble, APP_TIMER_MODE_SINGLE_SHOT, adv_interval_timeout_handler);
     APP_ERROR_CHECK(err_code);
 
     err_code = app_timer_create(&m_adv_sent_led_show_timer_id, APP_TIMER_MODE_REPEATED, adv_sent_led_show_timeout_handler);
     APP_ERROR_CHECK(err_code);
 
     // Creating the timers used to indicate the state/selection mode of the board.
-    err_code = app_timer_create(&m_non_conn_fast_blink_timer_id, APP_TIMER_MODE_REPEATED, non_conn_adv_fast_blink_timeout_handler);
+    err_code = app_timer_create(&m_conn_adv_fast_blink_timer_id, APP_TIMER_MODE_REPEATED, conn_adv_fast_blink_timeout_handler);
     APP_ERROR_CHECK(err_code);
   
-    err_code = app_timer_create(&m_conn_adv_fast_blink_timer_id, APP_TIMER_MODE_REPEATED, conn_adv_fast_blink_timeout_handler);
+    err_code = app_timer_create(&m_adv_data_size_100_codec_timer_id, APP_TIMER_MODE_REPEATED, adv_data_size_100_codec_timeout_handler);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = app_timer_create(&m_adv_data_size_150_codec_timer_id, APP_TIMER_MODE_REPEATED, adv_data_size_150_codec_timeout_handler);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = app_timer_create(&m_adv_data_size_200_codec_timer_id, APP_TIMER_MODE_REPEATED, adv_data_size_200_codec_timeout_handler);
     APP_ERROR_CHECK(err_code);
   
     err_code = app_timer_create(&m_1Mbps_led_slow_blink_timer_id, APP_TIMER_MODE_REPEATED, led_1Mbps_slow_blink_timeout_handler);
     APP_ERROR_CHECK(err_code);
-  
+
     err_code = app_timer_create(&m_8dBm_led_slow_blink_timer_id, APP_TIMER_MODE_REPEATED, led_8dBm_slow_blink_timeout_handler);
     APP_ERROR_CHECK(err_code);
 
@@ -1013,15 +1317,17 @@ static void set_current_adv_params_and_start_advertising(void)
 {
   
   phy_selection_set_state(m_adv_scan_phy_selected);
-  on_non_conn_or_conn_adv_selection_state_set(m_adv_scan_type_selected);
+ //on_non_conn_or_conn_adv_selection_state_set(m_adv_scan_type_selected); Para un nuevo timer de más cantidad de datos
   output_power_selection_set(m_output_power_selected);
+  on_adv_data_size_selection_set(m_codec_phy_data_size);
   
-  ret_code_t err_code = app_timer_start(m_timer_ble, ADV_EVT_INTERVAL, NULL);
-  APP_ERROR_CHECK(err_code);
+  //NO!, es la cuenta para dormir, debo empezarla cuando se haya acabado el envío (BLE_GAP_EVT_ADV_SET_TERMINATED de ble_evt_handler)
+  //ret_code_t err_code = app_timer_start(m_timer_ble, ADV_EVT_INTERVAL, NULL); 
+  //APP_ERROR_CHECK(err_code);
   
   //Estas funciones se ejecutan en el handler del timer
-  //advertising_init();
-  //advertising_start();
+  advertising_init();
+  advertising_start();
 
 }
 

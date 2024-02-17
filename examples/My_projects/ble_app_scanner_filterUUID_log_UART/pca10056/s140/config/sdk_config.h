@@ -256,7 +256,7 @@
 #endif
 // <o> NRF_BLE_SCAN_SCAN_INTERVAL - Scanning interval. Determines the scan interval in units of 0.625 millisecond. 
 #ifndef NRF_BLE_SCAN_SCAN_INTERVAL
-#define NRF_BLE_SCAN_SCAN_INTERVAL 160
+#define NRF_BLE_SCAN_SCAN_INTERVAL 320 //For 200ms
 #endif
 
 // <o> NRF_BLE_SCAN_SCAN_DURATION - Duration of a scanning session in units of 10 ms. Range: 0x0001 - 0xFFFF (10 ms to 10.9225 ms). If set to 0x0000, the scanning continues until it is explicitly disabled. 
@@ -266,7 +266,7 @@
 
 // <o> NRF_BLE_SCAN_SCAN_WINDOW - Scanning window. Determines the scanning window in units of 0.625 millisecond. 
 #ifndef NRF_BLE_SCAN_SCAN_WINDOW
-#define NRF_BLE_SCAN_SCAN_WINDOW 80
+#define NRF_BLE_SCAN_SCAN_WINDOW 320  //All the intervall scanning (200ms)
 #endif
 
 // <o> NRF_BLE_SCAN_MIN_CONNECTION_INTERVAL - Determines minimum connection interval in milliseconds. 
@@ -8036,7 +8036,7 @@
 // <e> NRF_LOG_BACKEND_UART_ENABLED - nrf_log_backend_uart - Log UART backend
 //==========================================================
 #ifndef NRF_LOG_BACKEND_UART_ENABLED
-#define NRF_LOG_BACKEND_UART_ENABLED 0
+#define NRF_LOG_BACKEND_UART_ENABLED 1
 #endif
 // <o> NRF_LOG_BACKEND_UART_TX_PIN - UART TX pin 
 #ifndef NRF_LOG_BACKEND_UART_TX_PIN
@@ -8081,7 +8081,7 @@
 // <e> NRF_LOG_ENABLED - nrf_log - Logger
 //==========================================================
 #ifndef NRF_LOG_ENABLED
-#define NRF_LOG_ENABLED 0
+#define NRF_LOG_ENABLED 1
 #endif
 // <h> Log message pool - Configuration of log message pool
 
