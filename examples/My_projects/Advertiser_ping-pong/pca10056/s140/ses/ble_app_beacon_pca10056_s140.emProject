@@ -1,5 +1,5 @@
 <!DOCTYPE CrossStudio_Project_File>
-<solution Name="ble_app_beacon_pca10056_s140" target="8" version="2">
+<solution Name="Master_ping-pong" target="8" version="2">
   <configuration Name="100ms-10adv-1min" />
   <configuration Name="100ms-10adv-1seg" />
   <configuration Name="100ms-10adv-4seg" />
@@ -13,7 +13,7 @@
     c_preprocessor_definitions="NDEBUG"
     gcc_optimization_level="Optimize For Size"
     link_time_optimization="No" />
-  <project Name="ble_app_beacon_pca10056_s140">
+  <project Name="Master_ping-pong">
     <configuration
       Name="100ms-10adv-1min"
       c_preprocessor_definitions="ADV_INTERVAL_MS=100;NUM_ADVERTISEMENTS=10;SEGUNDOS_DELAY=60" />
@@ -21,6 +21,7 @@
       Name="100ms-10adv-1seg"
       c_preprocessor_definitions="ADV_INTERVAL_MS=100;NUM_ADVERTISEMENTS=10;SEGUNDOS_DELAY=1" />
     <configuration
+      LIBRARY_IO_TYPE="RTT"
       Name="100ms-10adv-4seg"
       c_preprocessor_definitions="ADV_INTERVAL_MS=100;NUM_ADVERTISEMENTS=10;SEGUNDOS_DELAY=4" />
     <configuration

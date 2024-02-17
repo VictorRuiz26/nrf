@@ -40,6 +40,10 @@
 
 #define IDX_MAJOR 25 //8 bytes de inicio y 16 del uuid
 #define IDX_MINOR 27
+#define IDX_TIPO  29
+#define IDX_COORD_ID  30
+#define IDX_SLAVE_ID  31
+
 
 // ********************** CONFIGURACION UART **********************
 #define UART_TX_BUFF_SIZE 128

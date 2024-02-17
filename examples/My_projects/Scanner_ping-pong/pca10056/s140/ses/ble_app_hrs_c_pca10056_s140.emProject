@@ -1,5 +1,5 @@
 <!DOCTYPE CrossStudio_Project_File>
-<solution Name="ble_scan_UUID_log_UART" target="8" version="2">
+<solution Name="Slave_ping_pong" target="8" version="2">
   <configuration
     LIBRARY_IO_TYPE="RTT"
     Name="Debug"
@@ -10,7 +10,7 @@
     c_preprocessor_definitions="NDEBUG"
     gcc_optimization_level="Optimize For Size"
     link_time_optimization="No" />
-  <project Name="ble_app_hrs_c_pca10056_s140">
+  <project Name="Slave_ping_pong">
     <configuration
       Name="Common"
       arm_architecture="v7EM"

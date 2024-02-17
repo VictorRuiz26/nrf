@@ -24,7 +24,7 @@
 // ################# VALOR QUE INDICA EL INTERVALO DE ADVERTISEMENT
 #define TIME_BETWEEN_EACH_ADV    MSEC_TO_UNITS(ADV_INTERVAL_MS, UNIT_0_625_MS)  /**< The advertising interval for non-connectable advertisement (100 ms). This value can vary between 100ms to 10.24s */
 
-#define APP_BEACON_INFO_LENGTH          0x17                               /**< Total length of information advertised by the Beacon. */
+#define APP_BEACON_INFO_LENGTH          0x17 + PDU_EXTRA_BYTES             /**< Total length of information advertised by the Beacon. */
 #define APP_ADV_DATA_LENGTH             0x15                               /**< Length of manufacturer specific data in the advertisement. */
 #define APP_DEVICE_TYPE                 0x02                               /**< 0x02 refers to Beacon. */
 #define APP_MEASURED_RSSI               0xC3                               /**< The Beacon's measured RSSI at 1 meter distance in dBm. */
@@ -62,6 +62,7 @@
 
 // ********* BUTTON AND LED ASSIGNMENT FOR CONTROL ********
 
+#define ADV_REPORT_LED                  BSP_BOARD_LED_0
 #define SENDING_ADV_LED                 BSP_BOARD_LED_0
 #define PHY_SELECTION_LED               BSP_BOARD_LED_1		/**< LED indicating which phy is in use. */
 #define OUTPUT_POWER_SELECTION_LED      BSP_BOARD_LED_2		/**< LED indicating at which ouput power the radio is transmitting */
@@ -94,18 +95,38 @@
 #define SLOW_BLINK_INTERVAL		APP_TIMER_TICKS(1000)
 #define BLINK_SEDNDING_ADV              APP_TIMER_TICKS(100)
 
-//APP_TIMER_DEF(m_non_conn_fast_blink_timer_id);                /**< Timer used to toggle LED indicating non-connectable advertising on the dev. kit. Reusado para tamaño 100B */
-APP_TIMER_DEF(m_conn_adv_fast_blink_timer_id);                /**< Timer used to toggle LED indicating connectable advertising on the dev. kit.  */
 
 APP_TIMER_DEF(m_adv_data_size_100_codec_timer_id);
 APP_TIMER_DEF(m_adv_data_size_150_codec_timer_id);
 APP_TIMER_DEF(m_adv_data_size_200_codec_timer_id);
 
-APP_TIMER_DEF(m_1Mbps_led_slow_blink_timer_id);                /**< Timer used to toggle LED for phy selection indication on the dev.kit. */                        
-APP_TIMER_DEF(m_8dBm_led_slow_blink_timer_id);                 /**< Timer used to toggle LED for output power selection indication on the dev.kit. */ 
 APP_TIMER_DEF(m_timer_ble);
 APP_TIMER_DEF(m_adv_sent_led_show_timer_id);
 // *********************************
+
+// ************ NEW PING PONG MODE DEFINITIONS ***********
+#define MESSAGE_TEST_TYPE 0xAE
+#define COORDINATOR_ID  255
+#define DEFAULT_SLAVE_ID 0x01
+
+#define MAX_SLAVES       10
+static uint8_t slaves_array[MAX_SLAVES] = {0x01}; //Starting defining first SlaveID.
+static uint8_t actualSlave = 0;
+
+#define PDU_EXTRA_BYTES 3       //For mantaining previous structure, add these bytes to final (packet type, MasterID)
+#define IDX_MAJOR 25 //8 bytes de inicio y 16 del uuid
+#define IDX_MINOR 27
+#define IDX_TIPO  29
+#define IDX_COORD_ID  30
+#define IDX_SLAVE_ID  31
+#define IDX_NSEQ      32  //Following two bytes will act as an ACK for the previous advs sent.
+#define IDX_NADV_RCVD 33
+
+
+// *******************************************************
+
+
+
 
 static void advertising_stop(void);
 // ******* STRUCTS AND VARIABLES FOR MODE OPERATION ******
@@ -149,6 +170,10 @@ static bool    m_app_initiated_disconnect  = false;                //The applica
 static bool    m_waiting_for_disconnect_evt     = false;          // Disconnect is initiated. The application has to wait for BLE_GAP_EVT_DISCONNECTED before proceeding.
 
 static adv_codec_phy_data_size_t m_codec_phy_data_size = CODEC_DATA_SIZE_50B;
+
+#define TIME_MS_1ADV          (80 + 256 + 16 + 24 + 8*8*(CODEC_DATA_SIZE_50B+5+8) + 192 + 24)/1000 //Due to const definition problems, use const CODEC_DATA_SIZE_50B at first tests
+#define TIME_10MS_1ADV        TIME_MS_1ADV*10
+#define EXTRA_SCAN_DURATION   50000 //Extra 5s for scanning (in 10ms units)
 
 static void set_current_adv_params_and_start_advertising(void);
 static void disconnect_stop_adv(void);
@@ -200,6 +225,216 @@ static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;    /**< Handle of the c
 static uint8_t m_gap_role     = BLE_GAP_ROLE_INVALID;       /**< BLE role for this connection, see @ref BLE_GAP_ROLES */
 
 
+//  ************-*-*-*- DEFINITIONS FOR BLE STACK SCAN MODE -*-*-*-*-**************
+static uint8_t m_scan_buffer_data[BLE_GAP_SCAN_BUFFER_EXTENDED_MIN]; /**< buffer where advertising reports will be stored by the SoftDevice. */
+
+/**@brief Pointer to the buffer where advertising reports will be stored by the SoftDevice. */
+static ble_data_t m_scan_buffer =
+{
+    m_scan_buffer_data,
+    BLE_GAP_SCAN_BUFFER_EXTENDED_MIN
+};
+
+// Name to use for advertising and connection.
+static char const m_target_periph_name[] = DEVICE_NAME;
+
+// VARIABLE PARA COMPROBAR UUID DEL ADVERTISEMENT
+#define APP_BEACON_UUID_POINTER        ((uint8_t[]){ 0x11, 0x11, 0x11, 0x11, \
+                                                    0x11, 0x11, 0x11, 0x11, \
+                                                    0x11, 0x11, 0x11, 0x11, \
+                                                    0x11, 0x11, 0x11, 0x11 })
+
+// ****************** PARAMS EN FUNCION DEL MODO PHY *******************
+// Scan parameters requested for scanning and connection.
+static ble_gap_scan_params_t const m_scan_param_coded_phy =
+{
+    .extended       = 1,
+    .active        = 0x01,
+    .interval      = NRF_BLE_SCAN_SCAN_INTERVAL,
+    .window        = NRF_BLE_SCAN_SCAN_WINDOW,
+    .timeout       = (TIME_10MS_1ADV*NUM_ADVERTISEMENTS) + EXTRA_SCAN_DURATION,
+    .scan_phys     = BLE_GAP_PHY_CODED, 
+    .filter_policy = BLE_GAP_SCAN_FP_ACCEPT_ALL,
+};
+
+static ble_gap_scan_params_t const m_scan_param_1MBps =
+{
+    .active        = 0x01,
+    .interval      = NRF_BLE_SCAN_SCAN_INTERVAL,
+    .window        = NRF_BLE_SCAN_SCAN_WINDOW,
+    .timeout       = 0x0000, // No timeout.
+    .scan_phys     = BLE_GAP_PHY_1MBPS,
+    .filter_policy = BLE_GAP_SCAN_FP_ACCEPT_ALL,
+};
+
+
+/**@brief Function to start scanning.
+ * Scanning is started based on the internal parameters (global variables) set.
+ */
+static void scan_start(void) 
+{
+   ret_code_t err_code;
+
+   if(m_conn_handle != BLE_CONN_HANDLE_INVALID)
+   {
+    // Disconnect from connected peripheral.
+    m_app_initiated_disconnect = true;
+    m_waiting_for_disconnect_evt    = true;
+    err_code = sd_ble_gap_disconnect(m_conn_handle,BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+     if (err_code != NRF_SUCCESS)
+	  {
+           NRF_LOG_ERROR("scan_start, sd_ble_gap_disconnect() failed: 0x%0x.", err_code);
+           m_app_initiated_disconnect = false;
+           m_waiting_for_disconnect_evt = false;
+	  }
+
+    while(m_waiting_for_disconnect_evt == true)
+    {
+      // Wait for BLE_GAP_EVT_DISCONNECTED
+    }
+
+   }
+   // If already scanning, stop scanning.
+   (void) sd_ble_gap_scan_stop();
+     
+   // Set the correct TX power.
+   err_code = sd_ble_gap_tx_power_set(BLE_GAP_TX_POWER_ROLE_SCAN_INIT, NULL, m_output_power_selected);
+   APP_ERROR_CHECK(err_code);
+   
+   NRF_LOG_INFO("Output power set to %d dBm", m_output_power_selected);
+
+   switch(m_adv_scan_phy_selected)
+   {
+     case SELECTION_CODED_PHY:
+    {
+      NRF_LOG_INFO("Starting scan on coded phy.");
+       err_code = sd_ble_gap_scan_start(&m_scan_param_coded_phy, &m_scan_buffer);
+      APP_ERROR_CHECK(err_code);
+      break;
+    }
+    case SELECTION_1M_PHY:
+    {
+      NRF_LOG_INFO("Starting scan on 1Mbps.");
+      err_code = sd_ble_gap_scan_start(&m_scan_param_1MBps, &m_scan_buffer);
+      APP_ERROR_CHECK(err_code);
+    }break;
+    default:
+    {
+     NRF_LOG_INFO("Phy selection did not match setup. Scan not started.");
+    }
+   }
+   m_app_initiated_disconnect = false;
+  
+}
+
+
+/**@brief Function for handling BLE_GAP_ADV_REPORT events.
+ * Log adv report upon device name match or if "non-connectable" advertising on coded phy is received.
+ * If in state "scanning, trying to connect", send connection request to device with matching device name.
+ */
+static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
+{
+    static int8_t   rssi_value = 0;
+    // Declarar una variable para almacenar el UUID
+    uint8_t uuid_data[16];
+    ret_code_t err_code;
+    bool adv_target_name_found = ble_advdata_name_find(p_adv_report->data.p_data,
+                                    p_adv_report->data.len,
+                                    m_target_periph_name);
+    
+    bool     adv_is_connectable;          // Variable telling if the advertising device is connectable or not.
+    if(p_adv_report->type.connectable == 1)
+    {
+      adv_is_connectable = true;
+    } else // The advertising is non-connectable.
+    {
+      adv_is_connectable = false;
+    }
+
+    // Check if the adv report is "non-connectable" on coded phy.
+    bool adv_report_non_conn_coded_phy = (adv_is_connectable == false) && (SELECTION_CODED_PHY==m_adv_scan_phy_selected);
+
+     if ((adv_target_name_found== true) || 
+         (adv_report_non_conn_coded_phy == true))
+     {   
+
+        // TODO: "Enable" if-statement if RSSI shuold only be logged when changed.
+        //if(rssi_value != p_adv_report->rssi)
+        //{
+            rssi_value = p_adv_report->rssi;
+            if(p_adv_report->primary_phy ==  BLE_GAP_PHY_1MBPS)
+            {
+              NRF_LOG_INFO("Received ADV report, RSSI %d, phy: 1 Mbps",rssi_value);
+            }else if (p_adv_report->primary_phy == BLE_GAP_PHY_CODED )
+            {
+               NRF_LOG_INFO("Received ADV report, RSSI %d, phy: coded, data size: %d", rssi_value, p_adv_report->data.len);
+            } else {
+               NRF_LOG_INFO("Received ADV report, RSSI %d, phy: unknown",rssi_value);
+            }
+    }
+ 
+     if (1)  //m_scan_type_selected == SELECTION_SCAN_NON_CONN
+     {
+      //Procesamiento para solo quedarnos con los UUID
+        if ((p_adv_report->data.len == 30)  || 
+            (p_adv_report->data.len == 255) || 
+            (p_adv_report->data.len == 205) || 
+            (p_adv_report->data.len == 155) || 
+            (p_adv_report->data.len == 105) ||
+            (p_adv_report->data.len == 55))
+            {
+                // Extract and print UUID if it follows 0xFF in the advertisement
+                uint8_t *p_data = p_adv_report->data.p_data;
+                uint8_t data_len = p_adv_report->data.len;
+
+                for (int i = 0; i < data_len - 1; ++i)
+                {
+                    if (p_data[i] == 0x15 && (i + 17) < data_len) // Assuming UUID is 16 bytes
+                    {
+                        // Copiar el UUID a la variable
+                        memcpy(uuid_data, &p_data[i + 1], 16);
+                        break;
+                    }
+                }
+
+                // Comparar el UUID almacenado con el UUID definido
+                if (memcmp(uuid_data, APP_BEACON_UUID_POINTER, sizeof(uuid_data)) == 0)
+                {               
+                    bsp_board_led_invert(ADV_REPORT_LED);
+
+                    NRF_LOG_INFO("************************************************************");
+                    NRF_LOG_INFO("UUID matches the defined UUID!");
+                    NRF_LOG_INFO("Advertising packet received (length: %d):", p_adv_report->data.len);
+                    printf("Advertising packet received (length: %d):\n\r", p_adv_report->data.len);
+                    //fprintf(archivo, "Advertising packet received (length: %d):\n\r", p_adv_report->data.len);
+                    //NRF_LOG_RAW_HEXDUMP_INFO(p_adv_report->data.p_data, p_adv_report->data.len);
+                    NRF_LOG_RAW_HEXDUMP_INFO(p_adv_report->data.p_data, p_adv_report->data.len);  
+                    NRF_LOG_INFO("************************************************************");
+                    printf("************************************************************\n\r");
+                    //fprintf(archivo, "************************************************************\n\r
+
+                    // Mando paquete por UART
+                    //send_adv(p_adv_report);
+
+                }
+                else
+                {
+                    NRF_LOG_INFO("UUID does not match the defined UUID.");
+                }                           
+                
+            
+            }
+      // Continue scanning
+       err_code = sd_ble_gap_scan_start(NULL, &m_scan_buffer);
+       APP_ERROR_CHECK(err_code);
+         
+      return;
+     }
+}
+
+
+
+// *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 // Connection parameters requested for connection.
 static ble_gap_conn_params_t m_conn_param =
@@ -219,16 +454,6 @@ static void instructions_print(void)
     //NRF_LOG_INFO("Button 4: switch between non-connectable (slow blink LED 4) and connectable advertising (fast blink LED4).");
     NRF_LOG_INFO("Button 4: rotate between 50B (LED4 Off), 100B(LED4 slow blinking), 150B(LED4 medium blinking), 200B(LED4 fast blinking) and 250B(LED4 on) adv data size (only codec PHY!)");
 }
-
-/*uint8_t * m_beacon_info;
-m_beacon_info = (uint8_t *)calloc(APP_BEACON_INFO_LENGTH, sizeof(uint8_t));
-m_beacon_info[0] = APP_DEVICE_TYPE;
-m_beacon_info[1] = APP_ADV_DATA_LENGTH;
-memcpy(&m_beacon_info[2], &APP_BEACON_UUID, 16);
-memcpy(&m_beacon_info[18], &APP_MAJOR_VALUE, 2);
-memcpy(&m_beacon_info[20], &APP_MINOR_VALUE, 2);
-memcpy(&m_beacon_info[21], &APP_BEACON_UUID, 1);
-*/
 
 static uint8_t m_beacon_info[APP_BEACON_INFO_LENGTH] =                    //< Information advertised by the Beacon. 
 {
@@ -255,6 +480,10 @@ static uint8_t m_beacon_info_50B[CODEC_DATA_SIZE_50B+APP_BEACON_INFO_LENGTH] =  
     APP_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
     APP_MEASURED_RSSI,    // Manufacturer specific information. The Beacon's measured TX power in
                          // this implementation.
+    MESSAGE_TEST_TYPE,
+    COORDINATOR_ID,
+    DEFAULT_SLAVE_ID,
+
     [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_50B-1] = 0 //Dummy data for filling the array size
 };
 
@@ -269,6 +498,9 @@ static uint8_t m_beacon_info_100B[CODEC_DATA_SIZE_100B+APP_BEACON_INFO_LENGTH] =
     APP_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
     APP_MEASURED_RSSI,    // Manufacturer specific information. The Beacon's measured TX power in
                          // this implementation.
+    0,
+    0,
+    0,
     [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_100B-1] = 0 //Dummy data for filling the array size
 };
 
@@ -283,6 +515,9 @@ static uint8_t m_beacon_info_150B[CODEC_DATA_SIZE_150B+APP_BEACON_INFO_LENGTH] =
     APP_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
     APP_MEASURED_RSSI,    // Manufacturer specific information. The Beacon's measured TX power in
                          // this implementation.
+    0,
+    0,
+    0,
     [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_150B-1] = 0 //Dummy data for filling the array size
 };
 
@@ -297,6 +532,9 @@ static uint8_t m_beacon_info_200B[CODEC_DATA_SIZE_200B+APP_BEACON_INFO_LENGTH] =
     APP_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
     APP_MEASURED_RSSI,    // Manufacturer specific information. The Beacon's measured TX power in
                          // this implementation.
+    0,
+    0,
+    0,
     [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_200B-1] = 0 //Dummy data for filling the array size
 };
 
@@ -311,62 +549,11 @@ static uint8_t m_beacon_info_250B[CODEC_DATA_SIZE_250B+APP_BEACON_INFO_LENGTH] =
     APP_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
     APP_MEASURED_RSSI,    // Manufacturer specific information. The Beacon's measured TX power in
                          // this implementation.
+    0,
+    0,
+    0,
     [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_250B-1] = 0 //Dummy data for filling the array size
 };
-
-
-/**@brief Function for handling BLE_GAP_EVT_CONNECTED events.
- * Save the connection handle and GAP role.
- * Turn on the "connected state" LED.
- */
-static void on_ble_gap_evt_connected(ble_gap_evt_t const * p_gap_evt)
-{
-    ret_code_t err_code;
-    
-    m_conn_handle = p_gap_evt->conn_handle;
-    m_gap_role    = p_gap_evt->params.connected.role;
-
-    err_code = sd_ble_gap_tx_power_set(BLE_GAP_TX_POWER_ROLE_CONN, m_conn_handle, m_output_power_selected);
-    APP_ERROR_CHECK(err_code);
-    
-    if (m_gap_role == BLE_GAP_ROLE_PERIPH)
-    {
-        NRF_LOG_INFO("Connected as a peripheral.");
-    }
-    else if (m_gap_role == BLE_GAP_ROLE_CENTRAL)
-    {
-        NRF_LOG_INFO("Connected as a central. Should not happen.");
-    }
-    
-    //If advertising, stop advertising.
-    (void) sd_ble_gap_adv_stop(m_adv_handle);
-
-    // Stop advertising LED timer, turn on "connected state" LED
-    err_code = app_timer_stop(m_conn_adv_fast_blink_timer_id);
-    APP_ERROR_CHECK(err_code);
-    bsp_board_led_on(CONN_ADV_CONN_STATE_LED);
-  
-}
-
-
-/**@brief Function for handling BLE_GAP_EVT_DISCONNECTED events.
- * Unset the connection handle and restart advertising if needed. 
- */
-static void on_ble_gap_evt_disconnected(ble_gap_evt_t const * p_gap_evt)
-{
-    m_conn_handle = BLE_CONN_HANDLE_INVALID;
-    m_waiting_for_disconnect_evt = false;
-
-    NRF_LOG_DEBUG("Disconnected: reason 0x%x.", p_gap_evt->params.disconnected.reason);
-
-    if (m_app_initiated_disconnect == false) // (If a the app itself (button push) has initiated a disconnect, bsp_evt_handler will start the advertising.)
-    {
-      // Start advertising with the current setup.
-      bsp_board_leds_off();
-      set_current_adv_params_and_start_advertising();
-    }
-
-}
 
 /**@brief Function for handling scan request report.
  * Print the RSSI and address of the initiator if the RSSI has changed.
@@ -409,68 +596,18 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
             err_code = app_timer_stop(m_adv_sent_led_show_timer_id); 
             APP_ERROR_CHECK(err_code);
 
+
+    //TODO: quitar/modificar este timer para que en lugar de arrancar de nuevo el adv pase al estado de escaneo
             ret_code_t err_code = app_timer_start(m_timer_ble, ADV_EVT_INTERVAL, NULL); 
             APP_ERROR_CHECK(err_code);
             break;
-        case BLE_GAP_EVT_CONNECTED:
-            on_ble_gap_evt_connected(p_gap_evt);
+         case BLE_GAP_EVT_ADV_REPORT:
+            on_adv_report(&p_gap_evt->params.adv_report);
             break;
-        
-        case BLE_GAP_EVT_DISCONNECTED:
-            on_ble_gap_evt_disconnected(p_gap_evt);
-            break;
-        
-        case BLE_GAP_EVT_CONN_PARAM_UPDATE:
-        {
-            NRF_LOG_INFO("Connection interval updated: 0x%x, 0x%x.",
-                p_gap_evt->params.conn_param_update.conn_params.min_conn_interval,
-                p_gap_evt->params.conn_param_update.conn_params.max_conn_interval);
-        } break;
-        
-       case BLE_GAP_EVT_CONN_PARAM_UPDATE_REQUEST:
-       {
-           // Accept parameters requested by the peer.
-           ble_gap_conn_params_t params;
-           params = p_gap_evt->params.conn_param_update_request.conn_params;
-           err_code = sd_ble_gap_conn_param_update(p_gap_evt->conn_handle, &params);
-           APP_ERROR_CHECK(err_code);
-       
-           NRF_LOG_INFO("Connection interval updated (upon request): 0x%x, 0x%x.",
-               p_gap_evt->params.conn_param_update_request.conn_params.min_conn_interval,
-               p_gap_evt->params.conn_param_update_request.conn_params.max_conn_interval);
-       } break;
-       
-       case BLE_GATTS_EVT_SYS_ATTR_MISSING:
-       {
-           NRF_LOG_DEBUG("BLE_GATTS_EVT_SYS_ATTR_MISSING");
-           err_code = sd_ble_gatts_sys_attr_set(p_gap_evt->conn_handle, NULL, 0, 0);
-           APP_ERROR_CHECK(err_code);
-       } break;
-       
-       case BLE_GATTC_EVT_TIMEOUT: // Fallthrough.
-       case BLE_GATTS_EVT_TIMEOUT:
-       {
-           NRF_LOG_DEBUG("GATT timeout, disconnecting.");
-           err_code = sd_ble_gap_disconnect(m_conn_handle,
-                                            BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-           APP_ERROR_CHECK(err_code);
-       } break;
-       
-       case BLE_GAP_EVT_PHY_UPDATE:
-       {
-            NRF_LOG_DEBUG("BLE_GAP_EVT_PHY_UPDATE: not implemented.");
-           
-       } break;
-       
-       case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
-       { 
-           NRF_LOG_DEBUG("BLE_GAP_EVT_PHY_UPDATE_REQUEST: not implemented.");
-       } break;
 
-       case BLE_GAP_EVT_SCAN_REQ_REPORT:
-       {
-          //on_scan_req_report(&p_gap_evt->params.scan_req_report);
-       } break;
+         case BLE_GAP_EVT_TIMEOUT: //The scanner timeout expired, so wait some seconds, and start again the adv process
+            
+            break;
 
         default:
         {
@@ -784,22 +921,14 @@ static void output_power_selection_set(output_power_seclection_t output_power)
     case SELECTION_8_dBm: 
     {
         NRF_LOG_INFO("Power selection set to 8dBm");
-    	// 8 dBm is the current output power, start blinking LED.
+    	// 8 dBm is the current output power, off LED.
         bsp_board_led_off(OUTPUT_POWER_SELECTION_LED); // not necessary because the LED should start to blink. 
-        err_code = app_timer_start(m_8dBm_led_slow_blink_timer_id, SLOW_BLINK_INTERVAL, NULL);
-    	APP_ERROR_CHECK(err_code);
-    	
-    	
-    	
     } break;
     
     case SELECTION_0_dBm:
     {
         NRF_LOG_INFO("Power selection set to 0dBm");
-    	// 0 dBm is the current output power, turn on LED.
-        err_code = app_timer_stop(m_8dBm_led_slow_blink_timer_id); 
-    	APP_ERROR_CHECK(err_code);
-    	
+    	// 0 dBm is the current output power, turn on LED. 	
     	bsp_board_led_on(OUTPUT_POWER_SELECTION_LED);
 
     } break;
@@ -851,31 +980,12 @@ static void on_non_conn_or_conn_adv_selection_state_set(adv_scan_type_seclection
     {
       // Current state is non-connectable advertising. Start blinking associated LED.
       NRF_LOG_INFO("Conn mode changed to NON_CONNECTABLE");
-        /*
-      err_code = app_timer_stop(m_conn_adv_fast_blink_timer_id); 
-      APP_ERROR_CHECK(err_code);
-      bsp_board_led_off(CONN_ADV_CONN_STATE_LED);
-
-      //err_code = app_timer_start(m_non_conn_fast_blink_timer_id, SLOW_BLINK_INTERVAL, NULL);
-      //APP_ERROR_CHECK(err_code);
-       bsp_board_led_off(NON_CONN_ADV_LED); //Always off, not using timer
-         */
     } break;
     
     case SELECTION_CONNECTABLE:
     {
       // Current state is connectable advertising. Start blinking associated LED.
       NRF_LOG_INFO("Conn mode changed to CONNECTABLE");
-        /* 
-     err_code = app_timer_stop(m_non_conn_fast_blink_timer_id); 
-      APP_ERROR_CHECK(err_code);
-      bsp_board_led_off(NON_CONN_ADV_LED);
-
-
-      err_code = app_timer_start(m_conn_adv_fast_blink_timer_id, FAST_BLINK_INTERVAL, NULL);
-      APP_ERROR_CHECK(err_code);
-        */
-
     } break;
   }
 }
@@ -1059,18 +1169,15 @@ static void phy_selection_set_state(adv_scan_phy_seclection_t new_phy_selection)
   {
     case SELECTION_1M_PHY:  // SELECTION_1M_PHY is the current "state".
     {
-      // 1 Mbps is the current state, LED should start blinking.
+      // 1 Mbps is the current state, LED setted off.
       NRF_LOG_INFO("PHY mode changed to 1M");
-      err_code = app_timer_start(m_1Mbps_led_slow_blink_timer_id, SLOW_BLINK_INTERVAL, NULL);
-      APP_ERROR_CHECK(err_code);
+      bsp_board_led_off(PHY_SELECTION_LED);
     } break;
     
     case SELECTION_CODED_PHY:
     {
       // Coded phy is the current sate, turn on LED.
       NRF_LOG_INFO("PHY mode changed to Codec");
-      err_code = app_timer_stop(m_1Mbps_led_slow_blink_timer_id); 
-      APP_ERROR_CHECK(err_code);
       bsp_board_led_on(PHY_SELECTION_LED);
       on_adv_data_size_selection_set(m_codec_phy_data_size);
     } break;
@@ -1221,13 +1328,15 @@ static void lfclk_config (void)
 }
 
 // ---------HANDLERS DE LOS TIMERS -----------
-static void adv_interval_timeout_handler (void *p_context)
+static void adv_interval_timeout_handler (void *p_context) // NOW it is used for wait before starting scan
 {
     UNUSED_PARAMETER(p_context);
     // Inicializamos características advertisement
-    disconnect_stop_adv();
+    /*disconnect_stop_adv();
     advertising_init();
-    advertising_start();
+    advertising_start();*/
+
+
 }
 
 static void adv_sent_led_show_timeout_handler (void *p_context)
@@ -1289,10 +1398,6 @@ static void timers_init(void)
     err_code = app_timer_create(&m_adv_sent_led_show_timer_id, APP_TIMER_MODE_REPEATED, adv_sent_led_show_timeout_handler);
     APP_ERROR_CHECK(err_code);
 
-    // Creating the timers used to indicate the state/selection mode of the board.
-    err_code = app_timer_create(&m_conn_adv_fast_blink_timer_id, APP_TIMER_MODE_REPEATED, conn_adv_fast_blink_timeout_handler);
-    APP_ERROR_CHECK(err_code);
-  
     err_code = app_timer_create(&m_adv_data_size_100_codec_timer_id, APP_TIMER_MODE_REPEATED, adv_data_size_100_codec_timeout_handler);
     APP_ERROR_CHECK(err_code);
 
@@ -1300,12 +1405,6 @@ static void timers_init(void)
     APP_ERROR_CHECK(err_code);
 
     err_code = app_timer_create(&m_adv_data_size_200_codec_timer_id, APP_TIMER_MODE_REPEATED, adv_data_size_200_codec_timeout_handler);
-    APP_ERROR_CHECK(err_code);
-  
-    err_code = app_timer_create(&m_1Mbps_led_slow_blink_timer_id, APP_TIMER_MODE_REPEATED, led_1Mbps_slow_blink_timeout_handler);
-    APP_ERROR_CHECK(err_code);
-
-    err_code = app_timer_create(&m_8dBm_led_slow_blink_timer_id, APP_TIMER_MODE_REPEATED, led_8dBm_slow_blink_timeout_handler);
     APP_ERROR_CHECK(err_code);
 
 }
