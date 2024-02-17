@@ -1,2 +1,0 @@
-Output/Debug/Obj/ble_app_beacon_pca10056_s140/ses_startup_nrf52840.o: \
- C:\nrf_git\nrf\modules\nrfx\mdk\ses_startup_nrf52840.s
