@@ -173,7 +173,7 @@ static adv_codec_phy_data_size_t m_codec_phy_data_size = CODEC_DATA_SIZE_50B;
 
 #define TIME_MS_1ADV          (80 + 256 + 16 + 24 + 8*8*(CODEC_DATA_SIZE_50B+5+8) + 192 + 24)/1000 //Due to const definition problems, use const CODEC_DATA_SIZE_50B at first tests
 #define TIME_10MS_1ADV        TIME_MS_1ADV*10
-#define EXTRA_SCAN_DURATION   50000 //Extra 5s for scanning (in 10ms units)
+#define EXTRA_SCAN_DURATION   500 //Extra 5s for scanning (in 10ms units)
 
 static void set_current_adv_params_and_start_advertising(void);
 static void disconnect_stop_adv(void);
@@ -307,8 +307,8 @@ static void scan_start(void)
    {
      case SELECTION_CODED_PHY:
     {
-      NRF_LOG_INFO("Starting scan on coded phy.");
-       err_code = sd_ble_gap_scan_start(&m_scan_param_coded_phy, &m_scan_buffer);
+      NRF_LOG_INFO("Starting scan on coded phy. Timeout %d/10ms", m_scan_param_coded_phy.timeout);
+      err_code = sd_ble_gap_scan_start(&m_scan_param_coded_phy, &m_scan_buffer);
       APP_ERROR_CHECK(err_code);
       break;
     }
@@ -598,15 +598,19 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
 
 
     //TODO: quitar/modificar este timer para que en lugar de arrancar de nuevo el adv pase al estado de escaneo
-            ret_code_t err_code = app_timer_start(m_timer_ble, ADV_EVT_INTERVAL, NULL); 
-            APP_ERROR_CHECK(err_code);
+            scan_start();
+
+            /*ret_code_t err_code = app_timer_start(m_timer_ble, ADV_EVT_INTERVAL, NULL); 
+            APP_ERROR_CHECK(err_code);*/
             break;
          case BLE_GAP_EVT_ADV_REPORT:
             on_adv_report(&p_gap_evt->params.adv_report);
             break;
 
          case BLE_GAP_EVT_TIMEOUT: //The scanner timeout expired, so wait some seconds, and start again the adv process
-            
+            NRF_LOG_INFO("Scan timeout Expired!!! Wait short time (m_timer_ble timer) before start the adv again");
+            ret_code_t err_code = app_timer_start(m_timer_ble, ADV_EVT_INTERVAL, NULL); 
+            APP_ERROR_CHECK(err_code);
             break;
 
         default:
@@ -1332,11 +1336,9 @@ static void adv_interval_timeout_handler (void *p_context) // NOW it is used for
 {
     UNUSED_PARAMETER(p_context);
     // Inicializamos características advertisement
-    /*disconnect_stop_adv();
+    disconnect_stop_adv();
     advertising_init();
-    advertising_start();*/
-
-
+    advertising_start();
 }
 
 static void adv_sent_led_show_timeout_handler (void *p_context)
