@@ -1,5 +1,6 @@
 <!DOCTYPE CrossStudio_Project_File>
 <solution Name="Slave_ping_pong" target="8" version="2">
+  <configuration Name="100ms-10adv-4seg" />
   <configuration
     LIBRARY_IO_TYPE="RTT"
     Name="Debug"
@@ -11,6 +12,10 @@
     gcc_optimization_level="Optimize For Size"
     link_time_optimization="No" />
   <project Name="Slave_ping_pong">
+    <configuration
+      LIBRARY_IO_TYPE="RTT"
+      Name="100ms-10adv-4seg"
+      c_preprocessor_definitions="ADV_INTERVAL_MS=100;NUM_ADVERTISEMENTS=10;SEGUNDOS_DELAY=4" />
     <configuration
       Name="Common"
       arm_architecture="v7EM"
@@ -162,6 +167,9 @@
       <file file_name="../../../../../../components/libraries/util/app_util_platform.c" />
       <file file_name="../../../../../../components/libraries/crc16/crc16.c" />
       <file file_name="../../../../../../components/libraries/timer/drv_rtc.c">
+        <configuration
+          Name="100ms-10adv-4seg"
+          build_exclude_from_build="Yes" />
         <configuration Name="Debug" build_exclude_from_build="Yes" />
       </file>
       <file file_name="../../../../../../components/libraries/fds/fds.c" />

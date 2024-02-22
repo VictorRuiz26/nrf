@@ -38,11 +38,11 @@
 
 #define FILE_NAME   "pruebaLog.txt"
 
-#define IDX_MAJOR 25 //8 bytes de inicio y 16 del uuid
-#define IDX_MINOR 27
-#define IDX_TIPO  29
-#define IDX_COORD_ID  30
-#define IDX_SLAVE_ID  31
+#define IDX_MAJOR         25 //8 bytes de inicio y 16 del uuid
+#define IDX_MINOR         27
+#define IDX_MSG_TYPE_RX   29
+#define IDX_COORD_ID_RX   30
+#define IDX_SLAVE_ID_RX   31
 
 
 // ********************** CONFIGURACION UART **********************
@@ -137,6 +137,7 @@ APP_TIMER_DEF(m_1Mbps_led_slow_blink_timer_id);                /**< Timer used t
 APP_TIMER_DEF(m_8dBm_led_slow_blink_timer_id);                 /**< Timer used to toggle LED for output power selection indication on the dev.kit. */                  
 APP_TIMER_DEF(m_time_keeper_timer_id);                         /**< Timer used to make sure app_timer runs continuously. Used by the log module.*/
 
+APP_TIMER_DEF(m_timeout_for_advertise);      //For waiting a determined amount of time since first adv received
                          
 #define APP_BLE_CONN_CFG_TAG            1                                               /**< A tag that refers to the BLE stack configuration. */
 #define APP_BLE_OBSERVER_PRIO           3                                               /**< Application's BLE observer priority. You shouldn't need to modify this value. */
@@ -243,6 +244,427 @@ static ble_gap_conn_params_t m_conn_param =
 };
 // *********************************************************************
  
+
+// ******************************************************************************
+// *            -*-*-*-*-* VARIABLES FOR ADV MODULE *-*-*-*-*-                  *
+// ******************************************************************************
+static uint8_t              m_enc_advdata     [BLE_GAP_ADV_SET_DATA_SIZE_MAX];  /**< Buffer for storing an encoded advertising set. */
+static uint8_t              m_enc_advdata_ext [BLE_GAP_ADV_SET_DATA_SIZE_EXTENDED_MAX_SUPPORTED];  /**< Buffer for storing an encoded advertising set for codec PHY. */
+
+/**@brief Struct that contains pointers to the encoded advertising data. */
+static ble_gap_adv_data_t m_adv_data =
+{
+    .adv_data =
+    {
+        .p_data = m_enc_advdata,
+        .len    = BLE_GAP_ADV_SET_DATA_SIZE_MAX
+    },
+    .scan_rsp_data =
+    {
+        .p_data = NULL,
+        .len    = 0
+
+    }
+};
+
+/**@brief Struct that contains pointers to the encoded advertising data. */
+static ble_gap_adv_data_t m_adv_data_ext =
+{
+    .adv_data =
+    {
+        .p_data = m_enc_advdata_ext,
+        .len    = BLE_GAP_ADV_SET_DATA_SIZE_EXTENDED_MAX_SUPPORTED
+    },
+    .scan_rsp_data =
+    {
+        .p_data = NULL,
+        .len    = 0
+
+    }
+};
+
+#define TIME_BETWEEN_EACH_ADV    MSEC_TO_UNITS(ADV_INTERVAL_MS, UNIT_0_625_MS)  /**< The advertising interval for non-connectable advertisement (100 ms). This value can vary between 100ms to 10.24s */
+#define APP_BEACON_INFO_LENGTH          0x17 + PDU_EXTRA_BYTES             /**< Total length of information advertised by the Beacon. */
+#define APP_ADV_DATA_LENGTH             0x15                               /**< Length of manufacturer specific data in the advertisement. */
+#define APP_DEVICE_TYPE                 0x02                               /**< 0x02 refers to Beacon. */
+#define APP_MEASURED_RSSI               0xC3                               /**< The Beacon's measured RSSI at 1 meter distance in dBm. */
+#define APP_COMPANY_IDENTIFIER          0x0059                             /**< Company identifier for Nordic Semiconductor ASA. as per www.bluetooth.org. */
+
+#define APP_MAJOR_POSITION              19
+#define APP_MINOR_POSITION              21
+
+#define APP_BEACON_UUID                 0x11, 0x11, 0x11, 0x11, \
+                                        0x11, 0x11, 0x11, 0x11, \
+                                        0x11, 0x11, 0x11, 0x11, \
+                                        0x11, 0x11, 0x11, 0x11            /**< Proprietary UUID for Beacon. */
+
+static bool advReceived = false; //Flag for starting the timer at first adv received.
+#define COORD_EXTRA_BYTES     3
+#define PDU_EXTRA_BYTES       6
+
+#define DEF_MAJOR_VALUE       0x0000
+#define DEF_MINOR_VALUE       0x0000
+
+#define MESSAGE_TEST_TYPE     0xAE
+#define COORDINATOR_ID        0xFF
+#define SLAVE_ID              0x01
+#define DEF_NSEQ              0
+#define DEF_NUM_ADV_RECEIVED  0
+#define DEF_MEAN_RSSI         0xFF
+
+#define IDX_MESSAGE_TYPE      24
+#define IDX_NSEQ              27
+#define IDX_NUM_ADV_RECIEVED  28
+#define IDX_MEAN_RSSI         29 
+
+//I need these variables for responsing the coordinator with the same values (or the corresponding ones). The adv_data pdu is changed in advertising_init, the same way that major and minor
+static uint16_t majorValue      = DEF_MAJOR_VALUE;
+static uint16_t minorValue      = DEF_MINOR_VALUE;
+static uint8_t coordinatorID    = COORDINATOR_ID;
+static uint8_t messageType      = MESSAGE_TEST_TYPE;
+static uint8_t countAdvReceived = DEF_NUM_ADV_RECEIVED; //For the response to the coordinator. It will icrease each valid adv.
+static uint8_t nSeqReceived     = DEF_NSEQ;
+static int8_t rssiValues[NUM_ADVERTISEMENTS];
+
+static void advertising_stop(void);
+
+// Para asignar dinámicamente los datos del adv
+typedef enum
+{
+  CODEC_DATA_SIZE_50B  = 50-APP_BEACON_INFO_LENGTH-AD_TYPE_MANUF_SPEC_DATA_ID_SIZE,
+  CODEC_DATA_SIZE_100B = 100-APP_BEACON_INFO_LENGTH-AD_TYPE_MANUF_SPEC_DATA_ID_SIZE,
+  CODEC_DATA_SIZE_150B = 150-APP_BEACON_INFO_LENGTH-AD_TYPE_MANUF_SPEC_DATA_ID_SIZE,
+  CODEC_DATA_SIZE_200B = 200-APP_BEACON_INFO_LENGTH-AD_TYPE_MANUF_SPEC_DATA_ID_SIZE,
+  CODEC_DATA_SIZE_250B = 250-APP_BEACON_INFO_LENGTH-AD_TYPE_MANUF_SPEC_DATA_ID_SIZE
+} adv_codec_phy_data_size_t;
+
+static adv_codec_phy_data_size_t m_codec_phy_data_size = CODEC_DATA_SIZE_50B; //Default value, could be changed depending on the data size received
+
+static uint8_t m_beacon_info[APP_BEACON_INFO_LENGTH] =                    //< Information advertised by the Beacon. 
+{
+    APP_DEVICE_TYPE,     // Manufacturer specific information. Specifies the device type in this
+                         // implementation.
+    APP_ADV_DATA_LENGTH, // Manufacturer specific information. Specifies the length of the
+                         // manufacturer specific data in this implementation.
+    APP_BEACON_UUID,     // 128 bit UUID value.
+    DEF_MAJOR_VALUE,     // Major arbitrary value that can be used to distinguish between Beacons.
+    DEF_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
+    APP_MEASURED_RSSI,    // Manufacturer specific information. The Beacon's measured TX power in
+                         // this implementation.
+};
+
+static uint8_t m_beacon_info_50B[CODEC_DATA_SIZE_50B+APP_BEACON_INFO_LENGTH] =                    //< Information advertised by the Beacon. 
+{
+    APP_DEVICE_TYPE,     // Manufacturer specific information. Specifies the device type in this
+                         // implementation.
+    APP_ADV_DATA_LENGTH, // Manufacturer specific information. Specifies the length of the
+                         // manufacturer specific data in this implementation.
+    APP_BEACON_UUID,     // 128 bit UUID value.
+    DEF_MAJOR_VALUE,     // Major arbitrary value that can be used to distinguish between Beacons.
+    DEF_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
+    APP_MEASURED_RSSI,   // Manufacturer specific information. The Beacon's measured TX power in
+                         // this implementation.
+    MESSAGE_TEST_TYPE,   // 24 
+    COORDINATOR_ID,      // 25 
+    SLAVE_ID,            // 26
+    DEF_NSEQ,            // 27
+    DEF_NUM_ADV_RECEIVED,// 28
+    DEF_MEAN_RSSI,       // 29
+    
+    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_50B-1] = 0 //Dummy data for filling the array size
+};
+static uint8_t m_beacon_info_100B[CODEC_DATA_SIZE_100B+APP_BEACON_INFO_LENGTH] =                    //< Information advertised by the Beacon. 
+{
+    APP_DEVICE_TYPE,     // Manufacturer specific information. Specifies the device type in this
+                         // implementation.
+    APP_ADV_DATA_LENGTH, // Manufacturer specific information. Specifies the length of the
+                         // manufacturer specific data in this implementation.
+    APP_BEACON_UUID,     // 128 bit UUID value.
+    DEF_MAJOR_VALUE,     // Major arbitrary value that can be used to distinguish between Beacons.
+    DEF_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
+    APP_MEASURED_RSSI,    // Manufacturer specific information. The Beacon's measured TX power in
+                         // this implementation.
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_100B-1] = 0 //Dummy data for filling the array size
+};
+
+static uint8_t m_beacon_info_150B[CODEC_DATA_SIZE_150B+APP_BEACON_INFO_LENGTH] =                    //< Information advertised by the Beacon. 
+{
+    APP_DEVICE_TYPE,     // Manufacturer specific information. Specifies the device type in this
+                         // implementation.
+    APP_ADV_DATA_LENGTH, // Manufacturer specific information. Specifies the length of the
+                         // manufacturer specific data in this implementation.
+    APP_BEACON_UUID,     // 128 bit UUID value.
+    DEF_MAJOR_VALUE,     // Major arbitrary value that can be used to distinguish between Beacons.
+    DEF_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
+    APP_MEASURED_RSSI,    // Manufacturer specific information. The Beacon's measured TX power in
+                         // this implementation.
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_150B-1] = 0 //Dummy data for filling the array size
+};
+
+static uint8_t m_beacon_info_200B[CODEC_DATA_SIZE_200B+APP_BEACON_INFO_LENGTH] =                    //< Information advertised by the Beacon. 
+{
+    APP_DEVICE_TYPE,     // Manufacturer specific information. Specifies the device type in this
+                         // implementation.
+    APP_ADV_DATA_LENGTH, // Manufacturer specific information. Specifies the length of the
+                         // manufacturer specific data in this implementation.
+    APP_BEACON_UUID,     // 128 bit UUID value.
+    DEF_MAJOR_VALUE,     // Major arbitrary value that can be used to distinguish between Beacons.
+    DEF_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
+    APP_MEASURED_RSSI,    // Manufacturer specific information. The Beacon's measured TX power in
+                         // this implementation.
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_200B-1] = 0 //Dummy data for filling the array size
+};
+
+static uint8_t m_beacon_info_250B[CODEC_DATA_SIZE_250B+APP_BEACON_INFO_LENGTH] =                    //< Information advertised by the Beacon. 
+{
+    APP_DEVICE_TYPE,     // Manufacturer specific information. Specifies the device type in this
+                         // implementation.
+    APP_ADV_DATA_LENGTH, // Manufacturer specific information. Specifies the length of the
+                         // manufacturer specific data in this implementation.
+    APP_BEACON_UUID,     // 128 bit UUID value.
+    DEF_MAJOR_VALUE,     // Major arbitrary value that can be used to distinguish between Beacons.
+    DEF_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
+    APP_MEASURED_RSSI,    // Manufacturer specific information. The Beacon's measured TX power in
+                         // this implementation.
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_250B-1] = 0 //Dummy data for filling the array size
+};
+
+
+/**@brief Function for initializing the Advertising functionality.
+ *
+ * @details Encodes the required advertising data and passes it to the stack.
+ *          Also builds a structure to be passed to the stack when starting advertising.
+ */
+static void advertising_init(void)
+{
+    ret_code_t ret;
+
+    uint8_t * adv_pdu;
+    uint16_t size;
+
+    ble_advdata_manuf_data_t manuf_specific_data;
+
+    manuf_specific_data.company_identifier = APP_COMPANY_IDENTIFIER;
+
+#if defined(USE_UICR_FOR_MAJ_MIN_VALUES)
+    // If USE_UICR_FOR_MAJ_MIN_VALUES is defined, the major and minor values will be read from the
+    // UICR instead of using the default values. The major and minor values obtained from the UICR
+    // are encoded into advertising data in big endian order (MSB First).
+    // To set the UICR used by this example to a desired value, write to the address 0x10001080
+    // using the nrfjprog tool. The command to be used is as follows.
+    // nrfjprog --snr <Segger-chip-Serial-Number> --memwr 0x10001080 --val <your major/minor value>
+    // For example, for a major value and minor value of 0xabcd and 0x0102 respectively, the
+    // the following command should be used.
+    // nrfjprog --snr <Segger-chip-Serial-Number> --memwr 0x10001080 --val 0xabcd0102
+    uint16_t major_value = ((*(uint32_t *)UICR_ADDRESS) & 0xFFFF0000) >> 16;
+    uint16_t minor_value = ((*(uint32_t *)UICR_ADDRESS) & 0x0000FFFF);
+
+    uint8_t index = MAJ_VAL_OFFSET_IN_BEACON_INFO;
+
+    m_beacon_info[index++] = MSB_16(major_value);
+    m_beacon_info[index++] = LSB_16(major_value);
+
+    m_beacon_info[index++] = MSB_16(minor_value);
+    m_beacon_info[index++] = LSB_16(minor_value);
+#endif
+
+   // NRF_LOG_INFO("tengo seleccionado el %d PHY", m_adv_scan_phy_selected);
+
+    if (m_adv_scan_phy_selected == SELECTION_1M_PHY) {
+   //   NRF_LOG_INFO("Entro a 1M");
+      adv_pdu = m_beacon_info;
+      size = APP_BEACON_INFO_LENGTH;
+    } else if (m_adv_scan_phy_selected == SELECTION_CODED_PHY) {
+   //   NRF_LOG_INFO("Entro a Codec");
+      switch (m_codec_phy_data_size) {
+        case CODEC_DATA_SIZE_50B:
+          adv_pdu = m_beacon_info_50B;
+          size = CODEC_DATA_SIZE_50B+APP_BEACON_INFO_LENGTH;
+        break;
+        case CODEC_DATA_SIZE_100B:
+   //     NRF_LOG_INFO("Selecciono 100B");
+          adv_pdu = m_beacon_info_100B;
+          size = CODEC_DATA_SIZE_100B+APP_BEACON_INFO_LENGTH;
+        break;
+        case CODEC_DATA_SIZE_150B:
+   //     NRF_LOG_INFO("Selecciono 150B, y tengo en memoria %d", CODEC_DATA_SIZE_150B+APP_BEACON_INFO_LENGTH);
+          adv_pdu = m_beacon_info_150B;
+          size = CODEC_DATA_SIZE_150B+APP_BEACON_INFO_LENGTH;
+        break;
+        case CODEC_DATA_SIZE_200B:
+   //     NRF_LOG_INFO("Selecciono 200B");
+          adv_pdu = m_beacon_info_200B;
+          size = CODEC_DATA_SIZE_200B+APP_BEACON_INFO_LENGTH;
+        break;
+        case CODEC_DATA_SIZE_250B:
+   //     NRF_LOG_INFO("Selecciono 250B");
+        default:
+          adv_pdu = m_beacon_info_250B;
+          size = CODEC_DATA_SIZE_250B+APP_BEACON_INFO_LENGTH;
+        break;
+      }
+    } else { // Por si un caso algo falla, cojo el del advertisement normal
+    NRF_LOG_INFO("Selecciono 30B defecto!");
+      adv_pdu = m_beacon_info;
+      size = APP_BEACON_INFO_LENGTH;
+    }
+
+    /*adv_pdu[APP_MINOR_POSITION] += 1;
+
+    if (adv_pdu[APP_MINOR_POSITION] == 0) {
+      // Incrementa el MSB minor solo si el LSB minor ha desbordado
+      adv_pdu[APP_MINOR_POSITION-1] += 1;
+      if (adv_pdu[APP_MINOR_POSITION-1] == 0) {
+          adv_pdu[APP_MAJOR_POSITION] += 1;
+          if (adv_pdu[APP_MAJOR_POSITION] == 0) {
+            adv_pdu[APP_MAJOR_POSITION-1] += 1;
+          }
+      }
+    }*/
+
+    //Fill the variables values inside the adv PDU according the previous advertisements received
+    adv_pdu[APP_MINOR_POSITION]   = minorValue;
+    adv_pdu[APP_MAJOR_POSITION]   = majorValue;
+    adv_pdu[IDX_MESSAGE_TYPE]     = messageType;
+    adv_pdu[IDX_NSEQ]             = nSeqReceived; //So, as i response with the same nseq (in major/minor fields), this field is not necessary
+    adv_pdu[IDX_NUM_ADV_RECIEVED] = countAdvReceived;
+
+    int8_t acumRssi = 0;
+    for (uint8_t i = 0; i < countAdvReceived; i++) {
+        acumRssi += rssiValues[i];       
+    }
+    adv_pdu[IDX_MEAN_RSSI] = (int8_t) (acumRssi/countAdvReceived);
+
+
+    manuf_specific_data.data.p_data = (uint8_t *) adv_pdu;
+    manuf_specific_data.data.size   = size;
+
+
+    ble_gap_adv_params_t adv_params =
+    {
+        .properties    =
+        {
+          .type = BLE_GAP_ADV_TYPE_NONCONNECTABLE_NONSCANNABLE_UNDIRECTED,
+        },
+        .p_peer_addr   = NULL,
+        .filter_policy = BLE_GAP_ADV_FP_ANY,
+        .interval      = TIME_BETWEEN_EACH_ADV,
+        .duration      = 0,
+        .max_adv_evts  = NUM_ADVERTISEMENTS,
+
+        .primary_phy   = BLE_GAP_PHY_1MBPS, // Must be changed to connect in long range. (BLE_GAP_PHY_CODED)
+        .secondary_phy = BLE_GAP_PHY_1MBPS,
+        .scan_req_notification = 1,
+    };
+
+    // Build and set advertising data.
+    ble_advdata_t const adv_data =
+    {
+        .name_type          = BLE_ADVDATA_NO_NAME,
+        .flags              = BLE_GAP_ADV_FLAG_BR_EDR_NOT_SUPPORTED,
+        .include_appearance = false,
+        .p_manuf_specific_data = &manuf_specific_data,
+    };
+
+    //Now, parameters of advertisements are setted using variables modified through bsp buttons
+    if(m_adv_scan_phy_selected == SELECTION_1M_PHY)
+    {
+        // 1M coded for adv
+   //     NRF_LOG_INFO("Setting adv params PHY to 1M. ");
+        adv_params.primary_phy     = BLE_GAP_PHY_1MBPS;
+        adv_params.secondary_phy   = BLE_GAP_PHY_1MBPS;
+        
+        //Here was the distinguision of type (connectable or not) ot the advertisement. I set it always nonconnectable
+        adv_params.properties.type = BLE_GAP_ADV_TYPE_NONCONNECTABLE_NONSCANNABLE_UNDIRECTED;
+
+        ret = ble_advdata_encode(&adv_data, m_adv_data.adv_data.p_data, &m_adv_data.adv_data.len);
+        APP_ERROR_CHECK(ret);
+
+        ret = sd_ble_gap_adv_set_configure(&m_adv_handle, &m_adv_data, &adv_params);
+        APP_ERROR_CHECK(ret);
+    }
+
+    else if(m_adv_scan_phy_selected == SELECTION_CODED_PHY)
+    {
+        // only extended advertising will allow primary phy to be coded
+   //     NRF_LOG_INFO("Setting adv params phy to coded phy .. ");
+        adv_params.primary_phy     = BLE_GAP_PHY_CODED;
+        adv_params.secondary_phy   = BLE_GAP_PHY_CODED;
+        
+        //Here was the distinguision of type (connectable or not) ot the advertisement. I set it always nonconnectable
+        adv_params.properties.type = BLE_GAP_ADV_TYPE_EXTENDED_NONCONNECTABLE_NONSCANNABLE_UNDIRECTED;
+
+        ret = ble_advdata_encode(&adv_data, m_adv_data_ext.adv_data.p_data, &m_adv_data_ext.adv_data.len);
+        APP_ERROR_CHECK(ret);
+
+        ret = sd_ble_gap_adv_set_configure(&m_adv_handle, &m_adv_data_ext, &adv_params);
+        APP_ERROR_CHECK(ret);			
+    }
+}
+
+
+/**@brief Function for starting advertising.
+ */
+static void advertising_start(void)
+{
+    ret_code_t err_code;
+
+    err_code = sd_ble_gap_tx_power_set(BLE_GAP_TX_POWER_ROLE_ADV, m_adv_handle, m_output_power_selected);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = sd_ble_gap_adv_start(m_adv_handle, APP_BLE_CONN_CFG_TAG);
+    //NRF_LOG_INFO("err_code after sd_ble_gap_adv_start: %d", err_code); 
+    APP_ERROR_CHECK(err_code);    
+
+    //err_code = app_timer_start(m_adv_sent_led_show_timer_id, BLINK_SEDNDING_ADV, NULL);
+    //APP_ERROR_CHECK(err_code);
+
+    m_app_initiated_disconnect = false;
+
+}
+
+
+/**@brief Function for stopping advertising.
+ */
+static void advertising_stop(void)
+{
+    ret_code_t err_code;
+
+    err_code = sd_ble_gap_adv_stop(m_adv_handle);
+    APP_ERROR_CHECK(err_code);
+    NRF_LOG_INFO("Stopping advertising");
+
+    //err_code = sd_ble_gap_adv_start(m_adv_handle, APP_BLE_CONN_CFG_TAG);
+    //APP_ERROR_CHECK(err_code);
+}
+
+// ******************************************************************
+
+
  static void instructions_print(void)
 {
     NRF_LOG_INFO("Press the buttons to set up the central in wanted mode:");
@@ -250,32 +672,6 @@ static ble_gap_conn_params_t m_conn_param =
     NRF_LOG_INFO("Button 2: switch between 0 dbm and 8 dBm output power.");
    // NRF_LOG_INFO("Button 3: switch between scanning modes.");
 }
-
-
-// ************ HANDLERS DE LOS TIMER ***************
-static void scan_slow_blink_timeout_handler(void * p_context)
-{
-	bsp_board_led_invert(SCAN_LED);
-}
-
-
-static void led_1Mbps_slow_blink_timeout_handler(void * p_context)
-{
-	bsp_board_led_invert(PHY_SELECTION_LED);    
-}                     
-
-
-static void led_8dBm_slow_blink_timeout_handler(void * p_context)
-{
-	bsp_board_led_invert(OUTPUT_POWER_SELECTION_LED);
-}
-
-
-static void time_keeper_timeout_handler(void * p_context)
-{
-    // Dummy handler
-}
-// **************************************************
 
 /**@brief Function to start scanning.
  * Scanning is started based on the internal parameters (global variables) set.
@@ -335,6 +731,52 @@ static void scan_start(void)
    m_app_initiated_disconnect = false;
   
 }
+
+/**@brief Function for stopping advertising.
+ */
+static void scan_stop(void)
+{
+    ret_code_t err_code;
+
+    err_code = sd_ble_gap_scan_stop();
+    APP_ERROR_CHECK(err_code);
+    NRF_LOG_INFO("Stopping scanning");
+}
+
+// ************ HANDLERS DE LOS TIMER ***************
+static void scan_slow_blink_timeout_handler(void * p_context)
+{
+	bsp_board_led_invert(SCAN_LED);
+}
+
+
+static void led_1Mbps_slow_blink_timeout_handler(void * p_context)
+{
+	bsp_board_led_invert(PHY_SELECTION_LED);    
+}                     
+
+
+static void led_8dBm_slow_blink_timeout_handler(void * p_context)
+{
+	bsp_board_led_invert(OUTPUT_POWER_SELECTION_LED);
+}
+
+static void timeout_for_advertise_timeout_handler(void * p_context)
+{
+    UNUSED_PARAMETER(p_context);
+    //TODO: Stop the scan and start the advertising stage
+    scan_stop();
+    advReceived = false; //Reset this flag, for starting again when i change to scan stage
+    advertising_stop(); 
+    advertising_init();
+    advertising_start();
+}
+
+static void time_keeper_timeout_handler(void * p_context)
+{
+    // Dummy handler
+}
+// **************************************************
 
 /**@brief Callback function for asserts in the SoftDevice.
  *
@@ -397,81 +839,18 @@ static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
             } else {
                NRF_LOG_INFO("Received ADV report, RSSI %d, phy: unknown",rssi_value);
             }
-                                                                
-            /*NRF_LOG_INFO("addr %02x:%02x:%02x:%02x:%02x:%02x",
-                         p_adv_report->peer_addr.addr[0],
-                         p_adv_report->peer_addr.addr[1],
-                         p_adv_report->peer_addr.addr[2],
-                         p_adv_report->peer_addr.addr[3],
-                         p_adv_report->peer_addr.addr[4],
-                         p_adv_report->peer_addr.addr[5]
-                         );
-             */  
-             
-        //}  
     }
  
 
-    if((m_scan_type_selected == SELECTION_SCAN_CONN) && (adv_is_connectable==true))
-    { 
-        // Connect if the received adv_report has the set target "DEVICE_NAME" (sdk_config.h)
-         if (!ble_advdata_name_find(p_adv_report->data.p_data,
-                                    p_adv_report->data.len,
-                                    m_target_periph_name))
-         {
-             err_code = sd_ble_gap_scan_start(NULL, &m_scan_buffer);
-             APP_ERROR_CHECK(err_code);
-         
-             return;
-         }
-         
-         NRF_LOG_INFO("Device \"%s\" found, sending a connection request.",
-                      (uint32_t) m_target_periph_name);
-         
-         // Stop advertising.
-         (void) sd_ble_gap_adv_stop(m_adv_handle);
-         
-         // Initiate connection.
-         m_conn_param.min_conn_interval = CONN_INTERVAL_DEFAULT;
-         m_conn_param.max_conn_interval = CONN_INTERVAL_DEFAULT;
-         
-         if(m_adv_scan_phy_selected == SELECTION_CODED_PHY)
-         {
-           NRF_LOG_INFO("Connecting on coded phy.");
-           err_code = sd_ble_gap_connect(&p_adv_report->peer_addr,
-                                           &m_scan_param_coded_phy,
-                                           &m_conn_param,
-                                           APP_BLE_CONN_CFG_TAG);
-           if (err_code != NRF_SUCCESS)
-             {
-                 NRF_LOG_ERROR("sd_ble_gap_connect() failed: 0x%x.", err_code);
-             }
-             
-         } else // SELECTION_1M_PHY
-           
-         {
-           NRF_LOG_INFO("Connecting on 1Mbps.");
-         
-            err_code = sd_ble_gap_connect(&p_adv_report->peer_addr,
-                                          &m_scan_param_1MBps,
-                                          &m_conn_param,
-                                          APP_BLE_CONN_CFG_TAG);    
-            
-         } 
-         if (err_code != NRF_SUCCESS)
-         {
-             NRF_LOG_ERROR("sd_ble_gap_connect() failed: 0x%x.", err_code);
-             scan_start();
-         }
-     } else //m_scan_type_selected == SELECTION_SCAN_NON_CONN
-     {
+    if (1)//m_scan_type_selected == SELECTION_SCAN_NON_CONN
+    {
       //Procesamiento para solo quedarnos con los UUID
-        if ((p_adv_report->data.len == 30)  || 
+        if (1/*(p_adv_report->data.len == 30)  || De momento quito esto
             (p_adv_report->data.len == 255) || 
             (p_adv_report->data.len == 205) || 
             (p_adv_report->data.len == 155) || 
             (p_adv_report->data.len == 105) ||
-            (p_adv_report->data.len == 55))
+            (p_adv_report->data.len == 55)*/)
             {
                 // Extract and print UUID if it follows 0xFF in the advertisement
                 uint8_t *p_data = p_adv_report->data.p_data;
@@ -489,13 +868,6 @@ static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
                         break;
                     }
                 }
-
-                // Imprimir la variable que contiene el UUID
-                //NRF_LOG_INFO("UUID stored in variable:");
-                //NRF_LOG_RAW_HEXDUMP_INFO(uuid_data, 16);
-
-                //NRF_LOG_INFO(" ------- ");
-
                 // Comparar el UUID almacenado con el UUID definido
                 if (memcmp(uuid_data, APP_BEACON_UUID_POINTER, sizeof(uuid_data)) == 0)
                 {               
@@ -510,19 +882,38 @@ static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
                     //fprintf(archivo, "Advertising packet received (length: %d):\n\r", p_adv_report->data.len);
                     //NRF_LOG_RAW_HEXDUMP_INFO(p_adv_report->data.p_data, p_adv_report->data.len);
                     NRF_LOG_RAW_HEXDUMP_INFO(p_adv_report->data.p_data, p_adv_report->data.len);  
-                //    for (int i = 0; i < p_adv_report->data.len; i++) {
-                //      printf("%02X ", p_adv_report->data.p_data[i]);
-                      //fprintf(archivo, "%02X ", p_adv_report->data.p_data[i]);
-                //    }
-                //    printf("\n\r");
-                    //fprintf(archivo, "\n\r");
                     NRF_LOG_INFO("************************************************************");
                     printf("************************************************************\n\r");
-                    //fprintf(archivo, "************************************************************\n\r");
 
+                    
+                    // Mando paquete por UART -> not now! the scan will obtain info that will be sent once timer expired
+                    //send_adv(p_adv_report);
+                    if (advReceived == false)
+                    {
+                        advReceived = true;
+                        uint16_t timeExpected = (80 + 256 + 16 + 24 + 8*8*(p_adv_report->data.len+8) + 192 + 24)/1000; //Time expected for receiving one adv
+                        uint8_t extraTime = 1000;
+                        err_code = app_timer_start(m_timeout_for_advertise, APP_TIMER_TICKS(timeExpected*NUM_ADVERTISEMENTS+extraTime), NULL);
+                        APP_ERROR_CHECK(err_code);
 
-                    // Mando paquete por UART
-                    send_adv(p_adv_report);
+                        NRF_LOG_INFO("Primer ADV recibido, arranco timer que dura %dms!", timeExpected*NUM_ADVERTISEMENTS+extraTime);
+                    }
+                    uint8_t * pLong;
+                    uint32_t nseq;
+                    pLong = (unsigned char*)&nseq;
+                    pLong[0] = p_adv_report->data.p_data[IDX_MINOR+1];
+                    pLong[1] = p_adv_report->data.p_data[IDX_MINOR];
+                    pLong[2] = p_adv_report->data.p_data[IDX_MAJOR+1];
+                    pLong[3] = p_adv_report->data.p_data[IDX_MAJOR];
+                     
+                    if (nSeqReceived != nseq) {
+                        NRF_LOG_INFO("OJO, Nuevo nseq recibido: %d", nseq);
+                        nSeqReceived = nseq;
+                    }
+
+                    rssiValues[countAdvReceived++] = p_adv_report->rssi;
+                    NRF_LOG_INFO("Recibo adv. Llevo %d", countAdvReceived);
+                    
 
                 }
                 else
@@ -615,62 +1006,16 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
         case BLE_GAP_EVT_ADV_REPORT:
             on_adv_report(&p_gap_evt->params.adv_report);
             break;
-        
-        case BLE_GAP_EVT_CONNECTED:
-            on_ble_gap_evt_connected(p_gap_evt);
+        case BLE_GAP_EVT_ADV_SET_TERMINATED:
+            NRF_LOG_INFO("Advertisements terminado. Motivo: %d. Paso a SCAN pero ya de ya.", p_ble_evt->evt.gap_evt.params.adv_set_terminated.reason);
+            scan_start();
             break;
-        
-        case BLE_GAP_EVT_DISCONNECTED:
-            on_ble_gap_evt_disconnected(p_gap_evt);
+
+         case BLE_GAP_EVT_TIMEOUT: //Not necessary, my continuous scan will stop by a timer
+            /*NRF_LOG_INFO("Scan timeout Expired!!! Wait short time (m_timer_ble timer) before start the adv again");
+            ret_code_t err_code = app_timer_start(m_timer_ble, ADV_EVT_INTERVAL, NULL); 
+            APP_ERROR_CHECK(err_code);*/
             break;
-        
-        case BLE_GAP_EVT_CONN_PARAM_UPDATE:
-        {
-            
-            NRF_LOG_INFO("Connection interval updated: 0x%x, 0x%x.",
-                p_gap_evt->params.conn_param_update.conn_params.min_conn_interval,
-                p_gap_evt->params.conn_param_update.conn_params.max_conn_interval);
-        } break;
-        
-        case BLE_GAP_EVT_CONN_PARAM_UPDATE_REQUEST:
-        {
-            // Accept parameters requested by the peer.
-            ble_gap_conn_params_t params;
-            params = p_gap_evt->params.conn_param_update_request.conn_params;
-            err_code = sd_ble_gap_conn_param_update(p_gap_evt->conn_handle, &params);
-            APP_ERROR_CHECK(err_code);
-        
-            NRF_LOG_INFO("Connection interval updated (upon request): 0x%x, 0x%x.",
-                p_gap_evt->params.conn_param_update_request.conn_params.min_conn_interval,
-                p_gap_evt->params.conn_param_update_request.conn_params.max_conn_interval);
-        } break;
-
-       case BLE_GAP_EVT_RSSI_CHANGED:
-       {
-         rssi_value =  p_gap_evt->params.rssi_changed.rssi;
-         channel_rssi =  p_gap_evt->params.rssi_changed.ch_index;
-         NRF_LOG_INFO("RSSI changed, new: %d, channel: %d",rssi_value, channel_rssi); 
-       } break;
-
-       case BLE_GATTC_EVT_TIMEOUT: // Fallthrough.
-       case BLE_GATTS_EVT_TIMEOUT:
-       {
-           NRF_LOG_DEBUG("GATT timeout, disconnecting.");
-           err_code = sd_ble_gap_disconnect(m_conn_handle,
-                                            BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-           APP_ERROR_CHECK(err_code);
-       } break;
-        
-        case BLE_GAP_EVT_PHY_UPDATE:
-        {
-           NRF_LOG_INFO("BLE_GAP_EVT_PHY_UPDATE: not implemented");
-        } break;
-        
-        case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
-        {
-           NRF_LOG_INFO("BLE_GAP_EVT_PHY_UPDATE_REQUEST: not implemented");
-
-        } break;
 
         default:
         {
@@ -748,6 +1093,9 @@ static void timers_init(void)
     APP_ERROR_CHECK(err_code);
   
     err_code = app_timer_create(&m_8dBm_led_slow_blink_timer_id, APP_TIMER_MODE_REPEATED, led_8dBm_slow_blink_timeout_handler);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = app_timer_create(&m_timeout_for_advertise, APP_TIMER_MODE_SINGLE_SHOT, timeout_for_advertise_timeout_handler);
     APP_ERROR_CHECK(err_code);
 
     // Creating the timer used by the log module. 
@@ -1003,7 +1351,7 @@ void bsp_evt_handler(bsp_event_t event)
             break;
         }
 				
-	scan_start();
+	//scan_start();
     }
    
 }

@@ -27,6 +27,7 @@
   <ProjectSessionItem path="Master_ping-pong"/>
   <ProjectSessionItem path="Master_ping-pong;Master_ping-pong"/>
   <ProjectSessionItem path="Master_ping-pong;Master_ping-pong;Application"/>
+  <ProjectSessionItem path="Master_ping-pong;Master_ping-pong;nRF_BLE"/>
   <SourceCodeControlLogin password="F9BB6682F5D56822" user="VictorRuiz26 &lt;victorcopero00@gmail.com>"/>
  </Project>
  <Register1>
@@ -66,18 +67,18 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="40" y="255" useTextEdit="1" folds0="278,458,490,507,524,541,561,625,654,686,1324" path="../../../main.c" left="0" selected="1" top="242" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="590" useTextEdit="1" folds0="420,561,686,1324" path="../../../main.c" left="0" selected="1" top="566" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="464" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/libraries/bsp/bsp.c" left="0" top="446" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="511" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/ble/common/ble_advdata.c" left="0" top="487" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="97" y="446" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Advertiser_ping-pong/main.c" path="../../../../../../components/softdevice/s140/headers/ble_gap.h" left="0" top="436" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="39" y="607" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Master_ping-pong/main.c" path="../../../../../../components/ble/common/ble_advdata.c" left="0" top="516" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="4" y="1295" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Master_ping-pong/main.c" path="../../../../../../components/softdevice/s140/headers/ble_gap.h" left="0" top="1281" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="15" y="325" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Advertiser_ping-pong/main.c" path="../../../../../../components/libraries/util/app_util.h" left="0" top="310" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="115" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/libraries/bsp/bsp.h" left="0" top="102" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="8" y="83" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Advertiser_ping-pong/main.c" path="../../../../../../components/ble/common/ble_advdata.h" left="0" top="64" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="8" y="63" useTextEdit="1" openedFrom="C:/nrf_sdk/components/ble/common/ble_advdata.c" path="../../../../../../components/ble/common/ble_advdata.h" left="0" top="44" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="17" y="154" useTextEdit="1" path="../../../../../../components/ble/common/ble_srv_common.h" left="0" top="137" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="2" y="202" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Advertiser_ping-pong/main.c" path="../../../../../../components/softdevice/s140/headers/ble_types.h" left="0" top="164" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="8" y="129" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Advertiser_ping-pong/main.c" path="../../../../../../components/libraries/timer/app_timer.h" left="0" top="110" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" path="../../../../../../components/libraries/button/app_button.h" left="0" top="102" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="34" y="86" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Advertiser_ping-pong/main.c" path="../config/sdk_config.h" left="0" top="74" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" path="../../../../../../components/libraries/button/app_button.h" left="0" top="82" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="22" y="59" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Advertiser_ping-pong/main.c" path="../config/sdk_config.h" left="0" top="40" codecName="Default"/>
  </Files>
- <EMStudioWindow activeProject="Master_ping-pong" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="100ms-10adv-4seg" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="" debugSearchPath="" autoConnectCapabilities="3711"/>
+ <EMStudioWindow activeProject="Master_ping-pong" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="100ms-10adv-4seg" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="" debugSearchPath="" autoConnectCapabilities="3199"/>
 </session>

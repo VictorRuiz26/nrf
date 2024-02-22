@@ -82,7 +82,7 @@
  
 
 #ifndef BLE_ADVERTISING_ENABLED
-#define BLE_ADVERTISING_ENABLED 0
+#define BLE_ADVERTISING_ENABLED 1
 #endif
 
 // <q> BLE_DB_DISCOVERY_ENABLED  - ble_db_discovery - Database discovery module
