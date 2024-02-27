@@ -376,12 +376,12 @@ static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
      if (1)  //m_scan_type_selected == SELECTION_SCAN_NON_CONN
      {
       //Procesamiento para solo quedarnos con los UUID
-        if ((p_adv_report->data.len == 30)  || 
+        if (/*(p_adv_report->data.len == 30)  || Esto se quita hasta que se estandarice la cosa
             (p_adv_report->data.len == 255) || 
             (p_adv_report->data.len == 205) || 
             (p_adv_report->data.len == 155) || 
             (p_adv_report->data.len == 105) ||
-            (p_adv_report->data.len == 55))
+            (p_adv_report->data.len == 55)*/1)
             {
                 // Extract and print UUID if it follows 0xFF in the advertisement
                 uint8_t *p_data = p_adv_report->data.p_data;

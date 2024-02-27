@@ -117,7 +117,7 @@ const app_uart_comm_params_t comms_params =
 #define PHY_SELECTION_LED               BSP_BOARD_LED_0																	/**< LED indicating which phy is in use. */
 #define OUTPUT_POWER_SELECTION_LED      BSP_BOARD_LED_1																	/**< LED indicating at which ouput power the radio is transmitting */
 #define SCAN_LED                        BSP_BOARD_LED_2																	/**< LED indicting if the device is advertising non-connectable advertising or not. */
-#define ADV_REPORT_LED                  BSP_BOARD_LED_3																	/**< LED indicating that if device is advertising with connectable advertising, in a connected state, or none. */
+#define SENDING_ADV_LED                 BSP_BOARD_LED_3																	/**< LED indicating that if device is advertising with connectable advertising, in a connected state, or none. */
 
 #define PHY_SELECTION_BUTTON                  BSP_BUTTON_0
 #define PHY_SELECTION_BUTTON_EVENT            BSP_EVENT_KEY_0
@@ -130,12 +130,15 @@ const app_uart_comm_params_t comms_params =
 
 
 #define FAST_BLINK_INTERVAL		APP_TIMER_TIKCS(200) 
-APP_TIMER_DEF(m_scan_slow_blink_timer_id);                    /**< Timer used to toggle LED for "scan mode" indication on the dev.kit. */                  
 
 #define SLOW_BLINK_INTERVAL		APP_TIMER_TICKS(750)
+#define BLINK_SEDNDING_ADV              APP_TIMER_TICKS(100)
+#define BLINK_SEDNDING_ADV              APP_TIMER_TICKS(100)
+
 APP_TIMER_DEF(m_1Mbps_led_slow_blink_timer_id);                /**< Timer used to toggle LED for phy selection indication on the dev.kit. */                  
 APP_TIMER_DEF(m_8dBm_led_slow_blink_timer_id);                 /**< Timer used to toggle LED for output power selection indication on the dev.kit. */                  
 APP_TIMER_DEF(m_time_keeper_timer_id);                         /**< Timer used to make sure app_timer runs continuously. Used by the log module.*/
+APP_TIMER_DEF(m_adv_sent_led_show_timer_id);
 
 APP_TIMER_DEF(m_timeout_for_advertise);      //For waiting a determined amount of time since first adv received
                          
@@ -323,7 +326,7 @@ static uint16_t minorValue      = DEF_MINOR_VALUE;
 static uint8_t coordinatorID    = COORDINATOR_ID;
 static uint8_t messageType      = MESSAGE_TEST_TYPE;
 static uint8_t countAdvReceived = DEF_NUM_ADV_RECEIVED; //For the response to the coordinator. It will icrease each valid adv.
-static uint8_t nSeqReceived     = DEF_NSEQ;
+static uint32_t nSeqReceived     = DEF_NSEQ;
 static int8_t rssiValues[NUM_ADVERTISEMENTS];
 
 static void advertising_stop(void);
@@ -547,8 +550,10 @@ static void advertising_init(void)
     }*/
 
     //Fill the variables values inside the adv PDU according the previous advertisements received
-    adv_pdu[APP_MINOR_POSITION]   = minorValue;
-    adv_pdu[APP_MAJOR_POSITION]   = majorValue;
+    adv_pdu[APP_MINOR_POSITION]   = (uint8_t)(minorValue & 0xFF);
+    adv_pdu[APP_MINOR_POSITION-1]   = (uint8_t)(minorValue & 0xFF00 >> 8);
+    adv_pdu[APP_MAJOR_POSITION]   = (uint8_t)(majorValue & 0xFF);
+    adv_pdu[APP_MAJOR_POSITION-1]   = (uint8_t)(majorValue & 0xFF00 >> 8);
     adv_pdu[IDX_MESSAGE_TYPE]     = messageType;
     adv_pdu[IDX_NSEQ]             = nSeqReceived; //So, as i response with the same nseq (in major/minor fields), this field is not necessary
     adv_pdu[IDX_NUM_ADV_RECIEVED] = countAdvReceived;
@@ -640,22 +645,22 @@ static void advertising_start(void)
     //NRF_LOG_INFO("err_code after sd_ble_gap_adv_start: %d", err_code); 
     APP_ERROR_CHECK(err_code);    
 
-    //err_code = app_timer_start(m_adv_sent_led_show_timer_id, BLINK_SEDNDING_ADV, NULL);
-    //APP_ERROR_CHECK(err_code);
+    err_code = app_timer_start(m_adv_sent_led_show_timer_id, BLINK_SEDNDING_ADV, NULL);
+    APP_ERROR_CHECK(err_code);
 
     m_app_initiated_disconnect = false;
 
 }
 
 
-/**@brief Function for stopping advertising.
+/**@brief Function for stopping advertising, if advertising.
  */
 static void advertising_stop(void)
 {
     ret_code_t err_code;
 
-    err_code = sd_ble_gap_adv_stop(m_adv_handle);
-    APP_ERROR_CHECK(err_code);
+    NRF_LOG_INFO("Entro a parar el advertising");
+    (void) sd_ble_gap_adv_stop(m_adv_handle);
     NRF_LOG_INFO("Stopping advertising");
 
     //err_code = sd_ble_gap_adv_start(m_adv_handle, APP_BLE_CONN_CFG_TAG);
@@ -667,9 +672,9 @@ static void advertising_stop(void)
 
  static void instructions_print(void)
 {
-    NRF_LOG_INFO("Press the buttons to set up the central in wanted mode:");
     NRF_LOG_INFO("Button 1: switch between coded phy and 1Mbps");
     NRF_LOG_INFO("Button 2: switch between 0 dbm and 8 dBm output power.");
+    NRF_LOG_INFO("LED3 -> receiving advertisements; LED4 -> sending adv");
    // NRF_LOG_INFO("Button 3: switch between scanning modes.");
 }
 
@@ -744,17 +749,17 @@ static void scan_stop(void)
 }
 
 // ************ HANDLERS DE LOS TIMER ***************
-static void scan_slow_blink_timeout_handler(void * p_context)
-{
-	bsp_board_led_invert(SCAN_LED);
-}
-
-
 static void led_1Mbps_slow_blink_timeout_handler(void * p_context)
 {
 	bsp_board_led_invert(PHY_SELECTION_LED);    
 }                     
 
+
+static void adv_sent_led_show_timeout_handler (void *p_context)
+{
+    UNUSED_PARAMETER(p_context);
+    bsp_board_led_invert(SENDING_ADV_LED);
+}
 
 static void led_8dBm_slow_blink_timeout_handler(void * p_context)
 {
@@ -829,6 +834,7 @@ static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
         // TODO: "Enable" if-statement if RSSI shuold only be logged when changed.
         //if(rssi_value != p_adv_report->rssi)
         //{
+            NRF_LOG_INFO("************************************************************");
             rssi_value = p_adv_report->rssi;
             if(p_adv_report->primary_phy ==  BLE_GAP_PHY_1MBPS)
             {
@@ -871,31 +877,21 @@ static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
                 // Comparar el UUID almacenado con el UUID definido
                 if (memcmp(uuid_data, APP_BEACON_UUID_POINTER, sizeof(uuid_data)) == 0)
                 {               
-                    bsp_board_led_invert(ADV_REPORT_LED);
-    
-                    //FILE *archivo = fopen("pruebaLog.txt", "w");  // Abre el archivo para escribir (sobrescribe si ya existe)
+                    bsp_board_led_invert(SCAN_LED);
 
-                    NRF_LOG_INFO("************************************************************");
                     NRF_LOG_INFO("UUID matches the defined UUID!");
-                    NRF_LOG_INFO("Advertising packet received (length: %d):", p_adv_report->data.len);
-                    printf("Advertising packet received (length: %d):\n\r", p_adv_report->data.len);
-                    //fprintf(archivo, "Advertising packet received (length: %d):\n\r", p_adv_report->data.len);
-                    //NRF_LOG_RAW_HEXDUMP_INFO(p_adv_report->data.p_data, p_adv_report->data.len);
-                    NRF_LOG_RAW_HEXDUMP_INFO(p_adv_report->data.p_data, p_adv_report->data.len);  
-                    NRF_LOG_INFO("************************************************************");
-                    printf("************************************************************\n\r");
+                    NRF_LOG_RAW_HEXDUMP_INFO(p_adv_report->data.p_data, p_adv_report->data.len); 
 
-                    
                     // Mando paquete por UART -> not now! the scan will obtain info that will be sent once timer expired
                     //send_adv(p_adv_report);
                     if (advReceived == false)
                     {
                         advReceived = true;
                         uint16_t timeExpected = (80 + 256 + 16 + 24 + 8*8*(p_adv_report->data.len+8) + 192 + 24)/1000; //Time expected for receiving one adv
-                        uint8_t extraTime = 1000;
+                        uint16_t extraTime = 1000;
                         err_code = app_timer_start(m_timeout_for_advertise, APP_TIMER_TICKS(timeExpected*NUM_ADVERTISEMENTS+extraTime), NULL);
                         APP_ERROR_CHECK(err_code);
-
+                        NRF_LOG_INFO("Time expected for 1 adv: %dms.", timeExpected);
                         NRF_LOG_INFO("Primer ADV recibido, arranco timer que dura %dms!", timeExpected*NUM_ADVERTISEMENTS+extraTime);
                     }
                     uint8_t * pLong;
@@ -905,14 +901,22 @@ static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
                     pLong[1] = p_adv_report->data.p_data[IDX_MINOR];
                     pLong[2] = p_adv_report->data.p_data[IDX_MAJOR+1];
                     pLong[3] = p_adv_report->data.p_data[IDX_MAJOR];
-                     
+                    minorValue = nseq & 0x00FF;
+                    majorValue = (nseq & 0xFF00) >> 8;
+
+                    
                     if (nSeqReceived != nseq) {
-                        NRF_LOG_INFO("OJO, Nuevo nseq recibido: %d", nseq);
+                        int16_t acum = 0;
+                        for (uint8_t i = 0; i < countAdvReceived; i++) {
+                          acum += rssiValues[i];
+                        }
+                        NRF_LOG_INFO("OJO, Nuevo nseq recibido: %d. Antes: %d con rssi media de %d", nseq, nSeqReceived, acum/countAdvReceived);
                         nSeqReceived = nseq;
+                        countAdvReceived = 0; //If a new nseq is received, reset the count of adv of the same nseq.
                     }
 
                     rssiValues[countAdvReceived++] = p_adv_report->rssi;
-                    NRF_LOG_INFO("Recibo adv. Llevo %d", countAdvReceived);
+                    NRF_LOG_INFO("Recibo adv para nseq %d. Llevo %d", nSeqReceived, countAdvReceived);
                     
 
                 }
@@ -921,7 +925,7 @@ static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
                     NRF_LOG_INFO("UUID does not match the defined UUID.");
                 }                           
                 
-            
+              NRF_LOG_INFO("************************************************************");
             }
       // Continue scanning
        err_code = sd_ble_gap_scan_start(NULL, &m_scan_buffer);
@@ -956,9 +960,6 @@ static void on_ble_gap_evt_connected(ble_gap_evt_t const * p_gap_evt)
     (void) sd_ble_gap_scan_stop();
      err_code = sd_ble_gap_tx_power_set(BLE_GAP_TX_POWER_ROLE_CONN, m_conn_handle, m_output_power_selected);
      APP_ERROR_CHECK(err_code);
-    
-    bsp_board_led_off(SCAN_LED);
-    bsp_board_led_on(ADV_REPORT_LED);
 
 //    rssi_measurements_start();
 
@@ -1008,6 +1009,9 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
             break;
         case BLE_GAP_EVT_ADV_SET_TERMINATED:
             NRF_LOG_INFO("Advertisements terminado. Motivo: %d. Paso a SCAN pero ya de ya.", p_ble_evt->evt.gap_evt.params.adv_set_terminated.reason);
+            err_code = app_timer_stop(m_adv_sent_led_show_timer_id); 
+            APP_ERROR_CHECK(err_code);
+
             scan_start();
             break;
 
@@ -1085,11 +1089,10 @@ static void timers_init(void)
     ret_code_t err_code = app_timer_init();
     APP_ERROR_CHECK(err_code);
 
-    // Creating the timers used to indicate the state/selection mode of the board.
-    err_code = app_timer_create(&m_scan_slow_blink_timer_id, APP_TIMER_MODE_REPEATED, scan_slow_blink_timeout_handler);
-    APP_ERROR_CHECK(err_code);
-  
     err_code = app_timer_create(&m_1Mbps_led_slow_blink_timer_id, APP_TIMER_MODE_REPEATED, led_1Mbps_slow_blink_timeout_handler);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = app_timer_create(&m_adv_sent_led_show_timer_id, APP_TIMER_MODE_REPEATED, adv_sent_led_show_timeout_handler);
     APP_ERROR_CHECK(err_code);
   
     err_code = app_timer_create(&m_8dBm_led_slow_blink_timer_id, APP_TIMER_MODE_REPEATED, led_8dBm_slow_blink_timeout_handler);
@@ -1218,7 +1221,6 @@ static void phy_selection_set_state(adv_scan_phy_seclection_t new_phy_selection)
       APP_ERROR_CHECK(err_code);
       
       bsp_board_led_on(PHY_SELECTION_LED);
-      bsp_board_led_off(ADV_REPORT_LED); // todo for debugging.
     } break;
   }
 
@@ -1260,28 +1262,24 @@ static void scan_selection_state_set(scan_type_seclection_t scan_selection)
  ret_code_t err_code;
 
   m_scan_type_selected = scan_selection;
-  bsp_board_led_off(ADV_REPORT_LED);
   switch (scan_selection)
   {
     case SELECTION_SCAN_CONN: 
     {
       // Current state is scanning,  trying to connect. Turn on associated LED.
-      err_code = app_timer_stop(m_scan_slow_blink_timer_id);
+      /*err_code = app_timer_stop(m_scan_slow_blink_timer_id);
       APP_ERROR_CHECK(err_code);
 
       bsp_board_led_on(SCAN_LED);
-      NRF_LOG_INFO("Scan mode set: scanning, trying to connect. Will be applied when scanning is re-started.");
+      NRF_LOG_INFO("Scan mode set: scanning, trying to connect. Will be applied when scanning is re-started.");*/
     
     } break;
     
-    case SELECTION_SCAN_NON_CONN:
+    case SELECTION_SCAN_NON_CONN: //Always this case, not timer nor blinking led
     {
-    
       // Current state is scanning, not trying to connect. Start blinking associated LED
-      err_code = app_timer_start(m_scan_slow_blink_timer_id, SLOW_BLINK_INTERVAL, NULL);
-      APP_ERROR_CHECK(err_code);
-
-      NRF_LOG_INFO("Scan mode set: scanning only. Will be applied when scanning is re-started.");
+      //err_code = app_timer_start(m_scan_slow_blink_timer_id, SLOW_BLINK_INTERVAL, NULL);
+      //APP_ERROR_CHECK(err_code);
     } break;
   }
 
@@ -1387,7 +1385,7 @@ int main(void)
 {
     uint32_t err_code;
     // Initialize.
-//    log_init();
+    log_init();
 
     
     timers_init();
@@ -1398,13 +1396,11 @@ int main(void)
 //    gap_params_init();
 
 
-    APP_UART_FIFO_INIT(&comms_params, UART_RX_BUFF_SIZE, UART_TX_BUFF_SIZE, uart_err_handle, APP_IRQ_PRIORITY_LOWEST, err_code);
-    APP_ERROR_CHECK(err_code);
+    //APP_UART_FIFO_INIT(&comms_params, UART_RX_BUFF_SIZE, UART_TX_BUFF_SIZE, uart_err_handle, APP_IRQ_PRIORITY_LOWEST, err_code);
+    //APP_ERROR_CHECK(err_code);
 
     //nrf_gpio_cfg_input(BUTTON_4, NRF_GPIO_PIN_PULLUP);
-    
-    
-    NRF_LOG_INFO("Long range demo  --central--");
+
     instructions_print();
 
     set_current_scan_params_and_start_scanning();
