@@ -305,8 +305,8 @@ static bool advReceived = false; //Flag for starting the timer at first adv rece
 #define COORD_EXTRA_BYTES     3
 #define PDU_EXTRA_BYTES       6
 
-#define DEF_MAJOR_VALUE       0x0000
-#define DEF_MINOR_VALUE       0x0000
+#define DEF_MAJOR_VALUE       0x00, 0x00
+#define DEF_MINOR_VALUE       0x00, 0x00
 
 #define MESSAGE_TEST_TYPE     0xAE
 #define COORDINATOR_ID        0xFF
@@ -315,14 +315,14 @@ static bool advReceived = false; //Flag for starting the timer at first adv rece
 #define DEF_NUM_ADV_RECEIVED  0
 #define DEF_MEAN_RSSI         0xFF
 
-#define IDX_MESSAGE_TYPE      24
-#define IDX_NSEQ              27
-#define IDX_NUM_ADV_RECIEVED  28
-#define IDX_MEAN_RSSI         29 
+#define IDX_MESSAGE_TYPE      23
+//#define IDX_NSEQ              26
+#define IDX_NUM_ADV_RECIEVED  26
+#define IDX_MEAN_RSSI         27
 
 //I need these variables for responsing the coordinator with the same values (or the corresponding ones). The adv_data pdu is changed in advertising_init, the same way that major and minor
-static uint16_t majorValue      = DEF_MAJOR_VALUE;
-static uint16_t minorValue      = DEF_MINOR_VALUE;
+static uint16_t majorValue      = 0;
+static uint16_t minorValue      = 0;
 static uint8_t coordinatorID    = COORDINATOR_ID;
 static uint8_t messageType      = MESSAGE_TEST_TYPE;
 static uint8_t countAdvReceived = DEF_NUM_ADV_RECEIVED; //For the response to the coordinator. It will icrease each valid adv.
@@ -367,12 +367,12 @@ static uint8_t m_beacon_info_50B[CODEC_DATA_SIZE_50B+APP_BEACON_INFO_LENGTH] =  
     DEF_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
     APP_MEASURED_RSSI,   // Manufacturer specific information. The Beacon's measured TX power in
                          // this implementation.
-    MESSAGE_TEST_TYPE,   // 24 
-    COORDINATOR_ID,      // 25 
-    SLAVE_ID,            // 26
-    DEF_NSEQ,            // 27
-    DEF_NUM_ADV_RECEIVED,// 28
-    DEF_MEAN_RSSI,       // 29
+    MESSAGE_TEST_TYPE,   // 23 
+    COORDINATOR_ID,      // 24 
+    SLAVE_ID,            // 25
+    //DEF_NSEQ,            // 26
+    DEF_NUM_ADV_RECEIVED,// 26
+    DEF_MEAN_RSSI,       // 27
     
     [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_50B-1] = 0 //Dummy data for filling the array size
 };
@@ -390,7 +390,7 @@ static uint8_t m_beacon_info_100B[CODEC_DATA_SIZE_100B+APP_BEACON_INFO_LENGTH] =
     0,
     0,
     0,
-    0,
+    //0,
     0,
     0,
     [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_100B-1] = 0 //Dummy data for filling the array size
@@ -410,7 +410,7 @@ static uint8_t m_beacon_info_150B[CODEC_DATA_SIZE_150B+APP_BEACON_INFO_LENGTH] =
     0,
     0,
     0,
-    0,
+    //0,
     0,
     0,
     [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_150B-1] = 0 //Dummy data for filling the array size
@@ -430,7 +430,7 @@ static uint8_t m_beacon_info_200B[CODEC_DATA_SIZE_200B+APP_BEACON_INFO_LENGTH] =
     0,
     0,
     0,
-    0,
+   // 0,
     0,
     0,
     [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_200B-1] = 0 //Dummy data for filling the array size
@@ -450,7 +450,7 @@ static uint8_t m_beacon_info_250B[CODEC_DATA_SIZE_250B+APP_BEACON_INFO_LENGTH] =
     0,
     0,
     0,
-    0,
+   // 0,
     0,
     0,
     [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_250B-1] = 0 //Dummy data for filling the array size
@@ -551,20 +551,25 @@ static void advertising_init(void)
 
     //Fill the variables values inside the adv PDU according the previous advertisements received
     adv_pdu[APP_MINOR_POSITION]   = (uint8_t)(minorValue & 0xFF);
-    adv_pdu[APP_MINOR_POSITION-1]   = (uint8_t)(minorValue & 0xFF00 >> 8);
+    adv_pdu[APP_MINOR_POSITION-1]   = (uint8_t)((minorValue & 0xFF00) >> 8);
     adv_pdu[APP_MAJOR_POSITION]   = (uint8_t)(majorValue & 0xFF);
-    adv_pdu[APP_MAJOR_POSITION-1]   = (uint8_t)(majorValue & 0xFF00 >> 8);
+    adv_pdu[APP_MAJOR_POSITION-1]   = (uint8_t)((majorValue & 0xFF00) >> 8);
     adv_pdu[IDX_MESSAGE_TYPE]     = messageType;
-    adv_pdu[IDX_NSEQ]             = nSeqReceived; //So, as i response with the same nseq (in major/minor fields), this field is not necessary
+    //adv_pdu[IDX_NSEQ]             = nSeqReceived; //So, as i response with the same nseq (in major/minor fields), this field is not necessary
     adv_pdu[IDX_NUM_ADV_RECIEVED] = countAdvReceived;
 
-    int8_t acumRssi = 0;
+    int16_t acumRssi = 0;
     for (uint8_t i = 0; i < countAdvReceived; i++) {
         acumRssi += rssiValues[i];       
     }
+    NRF_LOG_INFO("Acum rssi: %d", acumRssi);
     adv_pdu[IDX_MEAN_RSSI] = (int8_t) (acumRssi/countAdvReceived);
 
 
+    NRF_LOG_INFO("Inicializo advertising. Major: %04X, Minor %04X. Size %d. RSSI: %d (0x%02X)", majorValue, minorValue, size, (int8_t) (acumRssi/countAdvReceived), (int8_t) (acumRssi/countAdvReceived));
+    /*for (uint8_t i = 0; i < size; i++) {
+      NRF_LOG_INFO("%02X ", adv_pdu[i]);
+    }*/
     manuf_specific_data.data.p_data = (uint8_t *) adv_pdu;
     manuf_specific_data.data.size   = size;
 
