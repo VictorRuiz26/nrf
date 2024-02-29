@@ -23,7 +23,8 @@
     <configuration
       LIBRARY_IO_TYPE="RTT"
       Name="100ms-10adv-4seg"
-      c_preprocessor_definitions="ADV_INTERVAL_MS=100;NUM_ADVERTISEMENTS=10;SEGUNDOS_DELAY=4" />
+      c_preprocessor_definitions="ADV_INTERVAL_MS=100;NUM_ADVERTISEMENTS=10;SEGUNDOS_DELAY=4"
+      c_user_include_directories="C:\\nrf_sdk\\components\\libraries\\uart\\;C:\\nrf_sdk\\components\\libraries\\fifo\\" />
     <configuration
       Name="1adv_seg"
       c_preprocessor_definitions="ADV_INTERVAL_MS=100;NUM_ADVERTISEMENTS=1;SEGUNDOS_DELAY=1" />
@@ -97,8 +98,10 @@
       <file file_name="../../../../../../components/libraries/util/app_error.c" />
       <file file_name="../../../../../../components/libraries/util/app_error_handler_gcc.c" />
       <file file_name="../../../../../../components/libraries/util/app_error_weak.c" />
+      <file file_name="../../../../../../components/libraries/fifo/app_fifo.c" />
       <file file_name="../../../../../../components/libraries/scheduler/app_scheduler.c" />
       <file file_name="../../../../../../components/libraries/timer/app_timer.c" />
+      <file file_name="../../../../../../components/libraries/uart/app_uart_fifo.c" />
       <file file_name="../../../../../../components/libraries/util/app_util_platform.c" />
       <file file_name="../../../../../../components/libraries/timer/drv_rtc.c">
         <configuration

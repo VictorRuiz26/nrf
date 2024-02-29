@@ -16,6 +16,12 @@
 #include "nrf_log_ctrl.h"
 #include "nrf_log_default_backends.h"
 
+#include "boards.h"
+#include "nrf_uart.h"
+#include "app_uart.h"
+#include "app_error.h"
+
+#include "nrf_gpio.h"
 #include <time.h>
 
 
@@ -121,11 +127,68 @@ static uint8_t actualSlave = 0;
 #define IDX_SLAVE_ID  31
 #define IDX_NSEQ      32  //Following two bytes will act as an ACK for the previous advs sent.
 #define IDX_NADV_RCVD 33
-
-
 // *******************************************************
 
+// ********************** CONFIGURACION UART **********************
+#define UART_TX_BUFF_SIZE 128
+#define UART_RX_BUFF_SIZE 128
 
+#define UART_HWFC APP_UART_FLOW_CONTROL_DISABLED
+
+void uart_err_handle(app_uart_evt_type_t *p)
+{
+  
+}
+
+void myPrintf(char *message)
+{
+  uint8_t i = 0;
+  while(message[i] != NULL)
+  {
+    app_uart_put(message[i++]);
+  }
+}
+
+// Aquí es donde crearé el paquete definido para luego escanear con python. Se llamará en el handler del ble
+void send_adv (const ble_gap_evt_adv_report_t *adv_data) {
+  
+  uint8_t *pChar;
+
+  app_uart_put(0x7E); //Inicio trama
+  
+  app_uart_put(0xAA); //2 Bytes fijos de relleno
+  app_uart_put(0xBB);
+
+  for (int i = 0; i < BLE_GAP_ADDR_LEN; i++)
+  {
+    app_uart_put(adv_data->peer_addr.addr[i]);
+  }
+
+  app_uart_put(adv_data->data.p_data[IDX_MAJOR]);
+  app_uart_put(adv_data->data.p_data[IDX_MAJOR+1]);
+
+  app_uart_put(adv_data->data.p_data[IDX_MINOR]);
+  app_uart_put(adv_data->data.p_data[IDX_MINOR+1]);
+
+  app_uart_put(adv_data->rssi);
+
+  app_uart_put(adv_data->data.len);
+
+  app_uart_put(0xFF);
+}
+
+
+const app_uart_comm_params_t comms_params = 
+{
+  RX_PIN_NUMBER,
+  TX_PIN_NUMBER,
+  RTS_PIN_NUMBER,
+  CTS_PIN_NUMBER,
+  UART_HWFC,
+  false,
+  NRF_UART_BAUDRATE_115200
+};
+// ****************************************************************
 
 
 static void advertising_stop(void);
@@ -1437,6 +1500,7 @@ static void set_current_adv_params_and_start_advertising(void)
  */
 int main(void)
 {
+    uint32_t err_code;
     // Initialize.
     lfclk_config();
     log_init();
@@ -1447,6 +1511,11 @@ int main(void)
     gap_params_init();
 
     instructions_print();
+
+
+    APP_UART_FIFO_INIT(&comms_params, UART_RX_BUFF_SIZE, UART_TX_BUFF_SIZE, uart_err_handle, APP_IRQ_PRIORITY_LOWEST, err_code);
+    //APP_UART_FIFO_INIT(&comms_params, UART_RX_BUFF_SIZE, UART_TX_BUFF_SIZE, uart_err_handle, APP_IRQ_PRIORITY_LOWEST, err_code);
+    APP_ERROR_CHECK(err_code);
 
     set_current_adv_params_and_start_advertising();
 
