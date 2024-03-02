@@ -61,7 +61,7 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="9" y="380" useTextEdit="1" path="../../../main.c" left="0" selected="1" top="383" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="9" y="380" useTextEdit="1" path="../../../main.c" left="0" selected="1" top="380" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="29" y="257" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_log_UART/main.c" path="../config/sdk_config.h" left="0" top="248" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="128" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_log_UART/main.c" path="../../../../../../components/ble/nrf_ble_scan/nrf_ble_scan.c" left="0" top="108" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="42" y="96" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_BUENO/main.c" path="../../../../../../components/ble/nrf_ble_scan/nrf_ble_scan.h" left="0" top="96" codecName="Default"/>
