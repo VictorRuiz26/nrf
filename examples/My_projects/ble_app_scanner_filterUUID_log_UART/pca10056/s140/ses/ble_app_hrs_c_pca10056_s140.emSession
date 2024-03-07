@@ -19,10 +19,15 @@
   <MemoryWindow addressSpace="" dataSize="1" autoEvaluate="0" viewMode="0" viewType="4" addressOrder="0" columnsText="" refreshPeriod="0" name="ble_app_hrs_c_pca10056_s140_Debug" sizeText="" addressText=""/>
  </Memory4>
  <Project>
-  <ProjectSessionItem path="Slave_ping_pong"/>
-  <ProjectSessionItem path="Slave_ping_pong;Slave_ping_pong"/>
-  <ProjectSessionItem path="Slave_ping_pong;Slave_ping_pong;Application"/>
-  <ProjectSessionItem path="Slave_ping_pong;Slave_ping_pong;nRF_Libraries"/>
+  <ProjectSessionItem path="ble_scan_UUID_log_UART"/>
+  <ProjectSessionItem path="ble_scan_UUID_log_UART;ble_app_hrs_c_pca10056_s140"/>
+  <ProjectSessionItem path="ble_scan_UUID_log_UART;ble_app_hrs_c_pca10056_s140;Application"/>
+  <ProjectSessionItem path="ble_scan_UUID_log_UART;ble_app_hrs_c_pca10056_s140;Board Definition"/>
+  <ProjectSessionItem path="ble_scan_UUID_log_UART;ble_app_hrs_c_pca10056_s140;Board Support"/>
+  <ProjectSessionItem path="ble_scan_UUID_log_UART;ble_app_hrs_c_pca10056_s140;nRF_BLE"/>
+  <ProjectSessionItem path="ble_scan_UUID_log_UART;ble_app_hrs_c_pca10056_s140;nRF_Libraries"/>
+  <ProjectSessionItem path="ble_scan_UUID_log_UART;ble_app_hrs_c_pca10056_s140;nRF_Log"/>
+  <ProjectSessionItem path="ble_scan_UUID_log_UART;ble_app_hrs_c_pca10056_s140;nRF_Segger_RTT"/>
   <SourceCodeControlLogin password="F9BB6682F5D56822" user="VictorRuiz26 &lt;victorcopero00@gmail.com>"/>
  </Project>
  <Register1>
@@ -56,25 +61,18 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="27" y="341" useTextEdit="1" path="../../../main.c" left="0" selected="1" top="304" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="31" y="8155" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Scanner_ping-pong/main.c" path="../config/sdk_config.h" left="0" top="8148" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="26" y="1018" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_log_UART/main.c" path="../../../../../../components/ble/nrf_ble_scan/nrf_ble_scan.c" left="0" top="1018" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="8" y="193" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_BUENO/main.c" path="../../../../../../components/ble/nrf_ble_scan/nrf_ble_scan.h" left="0" top="182" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="77" useTextEdit="1" path="../../../main.c" left="0" selected="1" top="49" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="29" y="257" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_log_UART/main.c" path="../config/sdk_config.h" left="0" top="248" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="128" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_log_UART/main.c" path="../../../../../../components/ble/nrf_ble_scan/nrf_ble_scan.c" left="0" top="108" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="42" y="96" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_BUENO/main.c" path="../../../../../../components/ble/nrf_ble_scan/nrf_ble_scan.h" left="0" top="96" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="10" y="117" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_log_UART/main.c" path="C:/Program Files/SEGGER/SEGGER Embedded Studio for ARM 7.32/include/stdio.h" left="0" top="96" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="13" y="264" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Slave_ping-pong/main.c" path="../../../../../../components/softdevice/s140/headers/ble_gap.h" left="0" top="254" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="2" y="202" useTextEdit="1" openedFrom="C:/nrf_sdk/components/softdevice/s140/headers/ble_gap.h" path="../../../../../../components/softdevice/s140/headers/ble_types.h" left="0" top="177" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="10" y="1303" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_log_UART/main.c" path="../../../../../../components/softdevice/s140/headers/ble_gap.h" left="0" top="1295" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="2" y="202" useTextEdit="1" openedFrom="C:/nrf_sdk/components/softdevice/s140/headers/ble_gap.h" path="../../../../../../components/softdevice/s140/headers/ble_types.h" left="0" top="157" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="528" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_log_UART/main.c" path="../../../../../../components/libraries/bsp/bsp.c" left="0" top="523" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="208" useTextEdit="1" openedFrom="C:/nrf_sdk/components/libraries/bsp/bsp.c" path="../../../../../../components/boards/boards.c" left="0" top="185" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="208" useTextEdit="1" openedFrom="C:/nrf_sdk/components/libraries/bsp/bsp.c" path="../../../../../../components/boards/boards.c" left="0" top="170" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="25" y="60" useTextEdit="1" openedFrom="C:/nrf_sdk/components/boards/boards.c" path="../../../../../../components/boards/pca10056.h" left="0" top="41" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="37" y="553" useTextEdit="1" openedFrom="C:/nrf_sdk/components/boards/boards.c" path="../../../../../../modules/nrfx/hal/nrf_gpio.h" left="0" top="545" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="15" y="19" useTextEdit="1" path="C:/Users/Usuario/AppData/Local/SEGGER/SEGGER Embedded Studio/v3/tools.xml" left="0" top="9" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="47" y="89" useTextEdit="1" path="../../../../../../components/libraries/bsp/bsp_config.h" left="0" top="66" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="215" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Slave_ping-pong/main.c" path="../../../../../../components/softdevice/s140/headers/ble.h" left="0" top="192" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="320" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Slave_ping-pong/main.c" path="../../../../../../components/libraries/util/app_util.h" left="0" top="297" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="8" y="112" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Slave_ping-pong/main.c" path="../../../../../../components/libraries/timer/app_timer.h" left="0" top="94" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="276" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Slave_ping-pong/main.c" path="C:/Program Files/SEGGER/SEGGER Embedded Studio for ARM 7.32/include/stdint.h" left="0" top="253" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="2" y="134" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Slave_ping-pong/main.c" path="../../../../../../components/ble/common/ble_advdata.h" left="0" top="111" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="988" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Slave_ping-pong/main.c" path="../../../../../../components/libraries/timer/app_timer.c" left="0" top="969" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="15" y="19" useTextEdit="1" path="C:/Users/Usuario/AppData/Local/SEGGER/SEGGER Embedded Studio/v3/tools.xml" left="0" top="11" codecName="Default"/>
  </Files>
- <EMStudioWindow activeProject="Slave_ping_pong" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="100ms-10adv-4seg" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="C:/nrf_sdk/components/libraries/timer" debugSearchPath="" autoConnectCapabilities="3199"/>
+ <EMStudioWindow activeProject="ble_app_hrs_c_pca10056_s140" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="C:/nrf_sdk/components/libraries/timer" debugSearchPath="" autoConnectCapabilities="3199"/>
 </session>

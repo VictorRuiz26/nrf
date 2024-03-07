@@ -30,7 +30,7 @@
 // ################# VALOR QUE INDICA EL INTERVALO DE ADVERTISEMENT
 #define TIME_BETWEEN_EACH_ADV    MSEC_TO_UNITS(ADV_INTERVAL_MS, UNIT_0_625_MS)  /**< The advertising interval for non-connectable advertisement (100 ms). This value can vary between 100ms to 10.24s */
 
-#define APP_BEACON_INFO_LENGTH          0x17 + PDU_EXTRA_BYTES             /**< Total length of information advertised by the Beacon. */
+#define APP_BEACON_INFO_LENGTH          (0x17+PDU_EXTRA_BYTES)             /**< Total length of information advertised by the Beacon. */
 #define APP_ADV_DATA_LENGTH             0x15                               /**< Length of manufacturer specific data in the advertisement. */
 #define APP_DEVICE_TYPE                 0x02                               /**< 0x02 refers to Beacon. */
 #define APP_MEASURED_RSSI               0xC3                               /**< The Beacon's measured RSSI at 1 meter distance in dBm. */
@@ -119,7 +119,7 @@ APP_TIMER_DEF(m_adv_sent_led_show_timer_id);
 static uint8_t slaves_array[MAX_SLAVES] = {0x01}; //Starting defining first SlaveID.
 static uint8_t actualSlave = 0;
 
-#define PDU_EXTRA_BYTES 3       //For mantaining previous structure, add these bytes to final (packet type, MasterID)
+#define PDU_EXTRA_BYTES 0x03       //For mantaining previous structure, add these bytes to final (packet type, MasterID)
 #define IDX_MAJOR 25 //8 bytes de inicio y 16 del uuid
 #define IDX_MINOR 27
 #define IDX_TIPO  29
@@ -152,7 +152,7 @@ void myPrintf(char *message)
 // Aquí es donde crearé el paquete definido para luego escanear con python. Se llamará en el handler del ble
 void send_adv (const ble_gap_evt_adv_report_t *adv_data) {
   
-  uint8_t *pChar;
+  /*uint8_t *pChar;
 
   app_uart_put(0x7E); //Inicio trama
   
@@ -174,7 +174,9 @@ void send_adv (const ble_gap_evt_adv_report_t *adv_data) {
 
   app_uart_put(adv_data->data.len);
 
-  app_uart_put(0xFF);
+  app_uart_put(0xFF);*/
+
+  NRF_LOG_INFO("");
 }
 
 
@@ -547,7 +549,7 @@ static uint8_t m_beacon_info_50B[CODEC_DATA_SIZE_50B+APP_BEACON_INFO_LENGTH] =  
     COORDINATOR_ID,
     DEFAULT_SLAVE_ID,
 
-    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_50B-1] = 0 //Dummy data for filling the array size
+    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_50B+APP_BEACON_INFO_LENGTH-1] = 0 //Dummy data for filling the array size
 };
 
 static uint8_t m_beacon_info_100B[CODEC_DATA_SIZE_100B+APP_BEACON_INFO_LENGTH] =                    //< Information advertised by the Beacon. 
@@ -564,7 +566,7 @@ static uint8_t m_beacon_info_100B[CODEC_DATA_SIZE_100B+APP_BEACON_INFO_LENGTH] =
     0,
     0,
     0,
-    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_100B-1] = 0 //Dummy data for filling the array size
+    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_100B+APP_BEACON_INFO_LENGTH-1] = 0 //Dummy data for filling the array size
 };
 
 static uint8_t m_beacon_info_150B[CODEC_DATA_SIZE_150B+APP_BEACON_INFO_LENGTH] =                    //< Information advertised by the Beacon. 
@@ -581,7 +583,7 @@ static uint8_t m_beacon_info_150B[CODEC_DATA_SIZE_150B+APP_BEACON_INFO_LENGTH] =
     0,
     0,
     0,
-    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_150B-1] = 0 //Dummy data for filling the array size
+    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_150B+APP_BEACON_INFO_LENGTH-1] = 0 //Dummy data for filling the array size
 };
 
 static uint8_t m_beacon_info_200B[CODEC_DATA_SIZE_200B+APP_BEACON_INFO_LENGTH] =                    //< Information advertised by the Beacon. 
@@ -598,7 +600,7 @@ static uint8_t m_beacon_info_200B[CODEC_DATA_SIZE_200B+APP_BEACON_INFO_LENGTH] =
     0,
     0,
     0,
-    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_200B-1] = 0 //Dummy data for filling the array size
+    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_200B+APP_BEACON_INFO_LENGTH-1] = 0 //Dummy data for filling the array size
 };
 
 static uint8_t m_beacon_info_250B[CODEC_DATA_SIZE_250B+APP_BEACON_INFO_LENGTH] =                    //< Information advertised by the Beacon. 
@@ -615,7 +617,7 @@ static uint8_t m_beacon_info_250B[CODEC_DATA_SIZE_250B+APP_BEACON_INFO_LENGTH] =
     0,
     0,
     0,
-    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_250B-1] = 0 //Dummy data for filling the array size
+    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_250B+APP_BEACON_INFO_LENGTH-1] = 0 //Dummy data for filling the array size
 };
 
 /**@brief Function for handling scan request report.
@@ -1513,9 +1515,9 @@ int main(void)
     instructions_print();
 
 
-    APP_UART_FIFO_INIT(&comms_params, UART_RX_BUFF_SIZE, UART_TX_BUFF_SIZE, uart_err_handle, APP_IRQ_PRIORITY_LOWEST, err_code);
     //APP_UART_FIFO_INIT(&comms_params, UART_RX_BUFF_SIZE, UART_TX_BUFF_SIZE, uart_err_handle, APP_IRQ_PRIORITY_LOWEST, err_code);
-    APP_ERROR_CHECK(err_code);
+    //APP_UART_FIFO_INIT(&comms_params, UART_RX_BUFF_SIZE, UART_TX_BUFF_SIZE, uart_err_handle, APP_IRQ_PRIORITY_LOWEST, err_code);
+    //APP_ERROR_CHECK(err_code);
 
     set_current_adv_params_and_start_advertising();
 

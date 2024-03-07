@@ -23,6 +23,7 @@
     <configuration
       LIBRARY_IO_TYPE="RTT"
       Name="100ms-10adv-4seg"
+      arm_compiler_variant="gcc"
       c_preprocessor_definitions="ADV_INTERVAL_MS=100;NUM_ADVERTISEMENTS=10;SEGUNDOS_DELAY=4"
       c_user_include_directories="C:\\nrf_sdk\\components\\libraries\\uart\\;C:\\nrf_sdk\\components\\libraries\\fifo\\" />
     <configuration

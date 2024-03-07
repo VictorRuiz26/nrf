@@ -287,7 +287,7 @@ static ble_gap_adv_data_t m_adv_data_ext =
 };
 
 #define TIME_BETWEEN_EACH_ADV    MSEC_TO_UNITS(ADV_INTERVAL_MS, UNIT_0_625_MS)  /**< The advertising interval for non-connectable advertisement (100 ms). This value can vary between 100ms to 10.24s */
-#define APP_BEACON_INFO_LENGTH          0x17 + PDU_EXTRA_BYTES             /**< Total length of information advertised by the Beacon. */
+#define APP_BEACON_INFO_LENGTH          (0x17+PDU_EXTRA_BYTES)             /**< Total length of information advertised by the Beacon. */
 #define APP_ADV_DATA_LENGTH             0x15                               /**< Length of manufacturer specific data in the advertisement. */
 #define APP_DEVICE_TYPE                 0x02                               /**< 0x02 refers to Beacon. */
 #define APP_MEASURED_RSSI               0xC3                               /**< The Beacon's measured RSSI at 1 meter distance in dBm. */
@@ -303,7 +303,7 @@ static ble_gap_adv_data_t m_adv_data_ext =
 
 static bool advReceived = false; //Flag for starting the timer at first adv received.
 #define COORD_EXTRA_BYTES     3
-#define PDU_EXTRA_BYTES       6
+#define PDU_EXTRA_BYTES       5
 
 #define DEF_MAJOR_VALUE       0x00, 0x00
 #define DEF_MINOR_VALUE       0x00, 0x00
@@ -374,7 +374,7 @@ static uint8_t m_beacon_info_50B[CODEC_DATA_SIZE_50B+APP_BEACON_INFO_LENGTH] =  
     DEF_NUM_ADV_RECEIVED,// 26
     DEF_MEAN_RSSI,       // 27
     
-    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_50B-1] = 0 //Dummy data for filling the array size
+    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_50B+APP_BEACON_INFO_LENGTH-1] = 0 //Dummy data for filling the array size
 };
 static uint8_t m_beacon_info_100B[CODEC_DATA_SIZE_100B+APP_BEACON_INFO_LENGTH] =                    //< Information advertised by the Beacon. 
 {
@@ -393,7 +393,7 @@ static uint8_t m_beacon_info_100B[CODEC_DATA_SIZE_100B+APP_BEACON_INFO_LENGTH] =
     //0,
     0,
     0,
-    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_100B-1] = 0 //Dummy data for filling the array size
+    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_100B+APP_BEACON_INFO_LENGTH-1] = 0 //Dummy data for filling the array size
 };
 
 static uint8_t m_beacon_info_150B[CODEC_DATA_SIZE_150B+APP_BEACON_INFO_LENGTH] =                    //< Information advertised by the Beacon. 
@@ -413,7 +413,7 @@ static uint8_t m_beacon_info_150B[CODEC_DATA_SIZE_150B+APP_BEACON_INFO_LENGTH] =
     //0,
     0,
     0,
-    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_150B-1] = 0 //Dummy data for filling the array size
+    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_150B+APP_BEACON_INFO_LENGTH-1] = 0 //Dummy data for filling the array size
 };
 
 static uint8_t m_beacon_info_200B[CODEC_DATA_SIZE_200B+APP_BEACON_INFO_LENGTH] =                    //< Information advertised by the Beacon. 
@@ -433,7 +433,7 @@ static uint8_t m_beacon_info_200B[CODEC_DATA_SIZE_200B+APP_BEACON_INFO_LENGTH] =
    // 0,
     0,
     0,
-    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_200B-1] = 0 //Dummy data for filling the array size
+    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_200B+APP_BEACON_INFO_LENGTH-1] = 0 //Dummy data for filling the array size
 };
 
 static uint8_t m_beacon_info_250B[CODEC_DATA_SIZE_250B+APP_BEACON_INFO_LENGTH] =                    //< Information advertised by the Beacon. 
@@ -453,7 +453,7 @@ static uint8_t m_beacon_info_250B[CODEC_DATA_SIZE_250B+APP_BEACON_INFO_LENGTH] =
    // 0,
     0,
     0,
-    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_250B-1] = 0 //Dummy data for filling the array size
+    [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_250B+APP_BEACON_INFO_LENGTH-1] = 0 //Dummy data for filling the array size
 };
 
 
