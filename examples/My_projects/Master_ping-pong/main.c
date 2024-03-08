@@ -120,14 +120,20 @@ static uint8_t slaves_array[MAX_SLAVES] = {0x01}; //Starting defining first Slav
 static uint8_t actualSlave = 0;
 
 #define PDU_EXTRA_BYTES 0x03       //For mantaining previous structure, add these bytes to final (packet type, MasterID)
-#define IDX_MAJOR 25 //8 bytes de inicio y 16 del uuid
-#define IDX_MINOR 27
-#define IDX_TIPO  29
-#define IDX_COORD_ID  30
-#define IDX_SLAVE_ID  31
-#define IDX_NSEQ      32  //Following two bytes will act as an ACK for the previous advs sent.
-#define IDX_NADV_RCVD 33
+//Indexes for obtaining slave adv message
+#define IDX_MAJOR_RX 25 //8 bytes de inicio y 16 del uuid
+#define IDX_MINOR_RX 27
+#define IDX_RSSI_RX  29
+#define IDX_TIPO_RX  30
+#define IDX_COORD_ID_RX  31
+#define IDX_SLAVE_ID_RX  32
+#define IDX_NSEQ_RX      33 //The amount of adv received for the slave in the sent stage 
+#define IDX_MEAN_RSSI_RX 34
+
 // *******************************************************
+
+
+
 
 // ********************** CONFIGURACION UART **********************
 #define UART_TX_BUFF_SIZE 128
@@ -176,7 +182,12 @@ void send_adv (const ble_gap_evt_adv_report_t *adv_data) {
 
   app_uart_put(0xFF);*/
 
-  NRF_LOG_INFO("");
+  NRF_LOG_INFO("--- Vale, recibo, tengo que sacar paquete ---");
+  NRF_LOG_INFO("ID msg: %d, Major: 0x%02X%02X, Minor: 0x%02X%02X, RSSI: %d.", 
+                adv_data->data.p_data[IDX_TIPO_RX], adv_data->data.p_data[IDX_MAJOR_RX], adv_data->data.p_data[IDX_MAJOR_RX+1],
+                adv_data->data.p_data[IDX_MINOR_RX], adv_data->data.p_data[IDX_MINOR_RX+1], (int8_t)adv_data->data.p_data[IDX_RSSI_RX]);
+  NRF_LOG_INFO("Metricas Slave (id %02X). nAdv rx: %d, RSSI media: %d",
+                adv_data->data.p_data[IDX_SLAVE_ID_RX], adv_data->data.p_data[IDX_NSEQ_RX], (int8_t)adv_data->data.p_data[IDX_MEAN_RSSI_RX]);
 }
 
 
@@ -479,7 +490,7 @@ static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
                     //fprintf(archivo, "************************************************************\n\r
 
                     // Mando paquete por UART
-                    //send_adv(p_adv_report);
+                    send_adv(p_adv_report);
 
                 }
                 else

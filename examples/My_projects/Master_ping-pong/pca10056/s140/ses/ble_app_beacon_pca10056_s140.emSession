@@ -1,9 +1,7 @@
 <!DOCTYPE CrossStudio_Session_File>
 <session>
  <Bookmarks/>
- <Breakpoints groups="Breakpoints" active_group="Breakpoints">
-  <Exceptions set="BusFault;ExceptionEntryReturnFault;HardFault;MemManage;UsageFault_CheckingError;UsageFault_Coprocessor;UsageFault_StateError"/>
- </Breakpoints>
+ <Breakpoints groups="Breakpoints" active_group="Breakpoints"/>
  <ExecutionProfileWindow/>
  <FrameBuffer>
   <FrameBufferWindow width="16843009" keepAspectRatio="0" zoomToFitWindow="0" addressSpace="" format="0" height="16843009" autoEvaluate="0" scaleFactor="1" refreshPeriod="0" name="ble_app_beacon_pca10056_s140_500ms-1min" addressText="" accessByDisplayWidth="0"/>
@@ -59,7 +57,7 @@
  </TraceWindow>
  <Watch1>
   <Watches active="1" update="Never">
-   <Watchpoint expression="m_adv_data_ext" name="m_adv_data_ext" radix="-1" linenumber="873" filename="../../../main.c"/>
+   <Watchpoint expression="m_adv_data_ext" name="m_adv_data_ext" radix="-1" linenumber="883" filename="../../../main.c"/>
   </Watches>
  </Watch1>
  <Watch2>
@@ -72,7 +70,12 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" path="../../../main.c" left="0" selected="1" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="10" y="185" useTextEdit="1" path="../../../main.c" left="0" top="170" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="78" useTextEdit="1" path="../../../../../../components/softdevice/s140/headers/ble_hci.h" left="0" top="60" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="48" y="165" useTextEdit="1" path="../../../../../../components/softdevice/s140/headers/ble_gatt.h" left="0" top="152" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="60" y="292" useTextEdit="1" path="../../../../../../components/softdevice/s140/headers/ble_gap.h" left="0" top="269" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="54" y="112" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Master_ping-pong/main.c" path="../../../../../../components/libraries/log/nrf_log.h" left="0" top="99" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="26" y="205" useTextEdit="1" openedFrom="C:/nrf_sdk/components/libraries/log/nrf_log.h" path="../../../../../../components/libraries/log/src/nrf_log_internal.h" left="0" selected="1" top="188" codecName="Default"/>
  </Files>
  <EMStudioWindow activeProject="Master_ping-pong" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="100ms-10adv-4seg" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="C:/nrf_sdk/components/libraries/uart" debugSearchPath="" autoConnectCapabilities="3711"/>
 </session>

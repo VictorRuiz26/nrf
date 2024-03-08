@@ -38,11 +38,20 @@
 
 #define FILE_NAME   "pruebaLog.txt"
 
-#define IDX_MAJOR         25 //8 bytes de inicio y 16 del uuid
-#define IDX_MINOR         27
-#define IDX_MSG_TYPE_RX   29
-#define IDX_COORD_ID_RX   30
-#define IDX_SLAVE_ID_RX   31
+
+//Indexes for the packet to sent
+#define IDX_MESSAGE_TYPE      23
+#define IDX_COORDINATOR_ID    24
+#define IDX_NUM_ADV_RECIEVED  26
+#define IDX_MEAN_RSSI         27
+
+//Indexes for obtaining fields in adv received
+#define IDX_MAJOR_RX      25
+#define IDX_MINOR_RX      27
+#define IDX_RSSI_RX       29
+#define IDX_MSG_TYPE_RX   30
+#define IDX_COORD_ID_RX   31
+#define IDX_SLAVE_ID_RX   32
 
 
 // ********************** CONFIGURACION UART **********************
@@ -80,11 +89,11 @@ void send_adv (const ble_gap_evt_adv_report_t *adv_data) {
     app_uart_put(adv_data->peer_addr.addr[i]);
   }
 
-  app_uart_put(adv_data->data.p_data[IDX_MAJOR]);
-  app_uart_put(adv_data->data.p_data[IDX_MAJOR+1]);
+  app_uart_put(adv_data->data.p_data[IDX_MAJOR_RX]);
+  app_uart_put(adv_data->data.p_data[IDX_MAJOR_RX+1]);
 
-  app_uart_put(adv_data->data.p_data[IDX_MINOR]);
-  app_uart_put(adv_data->data.p_data[IDX_MINOR+1]);
+  app_uart_put(adv_data->data.p_data[IDX_MINOR_RX]);
+  app_uart_put(adv_data->data.p_data[IDX_MINOR_RX+1]);
 
   app_uart_put(adv_data->rssi);
 
@@ -315,10 +324,6 @@ static bool advReceived = false; //Flag for starting the timer at first adv rece
 #define DEF_NUM_ADV_RECEIVED  0
 #define DEF_MEAN_RSSI         0xFF
 
-#define IDX_MESSAGE_TYPE      23
-//#define IDX_NSEQ              26
-#define IDX_NUM_ADV_RECIEVED  26
-#define IDX_MEAN_RSSI         27
 
 //I need these variables for responsing the coordinator with the same values (or the corresponding ones). The adv_data pdu is changed in advertising_init, the same way that major and minor
 static uint16_t majorValue      = 0;
@@ -370,7 +375,6 @@ static uint8_t m_beacon_info_50B[CODEC_DATA_SIZE_50B+APP_BEACON_INFO_LENGTH] =  
     MESSAGE_TEST_TYPE,   // 23 
     COORDINATOR_ID,      // 24 
     SLAVE_ID,            // 25
-    //DEF_NSEQ,            // 26
     DEF_NUM_ADV_RECEIVED,// 26
     DEF_MEAN_RSSI,       // 27
     
@@ -555,6 +559,8 @@ static void advertising_init(void)
     adv_pdu[APP_MAJOR_POSITION]   = (uint8_t)(majorValue & 0xFF);
     adv_pdu[APP_MAJOR_POSITION-1]   = (uint8_t)((majorValue & 0xFF00) >> 8);
     adv_pdu[IDX_MESSAGE_TYPE]     = messageType;
+    adv_pdu[IDX_COORDINATOR_ID]   = coordinatorID;
+    //The SLAVE_ID is always sent as the default value (it is flashed).
     //adv_pdu[IDX_NSEQ]             = nSeqReceived; //So, as i response with the same nseq (in major/minor fields), this field is not necessary
     adv_pdu[IDX_NUM_ADV_RECIEVED] = countAdvReceived;
 
@@ -856,13 +862,14 @@ static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
     if (1)//m_scan_type_selected == SELECTION_SCAN_NON_CONN
     {
       //Procesamiento para solo quedarnos con los UUID
-        if (1/*(p_adv_report->data.len == 30)  || De momento quito esto
+        if (/*(p_adv_report->data.len == 30)  || De momento quito esto
             (p_adv_report->data.len == 255) || 
             (p_adv_report->data.len == 205) || 
             (p_adv_report->data.len == 155) || 
             (p_adv_report->data.len == 105) ||
-            (p_adv_report->data.len == 55)*/)
-            {
+            (p_adv_report->data.len == 55)*/
+            p_adv_report->data.p_data[IDX_SLAVE_ID_RX] == SLAVE_ID)
+        {
                 // Extract and print UUID if it follows 0xFF in the advertisement
                 uint8_t *p_data = p_adv_report->data.p_data;
                 uint8_t data_len = p_adv_report->data.len;
@@ -902,14 +909,15 @@ static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
                     uint8_t * pLong;
                     uint32_t nseq;
                     pLong = (unsigned char*)&nseq;
-                    pLong[0] = p_adv_report->data.p_data[IDX_MINOR+1];
-                    pLong[1] = p_adv_report->data.p_data[IDX_MINOR];
-                    pLong[2] = p_adv_report->data.p_data[IDX_MAJOR+1];
-                    pLong[3] = p_adv_report->data.p_data[IDX_MAJOR];
+                    pLong[0] = p_adv_report->data.p_data[IDX_MINOR_RX+1];
+                    pLong[1] = p_adv_report->data.p_data[IDX_MINOR_RX];
+                    pLong[2] = p_adv_report->data.p_data[IDX_MAJOR_RX+1];
+                    pLong[3] = p_adv_report->data.p_data[IDX_MAJOR_RX];
                     minorValue = nseq & 0x00FF;
                     majorValue = (nseq & 0xFF00) >> 8;
 
-                    
+                    coordinatorID = p_adv_report->data.p_data[IDX_COORD_ID_RX];
+
                     if (nSeqReceived != nseq) {
                         int16_t acum = 0;
                         for (uint8_t i = 0; i < countAdvReceived; i++) {
@@ -931,7 +939,10 @@ static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
                 }                           
                 
               NRF_LOG_INFO("************************************************************");
-            }
+       } else {
+          NRF_LOG_INFO("Pues resulta que el slave ID no coincide con el mío. Recibo %d y tengo %d", p_adv_report->data.p_data[IDX_SLAVE_ID_RX], SLAVE_ID);
+       }
+
       // Continue scanning
        err_code = sd_ble_gap_scan_start(NULL, &m_scan_buffer);
        APP_ERROR_CHECK(err_code);
