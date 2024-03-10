@@ -127,7 +127,7 @@ static uint8_t actualSlave = 0;
 #define IDX_TIPO_RX  30
 #define IDX_COORD_ID_RX  31
 #define IDX_SLAVE_ID_RX  32
-#define IDX_NSEQ_RX      33 //The amount of adv received for the slave in the sent stage 
+#define IDX_nADV_RX      33 //The amount of adv received for the slave in the sent stage 
 #define IDX_MEAN_RSSI_RX 34
 
 // *******************************************************
@@ -156,38 +156,46 @@ void myPrintf(char *message)
 }
 
 // Aquí es donde crearé el paquete definido para luego escanear con python. Se llamará en el handler del ble
-void send_adv (const ble_gap_evt_adv_report_t *adv_data) {
+void send_metrics (const ble_gap_evt_adv_report_t *adv_data) {
   
-  /*uint8_t *pChar;
-
   app_uart_put(0x7E); //Inicio trama
   
   app_uart_put(0xAA); //2 Bytes fijos de relleno
   app_uart_put(0xBB);
 
+  //Devices IDs
+  app_uart_put(COORDINATOR_ID);
+  app_uart_put(adv_data->data.p_data[IDX_SLAVE_ID_RX]);
+
+  //Slave MAC, length and msg type.
   for (int i = 0; i < BLE_GAP_ADDR_LEN; i++)
   {
     app_uart_put(adv_data->peer_addr.addr[i]);
   }
+  app_uart_put(adv_data->data.len);
+  app_uart_put(adv_data->data.p_data[IDX_TIPO_RX]);
 
-  app_uart_put(adv_data->data.p_data[IDX_MAJOR]);
-  app_uart_put(adv_data->data.p_data[IDX_MAJOR+1]);
+  //nseq (major+minor)
+  app_uart_put(adv_data->data.p_data[IDX_MAJOR_RX]);
+  app_uart_put(adv_data->data.p_data[IDX_MAJOR_RX+1]);
+  app_uart_put(adv_data->data.p_data[IDX_MINOR_RX]);
+  app_uart_put(adv_data->data.p_data[IDX_MINOR_RX+1]);
 
-  app_uart_put(adv_data->data.p_data[IDX_MINOR]);
-  app_uart_put(adv_data->data.p_data[IDX_MINOR+1]);
+  //num adv received by slave and mean RSSI of them
+  app_uart_put(adv_data->data.p_data[IDX_nADV_RX]);
+  app_uart_put(adv_data->data.p_data[IDX_MEAN_RSSI_RX]);
 
+  //rssi of this adv
   app_uart_put(adv_data->rssi);
 
-  app_uart_put(adv_data->data.len);
-
-  app_uart_put(0xFF);*/
+  app_uart_put(0xFF);
 
   NRF_LOG_INFO("--- Vale, recibo, tengo que sacar paquete ---");
-  NRF_LOG_INFO("ID msg: %d, Major: 0x%02X%02X, Minor: 0x%02X%02X, RSSI: %d.", 
+  NRF_LOG_INFO("[UPLINK] ID msg: %d, Major: 0x%02X%02X, Minor: 0x%02X%02X, RSSI: %d.", 
                 adv_data->data.p_data[IDX_TIPO_RX], adv_data->data.p_data[IDX_MAJOR_RX], adv_data->data.p_data[IDX_MAJOR_RX+1],
-                adv_data->data.p_data[IDX_MINOR_RX], adv_data->data.p_data[IDX_MINOR_RX+1], (int8_t)adv_data->data.p_data[IDX_RSSI_RX]);
-  NRF_LOG_INFO("Metricas Slave (id %02X). nAdv rx: %d, RSSI media: %d",
-                adv_data->data.p_data[IDX_SLAVE_ID_RX], adv_data->data.p_data[IDX_NSEQ_RX], (int8_t)adv_data->data.p_data[IDX_MEAN_RSSI_RX]);
+                adv_data->data.p_data[IDX_MINOR_RX], adv_data->data.p_data[IDX_MINOR_RX+1], adv_data->rssi);
+  NRF_LOG_INFO("[DOWNLINK] Slave id %02X. nAdv rx: %d, RSSI media: %d",
+                adv_data->data.p_data[IDX_SLAVE_ID_RX], adv_data->data.p_data[IDX_nADV_RX], (int8_t)adv_data->data.p_data[IDX_MEAN_RSSI_RX]);
 }
 
 
@@ -490,7 +498,7 @@ static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
                     //fprintf(archivo, "************************************************************\n\r
 
                     // Mando paquete por UART
-                    send_adv(p_adv_report);
+                    send_metrics(p_adv_report);
 
                 }
                 else
@@ -1526,9 +1534,8 @@ int main(void)
     instructions_print();
 
 
-    //APP_UART_FIFO_INIT(&comms_params, UART_RX_BUFF_SIZE, UART_TX_BUFF_SIZE, uart_err_handle, APP_IRQ_PRIORITY_LOWEST, err_code);
-    //APP_UART_FIFO_INIT(&comms_params, UART_RX_BUFF_SIZE, UART_TX_BUFF_SIZE, uart_err_handle, APP_IRQ_PRIORITY_LOWEST, err_code);
-    //APP_ERROR_CHECK(err_code);
+    APP_UART_FIFO_INIT(&comms_params, UART_RX_BUFF_SIZE, UART_TX_BUFF_SIZE, uart_err_handle, APP_IRQ_PRIORITY_LOWEST, err_code);
+    APP_ERROR_CHECK(err_code);
 
     set_current_adv_params_and_start_advertising();
 
