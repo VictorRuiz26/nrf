@@ -108,12 +108,15 @@ APP_TIMER_DEF(m_adv_data_size_200_codec_timer_id);
 
 APP_TIMER_DEF(m_timer_ble);
 APP_TIMER_DEF(m_adv_sent_led_show_timer_id);
+
+APP_TIMER_DEF(m_time_for_metrics_packet);
 // *********************************
 
 // ************ NEW PING PONG MODE DEFINITIONS ***********
 #define MESSAGE_TEST_TYPE 0xAE
 #define COORDINATOR_ID  255
 #define DEFAULT_SLAVE_ID 0x01
+static ble_gap_addr_t coordAddr;
 
 #define MAX_SLAVES       10
 static uint8_t slaves_array[MAX_SLAVES] = {0x01}; //Starting defining first SlaveID.
@@ -130,8 +133,23 @@ static uint8_t actualSlave = 0;
 #define IDX_nADV_RX      33 //The amount of adv received for the slave in the sent stage 
 #define IDX_MEAN_RSSI_RX 34
 
-// *******************************************************
+//Cloning slave adv processing variables
+static bool advReceived = false;
+static uint16_t majorValue      = 0;
+static uint16_t minorValue      = 0;
+static uint32_t nseqSent        = 0;
+static uint8_t slaveID          = DEFAULT_SLAVE_ID;
+static uint8_t countAdvReceived = 0;
+static uint32_t nSeqReceived    = 0;
+static int8_t rssiValues[NUM_ADVERTISEMENTS];
 
+static ble_gap_addr_t slaveAddr;
+static uint8_t downlinkMsgType;
+static uint8_t packetBLESize;
+static uint8_t downlinkNAdvRx;
+static int8_t  downlinkMeanRSSI;
+
+// *******************************************************
 
 
 
@@ -156,8 +174,8 @@ void myPrintf(char *message)
 }
 
 // Aquí es donde crearé el paquete definido para luego escanear con python. Se llamará en el handler del ble
-void send_metrics (const ble_gap_evt_adv_report_t *adv_data) {
-  
+void send_metrics (void) {
+  unsigned char *pChar;
   app_uart_put(0x7E); //Inicio trama
   
   app_uart_put(0xAA); //2 Bytes fijos de relleno
@@ -165,37 +183,51 @@ void send_metrics (const ble_gap_evt_adv_report_t *adv_data) {
 
   //Devices IDs
   app_uart_put(COORDINATOR_ID);
-  app_uart_put(adv_data->data.p_data[IDX_SLAVE_ID_RX]);
-
-  //Slave MAC, length and msg type.
   for (int i = 0; i < BLE_GAP_ADDR_LEN; i++)
   {
-    app_uart_put(adv_data->peer_addr.addr[i]);
+    app_uart_put(coordAddr.addr[i]);
   }
-  app_uart_put(adv_data->data.len);
-  app_uart_put(adv_data->data.p_data[IDX_TIPO_RX]);
 
-  //nseq (major+minor)
-  app_uart_put(adv_data->data.p_data[IDX_MAJOR_RX]);
-  app_uart_put(adv_data->data.p_data[IDX_MAJOR_RX+1]);
-  app_uart_put(adv_data->data.p_data[IDX_MINOR_RX]);
-  app_uart_put(adv_data->data.p_data[IDX_MINOR_RX+1]);
+  app_uart_put(slaveID);
+  for (int i = 0; i < BLE_GAP_ADDR_LEN; i++)
+  {
+    app_uart_put(slaveAddr.addr[i]);
+  }
 
+  //Msg info (type, nseq, nadv, len)
+  app_uart_put(downlinkMsgType);
+  pChar = (unsigned char *)&nseqSent;
+  app_uart_put(pChar[3]);
+  app_uart_put(pChar[2]);
+  app_uart_put(pChar[1]);
+  app_uart_put(pChar[0]);
+  app_uart_put(NUM_ADVERTISEMENTS);
+  app_uart_put(packetBLESize);
+
+  //DOWNLINK metrics
   //num adv received by slave and mean RSSI of them
-  app_uart_put(adv_data->data.p_data[IDX_nADV_RX]);
-  app_uart_put(adv_data->data.p_data[IDX_MEAN_RSSI_RX]);
+  app_uart_put(downlinkNAdvRx);
+  app_uart_put(downlinkMeanRSSI);
 
-  //rssi of this adv
-  app_uart_put(adv_data->rssi);
+  //UPLINK metrics
+  app_uart_put(countAdvReceived);
+  int16_t acumRssi = 0;
+    for (uint8_t i = 0; i < countAdvReceived; i++) {
+        acumRssi += rssiValues[i];       
+  }
+  app_uart_put((int8_t)(acumRssi/countAdvReceived));
 
   app_uart_put(0xFF);
 
   NRF_LOG_INFO("--- Vale, recibo, tengo que sacar paquete ---");
-  NRF_LOG_INFO("[UPLINK] ID msg: %d, Major: 0x%02X%02X, Minor: 0x%02X%02X, RSSI: %d.", 
-                adv_data->data.p_data[IDX_TIPO_RX], adv_data->data.p_data[IDX_MAJOR_RX], adv_data->data.p_data[IDX_MAJOR_RX+1],
-                adv_data->data.p_data[IDX_MINOR_RX], adv_data->data.p_data[IDX_MINOR_RX+1], adv_data->rssi);
-  NRF_LOG_INFO("[DOWNLINK] Slave id %02X. nAdv rx: %d, RSSI media: %d",
-                adv_data->data.p_data[IDX_SLAVE_ID_RX], adv_data->data.p_data[IDX_nADV_RX], (int8_t)adv_data->data.p_data[IDX_MEAN_RSSI_RX]);
+  NRF_LOG_INFO(" ID msg: %d, Slave ID: %d", downlinkMsgType, slaveID);
+  NRF_LOG_INFO("[UPLINK] nAdv Rx: %d, mean RSSI: %d.", 
+                countAdvReceived,(int8_t)(acumRssi/countAdvReceived));
+  NRF_LOG_INFO("[DOWNLINK] nAdv Rx: %d, mean RSSI: %d",
+                downlinkNAdvRx, downlinkMeanRSSI);
+
+  countAdvReceived = 0;
+  advReceived = false;
 }
 
 
@@ -411,6 +443,17 @@ static void scan_start(void)
   
 }
 
+/**@brief Function for stopping advertising.
+ */
+static void scan_stop(void)
+{
+    ret_code_t err_code;
+
+    err_code = sd_ble_gap_scan_stop();
+    APP_ERROR_CHECK(err_code);
+    NRF_LOG_INFO("Stopping scanning");
+}
+
 
 /**@brief Function for handling BLE_GAP_ADV_REPORT events.
  * Log adv report upon device name match or if "non-connectable" advertising on coded phy is received.
@@ -465,7 +508,8 @@ static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
             (p_adv_report->data.len == 205) || 
             (p_adv_report->data.len == 155) || 
             (p_adv_report->data.len == 105) ||
-            (p_adv_report->data.len == 55)*/1)
+            (p_adv_report->data.len == 55)*/
+            p_adv_report->data.p_data[IDX_COORD_ID_RX] == COORDINATOR_ID)
             {
                 // Extract and print UUID if it follows 0xFF in the advertisement
                 uint8_t *p_data = p_adv_report->data.p_data;
@@ -487,19 +531,51 @@ static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
                     bsp_board_led_invert(ADV_REPORT_LED);
 
                     NRF_LOG_INFO("************************************************************");
-                    NRF_LOG_INFO("UUID matches the defined UUID!");
-                    NRF_LOG_INFO("Advertising packet received (length: %d):", p_adv_report->data.len);
-                    printf("Advertising packet received (length: %d):\n\r", p_adv_report->data.len);
-                    //fprintf(archivo, "Advertising packet received (length: %d):\n\r", p_adv_report->data.len);
-                    //NRF_LOG_RAW_HEXDUMP_INFO(p_adv_report->data.p_data, p_adv_report->data.len);
                     NRF_LOG_RAW_HEXDUMP_INFO(p_adv_report->data.p_data, p_adv_report->data.len);  
                     NRF_LOG_INFO("************************************************************");
-                    printf("************************************************************\n\r");
-                    //fprintf(archivo, "************************************************************\n\r
 
-                    // Mando paquete por UART
-                    send_metrics(p_adv_report);
+                    uint8_t * pLong;
+                    uint32_t nseq;
+                    pLong = (unsigned char*)&nSeqReceived;
+                    pLong[0] = p_adv_report->data.p_data[IDX_MINOR_RX+1];
+                    pLong[1] = p_adv_report->data.p_data[IDX_MINOR_RX];
+                    pLong[2] = p_adv_report->data.p_data[IDX_MAJOR_RX+1];
+                    pLong[3] = p_adv_report->data.p_data[IDX_MAJOR_RX];
+                    minorValue = nSeqReceived & 0x00FF;
+                    majorValue = (nSeqReceived & 0xFF00) >> 8;
 
+                    if (nseqSent == nSeqReceived) {
+                        // Mando paquete por UART
+                      //send_metrics(p_adv_report
+                      /* In the second version, master acts similar to slave in terms of obtaining metrics of the communication,
+                         and then it will send complete metrics packet by UART */
+                      if (advReceived == false)
+                      {
+                          advReceived = true;
+                          uint16_t timeExpected = (80 + 256 + 16 + 24 + 8*8*(p_adv_report->data.len+8) + 192 + 24)/1000; //Time expected for receiving one adv
+                          uint16_t extraTime = 1000;
+                          err_code = app_timer_start(m_time_for_metrics_packet, APP_TIMER_TICKS(timeExpected*NUM_ADVERTISEMENTS+extraTime), NULL);
+                          APP_ERROR_CHECK(err_code);
+                          NRF_LOG_INFO("Time expected for 1 adv: %dms.", timeExpected);
+                          NRF_LOG_INFO("Primer ADV recibido, arranco timer que dura %dms!", timeExpected*NUM_ADVERTISEMENTS+extraTime);
+                      }
+                      
+                      //Fulfilling all variables of uplink that will be sent in metrics (overwritten in each adv received)
+                      slaveID = p_adv_report->data.p_data[IDX_SLAVE_ID_RX];
+                      for (int i = 0; i < BLE_GAP_ADDR_LEN; i++) {
+                        slaveAddr.addr[i] = p_adv_report->peer_addr.addr[i];  
+                      }
+                      downlinkMsgType = p_adv_report->data.p_data[IDX_TIPO_RX];
+                      packetBLESize = p_adv_report->data.len;
+                      downlinkMeanRSSI = p_adv_report->data.p_data[IDX_MEAN_RSSI_RX];
+                      downlinkNAdvRx = p_adv_report->data.p_data[IDX_nADV_RX];
+                      rssiValues[countAdvReceived++] = p_adv_report->rssi;
+                      NRF_LOG_INFO("Recibo adv para nseq %d. Llevo %d", nSeqReceived, countAdvReceived);                      
+
+                    } 
+                    else {
+                      NRF_LOG_INFO("el nseq no me coincide! recibo %d y mandé %d", nseq, nseqSent);
+                    }
                 }
                 else
                 {
@@ -680,8 +756,6 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
             err_code = app_timer_stop(m_adv_sent_led_show_timer_id); 
             APP_ERROR_CHECK(err_code);
 
-
-    //TODO: quitar/modificar este timer para que en lugar de arrancar de nuevo el adv pase al estado de escaneo
             scan_start();
 
             /*ret_code_t err_code = app_timer_start(m_timer_ble, ADV_EVT_INTERVAL, NULL); 
@@ -692,6 +766,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
             break;
 
          case BLE_GAP_EVT_TIMEOUT: //The scanner timeout expired, so wait some seconds, and start again the adv process
+         //TODO: poner aquí también el envío de paquete por si algún caso no diera tiempo el inicial, o se quede a medias?
             NRF_LOG_INFO("Scan timeout Expired!!! Wait short time (m_timer_ble timer) before start the adv again");
             ret_code_t err_code = app_timer_start(m_timer_ble, ADV_EVT_INTERVAL, NULL); 
             APP_ERROR_CHECK(err_code);
@@ -843,6 +918,7 @@ static void advertising_init(void)
           }
       }
     }
+    nseqSent = (adv_pdu[APP_MAJOR_POSITION-1] << 24) | (adv_pdu[APP_MAJOR_POSITION] << 16) | (adv_pdu[APP_MINOR_POSITION-1] << 8) | (adv_pdu[APP_MINOR_POSITION]);
 
     manuf_specific_data.data.p_data = (uint8_t *) adv_pdu;
     manuf_specific_data.data.size   = size;
@@ -1470,6 +1546,17 @@ static void led_8dBm_slow_blink_timeout_handler(void * p_context)
   bsp_board_led_invert(OUTPUT_POWER_SELECTION_LED);
 }
 
+static void time_for_metrics_packet_handler(void * p_context)
+{ 
+  UNUSED_PARAMETER(p_context);
+  scan_stop();
+  
+  send_metrics();
+  //Call to the timer for waiting before reinitialize adv sending stage.
+  ret_code_t err_code = app_timer_start(m_timer_ble, ADV_EVT_INTERVAL, NULL); 
+  APP_ERROR_CHECK(err_code);
+}
+
 
 /**@brief Function for initializing timers. */
 static void timers_init(void)
@@ -1492,6 +1579,10 @@ static void timers_init(void)
 
     err_code = app_timer_create(&m_adv_data_size_200_codec_timer_id, APP_TIMER_MODE_REPEATED, adv_data_size_200_codec_timeout_handler);
     APP_ERROR_CHECK(err_code);
+
+    err_code = app_timer_create(&m_time_for_metrics_packet, APP_TIMER_MODE_SINGLE_SHOT, time_for_metrics_packet_handler);
+    APP_ERROR_CHECK(err_code);
+
 
 }
 // ***************************************************
@@ -1531,8 +1622,11 @@ int main(void)
     ble_stack_init();
     gap_params_init();
 
+
     instructions_print();
 
+    err_code = sd_ble_gap_addr_get(&coordAddr);
+    APP_ERROR_CHECK(err_code);
 
     APP_UART_FIFO_INIT(&comms_params, UART_RX_BUFF_SIZE, UART_TX_BUFF_SIZE, uart_err_handle, APP_IRQ_PRIORITY_LOWEST, err_code);
     APP_ERROR_CHECK(err_code);
