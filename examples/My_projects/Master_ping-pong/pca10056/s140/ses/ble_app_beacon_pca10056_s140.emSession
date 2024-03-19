@@ -70,7 +70,7 @@
  </TraceWindow>
  <Watch1>
   <Watches active="1" update="Never">
-   <Watchpoint expression="m_adv_data_ext" name="m_adv_data_ext" radix="-1" linenumber="958" filename="../../../main.c"/>
+   <Watchpoint expression="m_adv_data_ext" name="m_adv_data_ext" radix="-1" linenumber="968" filename="../../../main.c"/>
   </Watches>
  </Watch1>
  <Watch2>
@@ -83,14 +83,18 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="34" y="86" useTextEdit="1" path="../config/sdk_config.h" left="0" top="69" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="211" useTextEdit="1" folds0="835" path="../../../main.c" left="0" selected="1" top="180" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="76" y="983" useTextEdit="1" path="../config/sdk_config.h" left="0" top="981" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="1613" useTextEdit="1" folds0="845" path="../../../main.c" left="0" selected="1" top="1590" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="55" y="80" useTextEdit="1" path="../../../../../../components/libraries/util/nordic_common.h" left="0" top="63" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="30" y="40" useTextEdit="1" path="../../../../../../components/libraries/log/src/nrf_log_backend_uart.c" left="0" top="30" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="90" y="923" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Master_ping-pong/main.c" path="../../../../../../components/softdevice/s140/headers/ble_gap.h" left="46" top="890" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="963" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Master_ping-pong/main.c" path="../../../../../../components/libraries/timer/app_timer.c" left="0" top="938" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="92" y="242" useTextEdit="1" path="../../../../../../components/libraries/timer/app_timer.h" left="0" top="207" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="25" y="223" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Master_ping-pong/main.c" path="../../../../../../components/libraries/uart/app_uart_fifo.c" left="0" top="198" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="104" y="2624" useTextEdit="1" path="../../../../../../modules/nrfx/mdk/nrf52840.h" left="0" top="2612" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="723" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Master_ping-pong/main.c" path="../../../../../../components/softdevice/s140/headers/ble_gap.h" left="0" top="723" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="15" y="200" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Master_ping-pong/main.c" path="../../../../../../components/softdevice/s140/headers/ble_types.h" left="0" top="188" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="54" y="208" useTextEdit="1" path="../../../../../../components/libraries/uart/app_uart.h" left="0" top="182" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="99" useTextEdit="1" path="../../../../../../components/libraries/util/app_error_weak.c" left="0" top="26" codecName="Default"/>
  </Files>
- <EMStudioWindow activeProject="Master_ping-pong" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="100ms-10adv-4seg" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="C:/nrf_sdk/components/libraries/uart" debugSearchPath="" autoConnectCapabilities="3199"/>
+ <EMStudioWindow activeProject="Master_ping-pong" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="100ms-10adv-4seg" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="C:/nrf_sdk/components/libraries/uart" debugSearchPath="" autoConnectCapabilities="3711"/>
 </session>
