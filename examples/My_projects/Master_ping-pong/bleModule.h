@@ -81,4 +81,6 @@
 
   void set_current_adv_params_and_start_advertising(void);
 
+  void disconnect_stop_adv(void);
+
 #endif

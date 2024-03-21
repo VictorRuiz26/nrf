@@ -592,4 +592,10 @@ ble_gap_adv_data_t m_adv_data =
     advertising_start();
   }
 
+    /**@brief This function will disconnect if connected, and stop advertising if advertising. */
+  void disconnect_stop_adv(void) {
+    ret_code_t err_code;
+    // If advertising, stop advertising.
+    (void)sd_ble_gap_adv_stop(m_adv_handle);
+  }
 
