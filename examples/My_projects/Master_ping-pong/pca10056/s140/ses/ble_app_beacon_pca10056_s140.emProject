@@ -67,12 +67,14 @@
       linker_section_placement_file="flash_placement.xml" />
     <folder Name="Application">
       <folder Name="C source files">
+        <file file_name="../../../bleModule.c" />
         <file file_name="../../../data.c" />
         <file file_name="../../../main.c" />
         <file file_name="../../../timers.c" />
         <file file_name="../../../uart.c" />
       </folder>
       <folder Name="Header files">
+        <file file_name="../../../bleModule.h" />
         <file file_name="config.h" />
         <file file_name="../../../data.h" />
         <file file_name="../config/sdk_config.h" />

@@ -37,6 +37,8 @@
   <ProjectSessionItem path="Master_ping-pong;Master_ping-pong;Application;C source files"/>
   <ProjectSessionItem path="Master_ping-pong;Master_ping-pong;Application;Header files"/>
   <ProjectSessionItem path="Master_ping-pong;Master_ping-pong;Board Support"/>
+  <ProjectSessionItem path="Master_ping-pong;Master_ping-pong;nRF_BLE"/>
+  <ProjectSessionItem path="Master_ping-pong;Master_ping-pong;nRF_Drivers"/>
   <ProjectSessionItem path="Master_ping-pong;Master_ping-pong;nRF_Libraries"/>
   <ProjectSessionItem path="Master_ping-pong;Master_ping-pong;nRF_Log"/>
   <ProjectSessionItem path="Master_ping-pong;Master_ping-pong;nRF_Segger_RTT"/>
@@ -71,7 +73,7 @@
  </TraceWindow>
  <Watch1>
   <Watches active="1" update="Never">
-   <Watchpoint expression="m_adv_data_ext" name="m_adv_data_ext" radix="-1" linenumber="1041" filename="../../../main.c"/>
+   <Watchpoint expression="m_adv_data_ext" name="m_adv_data_ext" radix="-1" linenumber="67" filename="../../../main.c"/>
   </Watches>
  </Watch1>
  <Watch2>
@@ -84,18 +86,21 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="37" y="1410" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Master_ping-pong/pca10056/s140/ses/timers.h" path="../../../main.c" left="0" top="1384" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="40" y="2573" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Master_ping-pong/main.c" path="../../../../../../components/softdevice/s140/headers/ble_gap.h" left="0" top="2540" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="54" y="208" useTextEdit="1" path="../../../../../../components/libraries/uart/app_uart.h" left="0" top="30" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="10" y="6" useTextEdit="1" path="timers.h" left="0" selected="1" top="0" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="71" y="66" useTextEdit="1" path="../../../timers.c" left="0" top="25" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="4" y="296" useTextEdit="1" path="../../../../../../components/libraries/pwr_mgmt/nrf_pwr_mgmt.c" left="0" top="255" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="67" useTextEdit="1" path="../../../../../../components/libraries/bsp/bsp.c" left="0" top="26" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="85" useTextEdit="1" path="../../../../../../components/libraries/button/app_button.c" left="0" top="44" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="31" y="163" useTextEdit="1" path="../../../../../../components/libraries/timer/app_timer.h" left="0" top="128" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" path="config.h" left="0" top="0" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="8" y="202" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Master_ping-pong/main.c" path="../../../../../../components/boards/boards.h" left="0" top="166" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="4" y="161" useTextEdit="1" path="../../../../../../components/libraries/bsp/bsp.h" left="0" top="140" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="8" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Master_ping-pong/pca10056/s140/ses/timers.h" path="../../../main.c" left="0" selected="1" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="112" y="2535" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Master_ping-pong/main.c" path="../../../../../../components/softdevice/s140/headers/ble_gap.h" left="0" top="2493" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="10" y="7" useTextEdit="1" path="../../../timers.h" left="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="71" y="66" useTextEdit="1" path="../../../timers.c" left="0" top="26" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="28" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Master_ping-pong/main.c" path="../../../config.h" left="0" top="20" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="20" y="4" useTextEdit="1" path="../../../uart.c" left="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="50" y="26" useTextEdit="1" path="../../../uart.h" left="0" top="5" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="16" y="161" useTextEdit="1" path="../../../../../../components/libraries/uart/app_uart_fifo.c" left="0" top="139" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="2" y="4" useTextEdit="1" path="../../../data.h" left="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="17" y="0" useTextEdit="1" path="../../../data.c" left="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="112" useTextEdit="1" path="../../../../../../components/libraries/log/nrf_log.h" left="0" top="80" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="5" y="74" useTextEdit="1" path="../../../../../../components/libraries/util/nrf_assert.h" left="0" top="34" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="8" y="90" useTextEdit="1" path="../../../../../../components/libraries/util/nordic_common.h" left="0" top="58" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="8" y="83" useTextEdit="1" path="../../../../../../components/ble/common/ble_advdata.h" left="0" top="43" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="8" y="11914" useTextEdit="1" path="../config/sdk_config.h" left="0" top="11882" codecName="Default"/>
  </Files>
  <EMStudioWindow activeProject="Master_ping-pong" fileDialogDefaultFilter="*" autoConnectTarget="J-Link" buildConfiguration="100ms-10adv-4seg" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="C:/nrf_sdk/examples/My_projects/Master_ping-pong" debugSearchPath="" autoConnectCapabilities="3199"/>
 </session>

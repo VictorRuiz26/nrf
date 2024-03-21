@@ -15,20 +15,17 @@
   #define APP_DEVICE_TYPE 0x02                            /**< 0x02 refers to Beacon. */
   #define APP_MEASURED_RSSI 0xC3                          /**< The Beacon's measured RSSI at 1 meter distance in dBm. */
   #define APP_COMPANY_IDENTIFIER 0x0059                   /**< Company identifier for Nordic Semiconductor ASA. as per www.bluetooth.org. */
-  // #define APP_MAJOR_VALUE                 0x01, 0x02                         /**< Major value used to identify Beacons. */
-  // #define APP_MINOR_VALUE                 0x03, 0x04                         /**< Minor value used to identify Beacons. */
-  /*#define APP_BEACON_UUID                 0x01, 0x12, 0x23, 0x34, \
-                                          0x45, 0x56, 0x67, 0x78, \
-                                          0x89, 0x9a, 0xab, 0xbc, \
-                                          0xcd, 0xde, 0xef, 0xf0            /**< Proprietary UUID for Beacon. */
+
 
   // ################# MODIFICACIÓN DEL UUID DEL BEACON PARA QUE SEA TODO 1's y cambios MAJOR Y MINOR
   #define APP_MAJOR_VALUE 0x00, 0x00 /**< Major value used to identify Beacons. */
   #define APP_MINOR_VALUE 0x00, 0x00 /**< Minor value used to identify Beacons. */
 
-  // definición de variables de major y minor -> modificables en cada bloque de advertisements
-  // uint16_t APP_MAJOR_VALUE = 0;
-  // uint16_t APP_MINOR_VALUE = 1;
+  // VARIABLE PARA COMPROBAR UUID DEL ADVERTISEMENT
+  #define APP_BEACON_UUID_POINTER ((uint8_t[]){0x11, 0x11, 0x11, 0x11, \
+      0x11, 0x11, 0x11, 0x11,                                          \
+      0x11, 0x11, 0x11, 0x11,                                          \
+      0x11, 0x11, 0x11, 0x11})
 
   // Posición de dichos valores en la estructura de advertisements
   #define APP_MAJOR_POSITION 19
