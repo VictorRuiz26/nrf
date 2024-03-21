@@ -1,5 +1,4 @@
 
-#include "app_timer.h"
 #include "ble_advdata.h"
 #include "bsp.h"
 #include "nordic_common.h"
@@ -23,355 +22,23 @@
 
 #include "nrf_gpio.h"
 #include <time.h>
+#include "timers.h"
+#include "config.h"
+#include "uart.h"
+#include "data.h"
 
-#define APP_BLE_CONN_CFG_TAG 1 /**< A tag identifying the SoftDevice BLE configuration. */
-
-// ################# VALOR QUE INDICA EL INTERVALO DE ADVERTISEMENT
-#define TIME_BETWEEN_EACH_ADV MSEC_TO_UNITS(ADV_INTERVAL_MS, UNIT_0_625_MS) /**< The advertising interval for non-connectable advertisement (100 ms). This value can vary between 100ms to 10.24s */
-
-#define APP_BEACON_INFO_LENGTH (0x17 + PDU_EXTRA_BYTES) /**< Total length of information advertised by the Beacon. */
-#define APP_ADV_DATA_LENGTH 0x15                        /**< Length of manufacturer specific data in the advertisement. */
-#define APP_DEVICE_TYPE 0x02                            /**< 0x02 refers to Beacon. */
-#define APP_MEASURED_RSSI 0xC3                          /**< The Beacon's measured RSSI at 1 meter distance in dBm. */
-#define APP_COMPANY_IDENTIFIER 0x0059                   /**< Company identifier for Nordic Semiconductor ASA. as per www.bluetooth.org. */
-// #define APP_MAJOR_VALUE                 0x01, 0x02                         /**< Major value used to identify Beacons. */
-// #define APP_MINOR_VALUE                 0x03, 0x04                         /**< Minor value used to identify Beacons. */
-/*#define APP_BEACON_UUID                 0x01, 0x12, 0x23, 0x34, \
-                                        0x45, 0x56, 0x67, 0x78, \
-                                        0x89, 0x9a, 0xab, 0xbc, \
-                                        0xcd, 0xde, 0xef, 0xf0            /**< Proprietary UUID for Beacon. */
-
-// ################# MODIFICACIÓN DEL UUID DEL BEACON PARA QUE SEA TODO 1's y cambios MAJOR Y MINOR
-#define APP_MAJOR_VALUE 0x00, 0x00 /**< Major value used to identify Beacons. */
-#define APP_MINOR_VALUE 0x00, 0x00 /**< Minor value used to identify Beacons. */
-
-// definición de variables de major y minor -> modificables en cada bloque de advertisements
-// uint16_t APP_MAJOR_VALUE = 0;
-// uint16_t APP_MINOR_VALUE = 1;
-
-// Posición de dichos valores en la estructura de advertisements
-#define APP_MAJOR_POSITION 19
-#define APP_MINOR_POSITION 21
-
-#define APP_BEACON_UUID 0x11, 0x11, 0x11, 0x11, \
-                        0x11, 0x11, 0x11, 0x11, \
-                        0x11, 0x11, 0x11, 0x11, \
-                        0x11, 0x11, 0x11, 0x11 /**< Proprietary UUID for Beacon. */
-
-#define DEAD_BEEF 0xDEADBEEF /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
 
 #if defined(USE_UICR_FOR_MAJ_MIN_VALUES)
 #define MAJ_VAL_OFFSET_IN_BEACON_INFO 18 /**< Position of the MSB of the Major Value in m_beacon_info array. */
 #define UICR_ADDRESS 0x10001080          /**< Address of the UICR register used by this example. The major and minor versions to be encoded into the advertising data will be picked up from this location. */
 #endif
 
-// ********* BUTTON AND LED ASSIGNMENT FOR CONTROL ********
-
-#define ADV_REPORT_LED BSP_BOARD_LED_0
-#define SENDING_ADV_LED BSP_BOARD_LED_0
-#define PHY_SELECTION_LED BSP_BOARD_LED_1          /**< LED indicating which phy is in use. */
-#define OUTPUT_POWER_SELECTION_LED BSP_BOARD_LED_2 /**< LED indicating at which ouput power the radio is transmitting */
-#define NON_CONN_ADV_LED BSP_BOARD_LED_3           /**< LED indicting if the device is advertising non-connectable advertising or not. */
-#define CONN_ADV_CONN_STATE_LED BSP_BOARD_LED_3    /**< LED indicating that if device is advertising with connectable advertising, in a connected state, or none. */
-
-#define PHY_SELECTION_BUTTON BSP_BUTTON_1
-#define PHY_SELECTION_BUTTON_EVENT BSP_EVENT_KEY_1
-#define OUTPUT_POWER_SELECTION_BUTTON BSP_BUTTON_2
-#define OUTPUT_POWER_SELECTION_BUTTON_EVENT BSP_EVENT_KEY_2
-#define NON_CONN_OR_CONN_ADV_BUTTON BSP_BUTTON_3
-#define NON_CONN_OR_CONN_ADV_BUTTON_EVENT BSP_EVENT_KEY_3
-#define BUTTON_NOT_IN_USE BSP_BUTTON_0
-#define BUTTON_NOT_IN_USE_EVENT BSP_EVENT_KEY_0
-// ********************************************************
-
-#define CONN_INTERVAL_DEFAULT (uint16_t)(MSEC_TO_UNITS(7.5, UNIT_1_25_MS)) /**< Default connection interval used at connection establishment by central side. */
-
-#define CONN_INTERVAL_MIN (uint16_t)(MSEC_TO_UNITS(7.5, UNIT_1_25_MS)) /**< Minimum acceptable connection interval, in 1.25 ms units. */
-#define CONN_INTERVAL_MAX (uint16_t)(MSEC_TO_UNITS(500, UNIT_1_25_MS)) /**< Maximum acceptable connection interval, in 1.25 ms units. */
-#define CONN_SUP_TIMEOUT (uint16_t)(MSEC_TO_UNITS(8000, UNIT_10_MS))   /**< Connection supervisory timeout (4 seconds). */
-#define SLAVE_LATENCY 0                                                /**< Slave latency. */
-
-// ******* TIMER DEFINITIONS *******
-#define ADV_EVT_INTERVAL APP_TIMER_TICKS(SEGUNDOS_DELAY * 1000)
-#define FAST_BLINK_INTERVAL APP_TIMER_TICKS(300)
-#define MEDIUM_BLINK_INTERVAL APP_TIMER_TICKS(650)
-#define SLOW_BLINK_INTERVAL APP_TIMER_TICKS(1000)
-#define BLINK_SEDNDING_ADV APP_TIMER_TICKS(100)
-
-APP_TIMER_DEF(m_adv_data_size_100_codec_timer_id);
-APP_TIMER_DEF(m_adv_data_size_150_codec_timer_id);
-APP_TIMER_DEF(m_adv_data_size_200_codec_timer_id);
-
-APP_TIMER_DEF(m_timer_ble);
-APP_TIMER_DEF(m_adv_sent_led_show_timer_id);
-
-APP_TIMER_DEF(m_time_for_metrics_packet);
-APP_TIMER_DEF(m_analize_buffer_uart);
-// *********************************
-
-// ************ NEW PING PONG MODE DEFINITIONS ***********
-#define MESSAGE_TEST_TYPE 0xAE
-#define COORDINATOR_ID 255
-#define DEFAULT_SLAVE_ID 0x01
-
-static ble_gap_addr_t coordAddr;
+ 
 static uint8_t VAR_NUM_ADVERTISEMENTS = NUM_ADVERTISEMENTS;
 
-#define MAX_SLAVES 10
+
 static uint8_t slaves_array[MAX_SLAVES] = {0x01}; // Starting defining first SlaveID.
 static uint8_t actualSlave = 0;
-
-#define PDU_EXTRA_BYTES 0x03 // For mantaining previous structure, add these bytes to final (packet type, MasterID)
-// Indexes for obtaining slave adv message
-#define IDX_MAJOR_RX 25 // 8 bytes de inicio y 16 del uuid
-#define IDX_MINOR_RX 27
-#define IDX_RSSI_RX 29
-#define IDX_TIPO_RX 30
-#define IDX_COORD_ID_RX 31
-#define IDX_SLAVE_ID_RX 32
-#define IDX_nADV_RX 33 // The amount of adv received for the slave in the sent stage
-#define IDX_MEAN_RSSI_RX 34
-
-// Cloning slave adv processing variables
-static bool advReceived = false;
-static uint16_t majorValue = 0;
-static uint16_t minorValue = 0;
-static uint32_t nseqSent = 0;
-static uint8_t slaveID = DEFAULT_SLAVE_ID;
-static uint8_t countAdvReceived = 0;
-static uint32_t nSeqReceived = 0;
-static int8_t rssiValues[NUM_ADVERTISEMENTS];
-
-static ble_gap_addr_t slaveAddr;
-static uint8_t downlinkMsgType;
-static uint8_t packetBLESize;
-static uint8_t downlinkNAdvRx;
-static int8_t downlinkMeanRSSI;
-
-// *******************************************************
-
-
-//TODO: llevar esto a otro fichero porque si no es un jaelo importante
-//************* UART BUFFERS AND DEFINITIONS *********** 
-#define UART_BUFFER_RX_SIZE 256
-typedef struct {
-  uint8_t data[UART_BUFFER_RX_SIZE];
-  uint8_t indiceLeido;
-  uint8_t indiceMetido;
-} TBufferUART;
-
-TBufferUART UART_PC;
-
-#define MODBUS_PRUEBA_PC        0xAE
-#define MODBUS_INICIO_PING_PONG 0xAB
-
-#define ocupadosBufferUART(x) ((x.indiceMetido >= x.indiceLeido) ? (x.indiceMetido - x.indiceLeido) : (UART_BUFFER_RX_SIZE + x.indiceMetido - x.indiceLeido))
-#define incrementaIndice(x, cantidad) {x+=cantidad;if(x>=UART_BUFFER_RX_SIZE) x-=UART_BUFFER_RX_SIZE;}
-
-void InicializaBufferUART(void) {
-  uint16_t i;
-
-  UART_PC.indiceLeido = 0;
-  UART_PC.indiceMetido = 0;
-
-  for (i = 0; i < UART_BUFFER_RX_SIZE; i++) {
-    UART_PC.data[i] = '\0';
-  }
-}
-
-void echoPacketUART(uint8_t longPaquete, uint8_t inicio) {
-  uint8_t i, index;
-  index = inicio;
-  for (i = 0; i < longPaquete; i++) {
-    app_uart_put(UART_PC.data[index]);
-    incrementaIndice(index, 1);
-  }
-}
-
-void AnalizaBufferUART(void) {
-  /* No hay que olvidar que aqui trabajamos como ESCLAVOS */
-    static unsigned char longPaquete, bytesDescartados, paquetesLeidos, indiceAuxiliar;
-
-    if (ocupadosBufferUART(UART_PC) < 5)
-    {
-        return;
-    }
-
-    paquetesLeidos = 0;
-    bytesDescartados = 0;
-
-    while ((ocupadosBufferUART(UART_PC) > 1) && (paquetesLeidos < 100) /*&& (bytesDescartados < 200)*/) 
-    {
-      if (UART_PC.data[UART_PC.indiceLeido] == COORDINATOR_ID) {
-        NRF_LOG_INFO("Paquete modbus con mi direccion: %d", UART_PC.data[UART_PC.indiceLeido]);
-        //Ya tengo un byte con mi direcci�n. Ahora tengo que ver si es un paquete modbus lo que viene o no 
-        indiceAuxiliar = UART_PC.indiceLeido;
-        incrementaIndice(indiceAuxiliar, 1); //Apunta al tipo de funci�n 
-
-        switch (UART_PC.data[indiceAuxiliar]) 
-        {
-            //Si lo que tengo entre manos es un paquete MODBUS correcto, aqu� debo de tener el tipo de funci�n. Si la reconozco, pues bien. Pero si no la reconozco paso del paquete 				
-            case MODBUS_PRUEBA_PC:
-              NRF_LOG_INFO("MODBUS_PRUEBA_PC");
-              //Aqui indicar el tamaño mínimo conocido para este paquete
-              if (ocupadosBufferUART(UART_PC) >= 5) {
-                paquetesLeidos++;
-                incrementaIndice(indiceAuxiliar, 1);
-                longPaquete = UART_PC.data[indiceAuxiliar] + 5; //1 de la direcci�n + 2 del CRC + 2 de cabecera
-
-                //Reviso si me han llegado todos los bytes que indica la cabecera
-                if (ocupadosBufferUART(UART_PC) >= longPaquete) {
-                  if(1/*TODO: aqui va el chequeo de CRC*/) {
-                    NRF_LOG_INFO("RECIBO PAQUETE COMPLETO!");
-                    echoPacketUART(longPaquete, UART_PC.indiceLeido);
-                    incrementaIndice(UART_PC.indiceLeido, longPaquete);
-                  }
-                  else {
-                    /* El CRC ha fallado, descarto este byte y sigo buscando un paquete v�lido */
-                    incrementaIndice(UART_PC.indiceLeido, 1);
-                    bytesDescartados++;
-                  }  
-                } 
-                else
-                {
-                  return; //Todavia no ha llegado
-                }
-              } 
-              else 
-              {
-                return; //Todavia no ha llegado
-              }
-              break;
-            case MODBUS_INICIO_PING_PONG:
-              NRF_LOG_INFO("MODBUS_INICIO_PING_PONG");
-              //Aqui indicar el tamaño mínimo conocido para este paquete
-              if (ocupadosBufferUART(UART_PC) >= 5) {
-                paquetesLeidos++;
-                incrementaIndice(indiceAuxiliar, 1);
-                longPaquete = UART_PC.data[indiceAuxiliar] + 5; //1 de la direcci�n + 2 del CRC + 2 de cabecera
-
-                //Reviso si me han llegado todos los bytes que indica la cabecera
-                if (ocupadosBufferUART(UART_PC) >= longPaquete) {
-                  if(1) {
-                    NRF_LOG_INFO("RECIBO PAQUETE. Procedo a iniciar advertisement con los datos recibidos");
-                    echoPacketUART(longPaquete, UART_PC.indiceLeido);
-                    incrementaIndice(UART_PC.indiceLeido, longPaquete);
-                  }
-                  else {
-                    /* El CRC ha fallado, descarto este byte y sigo buscando un paquete v�lido */
-                    incrementaIndice(UART_PC.indiceLeido, 1);
-                    bytesDescartados++;
-                  }  
-                } 
-                else
-                {
-                  return; //Todavia no ha llegado
-                }
-              } 
-              else 
-              {
-                return; //Todavia no ha llegado
-              }
-              break;
-        }
-      }
-      else {
-        incrementaIndice(UART_PC.indiceLeido, 1);
-        bytesDescartados++;
-      }
-    }
-}
-
-
-// ********************** CONFIGURACION UART **********************
-#define UART_TX_BUFF_SIZE 128
-#define UART_RX_BUFF_SIZE 128
-
-#define UART_HWFC APP_UART_FLOW_CONTROL_DISABLED
-
-void uart_evt_handle(app_uart_evt_type_t *p) {
-  uint8_t byte;
-  switch (*p) {
-  case APP_UART_DATA_READY:
-    app_uart_get(&byte);
-    UART_PC.data[UART_PC.indiceMetido] = byte;
-    incrementaIndice(UART_PC.indiceMetido, 1);
-    break;
-  }
-}
-
-  void myPrintf(char *message) {
-    uint8_t i = 0;
-    while (message[i] != NULL) {
-      app_uart_put(message[i++]);
-    }
-  }
-
-  // Aquí es donde crearé el paquete definido para luego escanear con python. Se llamará en el handler del ble
-  void send_metrics(void) {
-    unsigned char *pChar;
-    app_uart_put(0x7E); // Inicio trama
-
-    app_uart_put(0xAA); // 2 Bytes fijos de relleno
-    app_uart_put(0xBB);
-
-    // Devices IDs
-    app_uart_put(COORDINATOR_ID);
-    for (int i = 0; i < BLE_GAP_ADDR_LEN; i++) {
-      app_uart_put(coordAddr.addr[i]);
-    }
-
-    app_uart_put(slaveID);
-    for (int i = 0; i < BLE_GAP_ADDR_LEN; i++) {
-      app_uart_put(slaveAddr.addr[i]);
-    }
-
-    // Msg info (type, nseq, nadv, len)
-    app_uart_put(downlinkMsgType);
-    pChar = (unsigned char *)&nseqSent;
-    app_uart_put(pChar[3]);
-    app_uart_put(pChar[2]);
-    app_uart_put(pChar[1]);
-    app_uart_put(pChar[0]);
-    app_uart_put(VAR_NUM_ADVERTISEMENTS);
-    app_uart_put(packetBLESize);
-
-    // DOWNLINK metrics
-    // num adv received by slave and mean RSSI of them
-    app_uart_put(downlinkNAdvRx);
-    app_uart_put(downlinkMeanRSSI);
-
-    // UPLINK metrics
-    app_uart_put(countAdvReceived);
-    int16_t acumRssi = 0;
-    for (uint8_t i = 0; i < countAdvReceived; i++) {
-      acumRssi += rssiValues[i];
-    }
-    app_uart_put((int8_t)(acumRssi / countAdvReceived));
-
-    app_uart_put(0xFF);
-
-    NRF_LOG_INFO("--- Vale, recibo, tengo que sacar paquete ---");
-    NRF_LOG_INFO(" ID msg: %d, Slave ID: %d", downlinkMsgType, slaveID);
-    NRF_LOG_INFO("[UPLINK] nAdv Rx: %d, mean RSSI: %d.",
-        countAdvReceived, (int8_t)(acumRssi / countAdvReceived));
-    NRF_LOG_INFO("[DOWNLINK] nAdv Rx: %d, mean RSSI: %d",
-        downlinkNAdvRx, downlinkMeanRSSI);
-
-    countAdvReceived = 0;
-    advReceived = false;
-  }
-
-  const app_uart_comm_params_t comms_params =
-      {
-          RX_PIN_NUMBER,
-          TX_PIN_NUMBER,
-          RTS_PIN_NUMBER,
-          CTS_PIN_NUMBER,
-          UART_HWFC,
-          false,
-          NRF_UART_BAUDRATE_115200};
-  // ****************************************************************
 
   static void advertising_stop(void);
   // ******* STRUCTS AND VARIABLES FOR MODE OPERATION ******
@@ -594,9 +261,6 @@ void uart_evt_handle(app_uart_evt_type_t *p) {
     if ((adv_target_name_found == true) ||
         (adv_report_non_conn_coded_phy == true)) {
 
-      // TODO: "Enable" if-statement if RSSI shuold only be logged when changed.
-      // if(rssi_value != p_adv_report->rssi)
-      //{
       rssi_value = p_adv_report->rssi;
       if (p_adv_report->primary_phy == BLE_GAP_PHY_1MBPS) {
         NRF_LOG_INFO("Received ADV report, RSSI %d, phy: 1 Mbps", rssi_value);
@@ -657,8 +321,9 @@ void uart_evt_handle(app_uart_evt_type_t *p) {
               advReceived = true;
               uint16_t timeExpected = (80 + 256 + 16 + 24 + 8 * 8 * (p_adv_report->data.len + 8) + 192 + 24) / 1000; // Time expected for receiving one adv
               uint16_t extraTime = 1000;
-              err_code = app_timer_start(m_time_for_metrics_packet, APP_TIMER_TICKS(timeExpected * NUM_ADVERTISEMENTS + extraTime), NULL);
-              APP_ERROR_CHECK(err_code);
+              time_for_metrics_packet(APP_TIMER_TICKS(timeExpected * NUM_ADVERTISEMENTS + extraTime), true, NULL);
+              /*err_code = app_timer_start(m_time_for_metrics_packet, APP_TIMER_TICKS(timeExpected * NUM_ADVERTISEMENTS + extraTime), NULL);
+              APP_ERROR_CHECK(err_code);*/
               NRF_LOG_INFO("Time expected for 1 adv: %dms.", timeExpected);
               NRF_LOG_INFO("Primer ADV recibido, arranco timer que dura %dms!", timeExpected * NUM_ADVERTISEMENTS + extraTime);
             }
@@ -842,8 +507,10 @@ void uart_evt_handle(app_uart_evt_type_t *p) {
       // NRF_LOG_INFO("Advertisement terminado. Motivo: %d", p_ble_evt->evt.gap_evt.params.adv_set_terminated.reason);
       // NRF_LOG_INFO("Enviados %d adv de %d configurados (max)", p_ble_evt->evt.gap_evt.params.adv_set_terminated.num_completed_adv_events, NUM_ADVERTISEMENTS);
       // bsp_board_led_off(SENDING_ADV_LED);
-      err_code = app_timer_stop(m_adv_sent_led_show_timer_id);
-      APP_ERROR_CHECK(err_code);
+
+      adv_sent_led_show(NULL, false, NULL);
+      /*err_code = app_timer_stop(m_adv_sent_led_show_timer_id);
+      APP_ERROR_CHECK(err_code);*/
 
       scan_start();
 
@@ -857,8 +524,9 @@ void uart_evt_handle(app_uart_evt_type_t *p) {
     case BLE_GAP_EVT_TIMEOUT: // The scanner timeout expired, so wait some seconds, and start again the adv process
       // TODO: poner aquí también el envío de paquete por si algún caso no diera tiempo el inicial, o se quede a medias?
       NRF_LOG_INFO("Scan timeout Expired!!! Wait short time (m_timer_ble timer) before start the adv again");
-      ret_code_t err_code = app_timer_start(m_timer_ble, ADV_EVT_INTERVAL, NULL);
-      APP_ERROR_CHECK(err_code);
+      adv_interval(ADV_EVT_INTERVAL, true, NULL);
+      /*ret_code_t err_code = app_timer_start(m_timer_ble, ADV_EVT_INTERVAL, NULL);
+      APP_ERROR_CHECK(err_code);*/
       break;
 
     default: {
@@ -1091,8 +759,9 @@ void uart_evt_handle(app_uart_evt_type_t *p) {
     // NRF_LOG_INFO("err_code after sd_ble_gap_adv_start: %d", err_code);
     APP_ERROR_CHECK(err_code);
 
-    err_code = app_timer_start(m_adv_sent_led_show_timer_id, BLINK_SEDNDING_ADV, NULL);
-    APP_ERROR_CHECK(err_code);
+    adv_sent_led_show(BLINK_SENDING_ADV, true, NULL);
+    /*err_code = app_timer_start(m_adv_sent_led_show_timer_id, BLINK_SENDING_ADV, NULL);
+    APP_ERROR_CHECK(err_code);*/
 
     m_app_initiated_disconnect = false;
   }
@@ -1251,12 +920,16 @@ void uart_evt_handle(app_uart_evt_type_t *p) {
       switch (adv_data_size) {
       case CODEC_DATA_SIZE_50B: {
         NRF_LOG_INFO("Adv size changed to 50 bytes");
+        adv_data_size_100_codec(NULL, false, NULL);
+        adv_data_size_150_codec(NULL, false, NULL);
+        adv_data_size_200_codec(NULL, false, NULL);
+        /*
         err_code = app_timer_stop(m_adv_data_size_200_codec_timer_id);
         APP_ERROR_CHECK(err_code);
         err_code = app_timer_stop(m_adv_data_size_150_codec_timer_id);
         APP_ERROR_CHECK(err_code);
         err_code = app_timer_stop(m_adv_data_size_100_codec_timer_id);
-        APP_ERROR_CHECK(err_code);
+        APP_ERROR_CHECK(err_code);*/
 
         bsp_board_led_off(CONN_ADV_CONN_STATE_LED);
       } break;
@@ -1264,47 +937,66 @@ void uart_evt_handle(app_uart_evt_type_t *p) {
       case CODEC_DATA_SIZE_100B: {
         NRF_LOG_INFO("Adv size changed to 100 bytes");
         bsp_board_led_off(CONN_ADV_CONN_STATE_LED); // Not necessary, led should start to blink
-        err_code = app_timer_stop(m_adv_data_size_200_codec_timer_id);
+
+        adv_data_size_150_codec(NULL, false, NULL);
+        adv_data_size_200_codec(NULL, false, NULL);
+
+        adv_data_size_100_codec(SLOW_BLINK_INTERVAL, true, NULL);
+        /*err_code = app_timer_stop(m_adv_data_size_200_codec_timer_id);
         APP_ERROR_CHECK(err_code);
         err_code = app_timer_stop(m_adv_data_size_150_codec_timer_id);
         APP_ERROR_CHECK(err_code);
 
         err_code = app_timer_start(m_adv_data_size_100_codec_timer_id, SLOW_BLINK_INTERVAL, NULL);
-        APP_ERROR_CHECK(err_code);
+        APP_ERROR_CHECK(err_code);*/
       } break;
 
       case CODEC_DATA_SIZE_150B: {
         NRF_LOG_INFO("Adv size changed to 150 bytes");
         bsp_board_led_off(CONN_ADV_CONN_STATE_LED); // Not necessary, led should start to blink
-        err_code = app_timer_stop(m_adv_data_size_200_codec_timer_id);
+
+        adv_data_size_100_codec(NULL, false, NULL);
+        adv_data_size_200_codec(NULL, false, NULL);
+
+        adv_data_size_150_codec(SLOW_BLINK_INTERVAL, true, NULL);
+        /*err_code = app_timer_stop(m_adv_data_size_200_codec_timer_id);
         APP_ERROR_CHECK(err_code);
         err_code = app_timer_stop(m_adv_data_size_100_codec_timer_id);
         APP_ERROR_CHECK(err_code);
 
         err_code = app_timer_start(m_adv_data_size_150_codec_timer_id, MEDIUM_BLINK_INTERVAL, NULL);
-        APP_ERROR_CHECK(err_code);
+        APP_ERROR_CHECK(err_code);*/
       } break;
 
       case CODEC_DATA_SIZE_200B: {
         NRF_LOG_INFO("Adv size changed to 200 bytes");
         bsp_board_led_off(CONN_ADV_CONN_STATE_LED); // Not necessary, led should start to blink
-        err_code = app_timer_stop(m_adv_data_size_150_codec_timer_id);
+
+        adv_data_size_100_codec(NULL, false, NULL);
+        adv_data_size_150_codec(NULL, false, NULL);
+
+        adv_data_size_200_codec(SLOW_BLINK_INTERVAL, true, NULL);
+        /*err_code = app_timer_stop(m_adv_data_size_150_codec_timer_id);
         APP_ERROR_CHECK(err_code);
         err_code = app_timer_stop(m_adv_data_size_100_codec_timer_id);
         APP_ERROR_CHECK(err_code);
 
         err_code = app_timer_start(m_adv_data_size_200_codec_timer_id, FAST_BLINK_INTERVAL, NULL);
-        APP_ERROR_CHECK(err_code);
+        APP_ERROR_CHECK(err_code);*/
       } break;
 
       case CODEC_DATA_SIZE_250B: {
         NRF_LOG_INFO("Adv size changed to 250 bytes");
-        err_code = app_timer_stop(m_adv_data_size_200_codec_timer_id);
+
+        adv_data_size_100_codec(NULL, false, NULL);
+        adv_data_size_150_codec(NULL, false, NULL);
+        adv_data_size_200_codec(NULL, false, NULL);
+        /*err_code = app_timer_stop(m_adv_data_size_200_codec_timer_id);
         APP_ERROR_CHECK(err_code);
         err_code = app_timer_stop(m_adv_data_size_150_codec_timer_id);
         APP_ERROR_CHECK(err_code);
         err_code = app_timer_stop(m_adv_data_size_100_codec_timer_id);
-        APP_ERROR_CHECK(err_code);
+        APP_ERROR_CHECK(err_code);*/
 
         bsp_board_led_on(CONN_ADV_CONN_STATE_LED);
       } break;
@@ -1503,95 +1195,6 @@ void uart_evt_handle(app_uart_evt_type_t *p) {
 #endif
   }
 
-  // ---------HANDLERS DE LOS TIMERS -----------
-  static void adv_interval_timeout_handler(void *p_context) // NOW it is used for wait before starting scan
-  {
-    UNUSED_PARAMETER(p_context);
-    // Inicializamos características advertisement
-    disconnect_stop_adv();
-    advertising_init();
-    advertising_start();
-  }
-
-  static void adv_sent_led_show_timeout_handler(void *p_context) {
-    UNUSED_PARAMETER(p_context);
-    bsp_board_led_invert(SENDING_ADV_LED);
-  }
-
-  static void conn_adv_fast_blink_timeout_handler(void *p_context) {
-    UNUSED_PARAMETER(p_context);
-    bsp_board_led_invert(NON_CONN_ADV_LED);
-  }
-
-  static void adv_data_size_100_codec_timeout_handler(void *p_context) {
-    UNUSED_PARAMETER(p_context);
-    bsp_board_led_invert(CONN_ADV_CONN_STATE_LED);
-  }
-
-  static void adv_data_size_200_codec_timeout_handler(void *p_context) {
-    UNUSED_PARAMETER(p_context);
-    bsp_board_led_invert(CONN_ADV_CONN_STATE_LED);
-  }
-
-  static void adv_data_size_150_codec_timeout_handler(void *p_context) {
-    UNUSED_PARAMETER(p_context);
-    bsp_board_led_invert(CONN_ADV_CONN_STATE_LED);
-  }
-
-  static void led_1Mbps_slow_blink_timeout_handler(void *p_context) {
-    UNUSED_PARAMETER(p_context);
-    bsp_board_led_invert(PHY_SELECTION_LED);
-  }
-
-  static void led_8dBm_slow_blink_timeout_handler(void *p_context) {
-    UNUSED_PARAMETER(p_context);
-    bsp_board_led_invert(OUTPUT_POWER_SELECTION_LED);
-  }
-
-  static void time_for_metrics_packet_handler(void *p_context) {
-    UNUSED_PARAMETER(p_context);
-    scan_stop();
-
-    send_metrics();
-    // Call to the timer for waiting before reinitialize adv sending stage.
-    ret_code_t err_code = app_timer_start(m_timer_ble, ADV_EVT_INTERVAL, NULL);
-    APP_ERROR_CHECK(err_code);
-  }
-
-  static void analize_buffer_uart_timeout_handler(void *p_context) {
-    UNUSED_PARAMETER(p_context);
-    AnalizaBufferUART();
-  }
-
-  /**@brief Function for initializing timers. */
-  static void timers_init(void) {
-    ret_code_t err_code = app_timer_init();
-    APP_ERROR_CHECK(err_code);
-
-    // Single shot! porque solo quiero que salte 1 vez, cuando nos vayamos a dormir (reposo ciclo envío adv)
-    err_code = app_timer_create(&m_timer_ble, APP_TIMER_MODE_SINGLE_SHOT, adv_interval_timeout_handler);
-    APP_ERROR_CHECK(err_code);
-
-    err_code = app_timer_create(&m_adv_sent_led_show_timer_id, APP_TIMER_MODE_REPEATED, adv_sent_led_show_timeout_handler);
-    APP_ERROR_CHECK(err_code);
-
-    err_code = app_timer_create(&m_adv_data_size_100_codec_timer_id, APP_TIMER_MODE_REPEATED, adv_data_size_100_codec_timeout_handler);
-    APP_ERROR_CHECK(err_code);
-
-    err_code = app_timer_create(&m_adv_data_size_150_codec_timer_id, APP_TIMER_MODE_REPEATED, adv_data_size_150_codec_timeout_handler);
-    APP_ERROR_CHECK(err_code);
-
-    err_code = app_timer_create(&m_adv_data_size_200_codec_timer_id, APP_TIMER_MODE_REPEATED, adv_data_size_200_codec_timeout_handler);
-    APP_ERROR_CHECK(err_code);
-
-    err_code = app_timer_create(&m_time_for_metrics_packet, APP_TIMER_MODE_SINGLE_SHOT, time_for_metrics_packet_handler);
-    APP_ERROR_CHECK(err_code);
-
-    err_code = app_timer_create(&m_analize_buffer_uart, APP_TIMER_MODE_REPEATED, analize_buffer_uart_timeout_handler);
-    APP_ERROR_CHECK(err_code);
-  }
-  // ***************************************************
-
   /**@brief Function for starting advertising with the current selections of output power, phy, and connectable or non-connectable advertising.
    */
   static void set_current_adv_params_and_start_advertising(void) {
@@ -1634,8 +1237,9 @@ void uart_evt_handle(app_uart_evt_type_t *p) {
     APP_ERROR_CHECK(err_code);
 
 //    set_current_adv_
-    err_code = app_timer_start(m_analize_buffer_uart, APP_TIMER_TICKS(50), NULL);
-    APP_ERROR_CHECK(err_code);
+    analize_buffer_uart(APP_TIMER_TICKS(50), true, NULL);
+    /*err_code = app_timer_start(m_analize_buffer_uart, APP_TIMER_TICKS(50), NULL);
+    APP_ERROR_CHECK(err_code);*/
     while (true) {
       idle_state_handle();
     }

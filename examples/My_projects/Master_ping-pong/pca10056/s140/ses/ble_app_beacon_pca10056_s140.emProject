@@ -66,8 +66,19 @@
       link_use_linker_script_file="No"
       linker_section_placement_file="flash_placement.xml" />
     <folder Name="Application">
-      <file file_name="../../../main.c" />
-      <file file_name="../config/sdk_config.h" />
+      <folder Name="C source files">
+        <file file_name="../../../data.c" />
+        <file file_name="../../../main.c" />
+        <file file_name="../../../timers.c" />
+        <file file_name="../../../uart.c" />
+      </folder>
+      <folder Name="Header files">
+        <file file_name="config.h" />
+        <file file_name="../../../data.h" />
+        <file file_name="../config/sdk_config.h" />
+        <file file_name="../../../timers.h" />
+        <file file_name="../../../uart.h" />
+      </folder>
     </folder>
     <folder Name="Board Definition">
       <file file_name="../../../../../../components/boards/boards.c" />
