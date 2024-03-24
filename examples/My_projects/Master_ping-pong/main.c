@@ -29,17 +29,6 @@
 #include "bleModule.h"
 #include "buttons.h"
 
-
-//TODO: si declaro una variable así y luego la inicializo, puedo meterla en la inicialización de scan
-  ble_gap_scan_params_t m_scan_param_coded_phy_2;
- /*m_scan_param_coded_phy_2.extended = 1;
-  m_scan_param_coded_phy_2.active = 0x01;
-  m_scan_param_coded_phy_2.interval = NRF_BLE_SCAN_SCAN_INTERVAL;
-  m_scan_param_coded_phy_2.window = NRF_BLE_SCAN_SCAN_WINDOW;
-  m_scan_param_coded_phy_2.timeout = (TIME_10MS_1ADV * VAR_NUM_ADVERTISEMENTS) + EXTRA_SCAN_DURATION;
-  m_scan_param_coded_phy_2.scan_phys = BLE_GAP_PHY_CODED;
-  m_scan_param_coded_phy_2.filter_policy = BLE_GAP_SCAN_FP_ACCEPT_ALL;*/
-
   static void instructions_print(void) {
     NRF_LOG_INFO("Press the buttons to set up the advertiser in wanted mode:");
     NRF_LOG_INFO("Button 2: switch between coded phy (LED2 setted on) and 1Mbps (LED2 blinking)");
@@ -115,10 +104,11 @@
     APP_UART_FIFO_INIT(&comms_params, UART_RX_BUFF_SIZE, UART_TX_BUFF_SIZE, uart_evt_handle, APP_IRQ_PRIORITY_LOWEST, err_code);
     APP_ERROR_CHECK(err_code);
 
-//    set_current_adv_
-    analize_buffer_uart(APP_TIMER_TICKS(50), true, NULL);
-    /*err_code = app_timer_start(m_analize_buffer_uart, APP_TIMER_TICKS(50), NULL);
-    APP_ERROR_CHECK(err_code);*/
+    #ifdef AUTONOMO
+      set_current_adv_params_and_start_advertising();
+    #else
+      analize_buffer_uart(APP_TIMER_TICKS(50), true, NULL);
+    #endif
     while (true) {
       idle_state_handle();
     }

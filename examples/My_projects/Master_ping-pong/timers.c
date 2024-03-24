@@ -2,6 +2,8 @@
 #include "app_timer.h"
 #include "boards.h"
 #include "config.h"
+#include "bleModule.h"
+#include "uart.h"
 
 
   APP_TIMER_DEF(m_adv_data_size_100_codec_timer_id);
@@ -14,13 +16,15 @@
   APP_TIMER_DEF(m_time_for_metrics_packet);
   APP_TIMER_DEF(m_analize_buffer_uart);
 
-  void adv_interval_timeout_handler(void *p_context) // NOW it is used for wait before starting scan
+  void adv_interval_timeout_handler(void *p_context) //NOW starting Adv is not using timer, but it is done via uart
   {
     UNUSED_PARAMETER(p_context);
     // Inicializamos características advertisement
-    //disconnect_stop_adv();
-    //advertising_init();
-   // advertising_start();
+    #ifdef AUTONOMO   
+      disconnect_stop_adv();
+      advertising_init();
+      advertising_start();
+    #endif
   }
 
   void adv_sent_led_show_timeout_handler(void *p_context) {
@@ -60,17 +64,21 @@
 
   void time_for_metrics_packet_handler(void *p_context) {
     UNUSED_PARAMETER(p_context);
-    //scan_stop();
+    scan_stop();
 
-   // send_metrics();
-    // Call to the timer for waiting before reinitialize adv sending stage.
-    ret_code_t err_code = app_timer_start(m_timer_ble, ADV_EVT_INTERVAL, NULL);
-    APP_ERROR_CHECK(err_code);
+    send_metrics();
+
+    // On this version, the sending adv stage is not automatic, it is managed by MODBUS packets
+    //ret_code_t err_code = app_timer_start(m_timer_ble, ADV_EVT_INTERVAL, NULL);
+    //APP_ERROR_CHECK(err_code);
+    #ifdef AUTONOMO 
+      adv_interval(ADV_EVT_INTERVAL, true, NULL);
+    #endif
   }
 
   void analize_buffer_uart_timeout_handler(void *p_context) {
     UNUSED_PARAMETER(p_context);
-    //AnalizaBufferUART();
+    AnalizaBufferUART();
   }
 
   /**@brief Function for initializing timers. */

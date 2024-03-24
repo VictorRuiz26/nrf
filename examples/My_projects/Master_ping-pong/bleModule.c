@@ -2,6 +2,15 @@
 #include "timers.h"
 #include "nrf_sdh_ble.h"
 #include "nrf_log.h"
+#include "buttons.h"
+#include "nrf_sdh.h"
+#include "buttons.h"
+#include "uart.h"
+
+adv_pdu_t adv_PDU = {
+  .adv_pdu = m_beacon_info_50B,
+  .size = CODEC_DATA_SIZE_50B + APP_BEACON_INFO_LENGTH,
+};
 
 adv_scan_type_seclection_t m_adv_scan_type_selected = SELECTION_NON_CONNECTABLE; /**< Global variable holding the current scan selection mode. */
 adv_scan_phy_seclection_t m_adv_scan_phy_selected = SELECTION_CODED_PHY;         /**< Global variable holding the current phy selection. */
@@ -63,16 +72,20 @@ ble_gap_adv_data_t m_adv_data =
       .filter_policy = BLE_GAP_SCAN_FP_ACCEPT_ALL,
   };
 
+  //Estructura por defecto, luego, puede cambiar en recepción info por uart
   ble_gap_scan_params_t m_scan_param_coded_phy =
   {
       .extended = 1,
       .active = 0x01,
       .interval = NRF_BLE_SCAN_SCAN_INTERVAL,
       .window = NRF_BLE_SCAN_SCAN_WINDOW,
-      .timeout = (TIME_10MS_1ADV(CODEC_DATA_SIZE_50B) * NUM_ADVERTISEMENTS) + EXTRA_SCAN_DURATION,
+      .timeout = TIMEOUT_SCAN_ADV(NUM_ADVERTISEMENTS,CODEC_DATA_SIZE_50B), //(TIME_10MS_1ADV(CODEC_DATA_SIZE_50B) * NUM_ADVERTISEMENTS) + EXTRA_SCAN_DURATION,
       .scan_phys = BLE_GAP_PHY_CODED,
       .filter_policy = BLE_GAP_SCAN_FP_ACCEPT_ALL,
   };
+
+  uint8_t time_between_advs = TIME_BETWEEN_EACH_ADV;
+  uint8_t num_adv_2_send = NUM_ADVERTISEMENTS;
 
   uint8_t m_beacon_info[APP_BEACON_INFO_LENGTH] = //< Information advertised by the Beacon.
   {
@@ -202,6 +215,8 @@ ble_gap_adv_data_t m_adv_data =
 
     switch (m_adv_scan_phy_selected) {
     case SELECTION_CODED_PHY: {
+    //Now, as num_adv and other params are variable, the timeout is needed to be adjusted
+      m_scan_param_coded_phy.timeout = TIMEOUT_SCAN_ADV(num_adv_2_send, m_codec_phy_data_size);
       NRF_LOG_INFO("Starting scan on coded phy. Timeout %d/10ms", m_scan_param_coded_phy.timeout);
       err_code = sd_ble_gap_scan_start(&m_scan_param_coded_phy, &m_scan_buffer);
       APP_ERROR_CHECK(err_code);
@@ -209,6 +224,7 @@ ble_gap_adv_data_t m_adv_data =
     }
     case SELECTION_1M_PHY: {
       NRF_LOG_INFO("Starting scan on 1Mbps.");
+      m_scan_param_1MBps.timeout = TIMEOUT_SCAN_ADV(num_adv_2_send, m_codec_phy_data_size);
       err_code = sd_ble_gap_scan_start(&m_scan_param_1MBps, &m_scan_buffer);
       APP_ERROR_CHECK(err_code);
     } break;
@@ -279,6 +295,7 @@ ble_gap_adv_data_t m_adv_data =
           minorValue = nSeqReceived & 0x00FF;
           majorValue = (nSeqReceived & 0xFF00) >> 8;
 
+          //TODO : chequear aquí también que el tipo paquete coincide
           if (nseqSent == nSeqReceived) {
             /* In the second version, master acts similar to slave in terms of obtaining metrics of the communication,
                and then it will send complete metrics packet by UART */
@@ -286,11 +303,11 @@ ble_gap_adv_data_t m_adv_data =
               advReceived = true;
               uint16_t timeExpected = (80 + 256 + 16 + 24 + 8 * 8 * (p_adv_report->data.len + 8) + 192 + 24) / 1000; // Time expected for receiving one adv
               uint16_t extraTime = 1000;
-              time_for_metrics_packet(APP_TIMER_TICKS(timeExpected * NUM_ADVERTISEMENTS + extraTime), true, NULL);
+              time_for_metrics_packet(APP_TIMER_TICKS(timeExpected * num_adv_2_send + extraTime), true, NULL);
               /*err_code = app_timer_start(m_time_for_metrics_packet, APP_TIMER_TICKS(timeExpected * NUM_ADVERTISEMENTS + extraTime), NULL);
               APP_ERROR_CHECK(err_code);*/
               NRF_LOG_INFO("Time expected for 1 adv: %dms.", timeExpected);
-              NRF_LOG_INFO("Primer ADV recibido, arranco timer que dura %dms!", timeExpected * NUM_ADVERTISEMENTS + extraTime);
+              NRF_LOG_INFO("Primer ADV recibido, arranco timer que dura %dms!", timeExpected * num_adv_2_send + extraTime);
             }
 
             // Fulfilling all variables of uplink that will be sent in metrics (overwritten in each adv received)
@@ -299,6 +316,7 @@ ble_gap_adv_data_t m_adv_data =
               slaveAddr.addr[i] = p_adv_report->peer_addr.addr[i];
             }
             downlinkMsgType = p_adv_report->data.p_data[IDX_TIPO_RX];
+            NRF_LOG_INFO("Envié mensaje %d y recibo %d", msgTypeSent, downlinkMsgType);
             packetBLESize = p_adv_report->data.len;
             downlinkMeanRSSI = p_adv_report->data.p_data[IDX_MEAN_RSSI_RX];
             downlinkNAdvRx = p_adv_report->data.p_data[IDX_nADV_RX];
@@ -351,11 +369,13 @@ ble_gap_adv_data_t m_adv_data =
       break;
 
     case BLE_GAP_EVT_TIMEOUT: // The scanner timeout expired, so wait some seconds, and start again the adv process
-      // TODO: poner aquí también el envío de paquete por si algún caso no diera tiempo el inicial, o se quede a medias?
-      NRF_LOG_INFO("Scan timeout Expired!!! Wait short time (m_timer_ble timer) before start the adv again");
-      adv_interval(ADV_EVT_INTERVAL, true, NULL);
-      /*ret_code_t err_code = app_timer_start(m_timer_ble, ADV_EVT_INTERVAL, NULL);
-      APP_ERROR_CHECK(err_code);*/
+      NRF_LOG_INFO("Scan timeout Expired!!! UPLINK-DOWNLIK metrics are sent.");
+      //TODO: Enviar siempre un paquete de métricas cuando no recibo nada????
+      //send_metrics();
+      #ifdef AUTONOMO 
+        adv_interval(ADV_EVT_INTERVAL, true, NULL);
+        NRF_LOG_INFO("Arranco timer de %ds antes de start adv de nuevo", SEGUNDOS_DELAY);
+      #endif
       break;
 
     default: {
@@ -372,9 +392,9 @@ ble_gap_adv_data_t m_adv_data =
    */
   void advertising_init(void) {
     ret_code_t ret;
-
-    uint8_t *adv_pdu;
-    uint16_t size;
+    unsigned char *pChar;
+    /*uint8_t *adv_pdu;
+    uint16_t size;*/
 
     ble_advdata_manuf_data_t manuf_specific_data;
 
@@ -382,6 +402,7 @@ ble_gap_adv_data_t m_adv_data =
 
     // NRF_LOG_INFO("tengo seleccionado el %d PHY", m_adv_scan_phy_selected);
 
+    /* Todo esto ya se ha rellenado en el Trata_Modbus_Inicio_PingPong
     if (m_adv_scan_phy_selected == SELECTION_1M_PHY) {
       //   NRF_LOG_INFO("Entro a 1M");
       adv_pdu = m_beacon_info;
@@ -434,9 +455,19 @@ ble_gap_adv_data_t m_adv_data =
       }
     }
     nseqSent = (adv_pdu[APP_MAJOR_POSITION - 1] << 24) | (adv_pdu[APP_MAJOR_POSITION] << 16) | (adv_pdu[APP_MINOR_POSITION - 1] << 8) | (adv_pdu[APP_MINOR_POSITION]);
+*/
+    #ifdef AUTONOMO 
+      nseqSent++;
+      pChar = (unsigned char *)&nseqSent; //Esto seguro se puede hacer mejor
+      adv_PDU.adv_pdu[APP_MINOR_POSITION] = pChar[0];
+      adv_PDU.adv_pdu[APP_MINOR_POSITION-1] = pChar[1];
+      adv_PDU.adv_pdu[APP_MAJOR_POSITION] = pChar[2];
+      adv_PDU.adv_pdu[APP_MAJOR_POSITION-1] = pChar[3];
+    #endif
 
-    manuf_specific_data.data.p_data = (uint8_t *)adv_pdu;
-    manuf_specific_data.data.size = size;
+    NRF_LOG_INFO("ARRANCO ADVERTISEMENT nSeq %d", nseqSent);
+    manuf_specific_data.data.p_data = (uint8_t *)adv_PDU.adv_pdu;
+    manuf_specific_data.data.size = adv_PDU.size;
 
     ble_gap_adv_params_t adv_params =
         {
@@ -446,9 +477,9 @@ ble_gap_adv_data_t m_adv_data =
                 },
             .p_peer_addr = NULL,
             .filter_policy = BLE_GAP_ADV_FP_ANY,
-            .interval = TIME_BETWEEN_EACH_ADV,
+            .interval = time_between_advs,
             .duration = 0,
-            .max_adv_evts = NUM_ADVERTISEMENTS,
+            .max_adv_evts = num_adv_2_send,
 
             .primary_phy = BLE_GAP_PHY_1MBPS, // Must be changed to connect in long range. (BLE_GAP_PHY_CODED)
             .secondary_phy = BLE_GAP_PHY_1MBPS,
@@ -577,7 +608,6 @@ ble_gap_adv_data_t m_adv_data =
  /**@brief Function for starting advertising with the current selections of output power, phy, and connectable or non-connectable advertising.
    */
   void set_current_adv_params_and_start_advertising(void) {
-
     phy_selection_set_state(m_adv_scan_phy_selected);
     // on_non_conn_or_conn_adv_selection_state_set(m_adv_scan_type_selected); Para un nuevo timer de más cantidad de datos
     output_power_selection_set(m_output_power_selected);
@@ -588,6 +618,7 @@ ble_gap_adv_data_t m_adv_data =
     // APP_ERROR_CHECK(err_code);
 
     // Estas funciones se ejecutan en el handler del timer
+
     advertising_init();
     advertising_start();
   }
@@ -598,4 +629,42 @@ ble_gap_adv_data_t m_adv_data =
     // If advertising, stop advertising.
     (void)sd_ble_gap_adv_stop(m_adv_handle);
   }
+
+void getAdvPDU (uint8_t dataSize, adv_pdu_t *PDU) {
+
+  switch (dataSize) {
+    case MODBUS_DATA_SIZE_50:
+      //m_codec_phy_data_size = CODEC_DATA_SIZE_50B; Para manejar los timers, lo dejo como abajo
+      on_adv_data_size_selection_set(CODEC_DATA_SIZE_50B);
+      PDU->adv_pdu = m_beacon_info_50B;
+      PDU->size = CODEC_DATA_SIZE_50B + APP_BEACON_INFO_LENGTH;
+      break;
+    case MODBUS_DATA_SIZE_100:
+      on_adv_data_size_selection_set(CODEC_DATA_SIZE_100B);
+      PDU->adv_pdu = m_beacon_info_100B;
+      PDU->size = CODEC_DATA_SIZE_100B + APP_BEACON_INFO_LENGTH;
+      break;
+    case MODBUS_DATA_SIZE_150:
+      on_adv_data_size_selection_set(CODEC_DATA_SIZE_150B);
+      PDU->adv_pdu = m_beacon_info_150B;
+      PDU->size = CODEC_DATA_SIZE_150B + APP_BEACON_INFO_LENGTH;
+      break;
+    case MODBUS_DATA_SIZE_200:
+      on_adv_data_size_selection_set(CODEC_DATA_SIZE_200B);
+      PDU->adv_pdu = m_beacon_info_200B;
+      PDU->size = CODEC_DATA_SIZE_200B + APP_BEACON_INFO_LENGTH;
+      break;
+    case MODBUS_DATA_SIZE_250:
+      on_adv_data_size_selection_set(CODEC_DATA_SIZE_250B);
+      PDU->adv_pdu = m_beacon_info_250B;
+      PDU->size = CODEC_DATA_SIZE_250B + APP_BEACON_INFO_LENGTH;  
+      break;
+    default:
+      on_adv_data_size_selection_set(CODEC_DATA_SIZE_50B);
+      PDU->adv_pdu = m_beacon_info_50B;
+      PDU->size = CODEC_DATA_SIZE_50B + APP_BEACON_INFO_LENGTH;
+      break;
+  }
+
+}
 

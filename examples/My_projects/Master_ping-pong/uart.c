@@ -3,6 +3,8 @@
 #include "config.h"
 #include "ble_gap.h"
 #include "nrf_log.h"
+#include "bleModule.h"
+#include "buttons.h"
 
 TBufferUART UART_PC;
 const app_uart_comm_params_t comms_params =
@@ -21,6 +23,7 @@ void InicializaBufferUART(void) {
 
   UART_PC.indiceLeido = 0;
   UART_PC.indiceMetido = 0;
+  UART_PC.tiempoSinLlegarPaquete = 0;
 
   for (i = 0; i < UART_BUFFER_RX_SIZE; i++) {
     UART_PC.data[i] = '\0';
@@ -34,6 +37,84 @@ void echoPacketUART(uint8_t longPaquete, uint8_t inicio) {
     app_uart_put(UART_PC.data[index]);
     incrementaIndice(index, 1);
   }
+}
+
+uint32_t SacaLong_Modbus (uint8_t *indice) {
+  uint8_t *pChar; //Desde python se mandan en BigEndian
+  uint32_t res;
+  
+  pChar = (unsigned char *)&res;
+  pChar[3] = UART_PC.data[(*indice)++];
+  pChar[2] = UART_PC.data[(*indice)++];
+  pChar[1] = UART_PC.data[(*indice)++];
+  pChar[0] = UART_PC.data[(*indice)++];
+
+  return res;
+}
+
+uint16_t SacaInt_Modbus (uint8_t *indice) {
+  uint8_t *pChar; //Desde python se mandan en BigEndian
+  uint16_t res;
+  
+  pChar = (unsigned char *)&res;
+  pChar[1] = UART_PC.data[(*indice)++];
+  pChar[0] = UART_PC.data[(*indice)++];
+
+  return res;
+}
+
+void Trata_Modbus_Inicio_PingPong (uint8_t indiceAuxiliar) {
+  uint8_t *pChar;
+  uint16_t auxInt;
+  output_power_seclection_t txPower;
+
+  //Data size
+  incrementaIndice(indiceAuxiliar, 1);
+  getAdvPDU(UART_PC.data[indiceAuxiliar], &adv_PDU);
+  
+  //Tx power (output_power_seclection_t 0 or 8 dBm)
+  incrementaIndice(indiceAuxiliar, 1);
+  txPower = UART_PC.data[indiceAuxiliar];
+  NRF_LOG_INFO("Recibo %ddBm txPower", txPower);
+  output_power_selection_set(txPower);
+
+  //Nseq
+  incrementaIndice(indiceAuxiliar, 1);
+  nseqSent = SacaLong_Modbus(&indiceAuxiliar);
+  NRF_LOG_INFO("Nseq a enviar: %d", nseqSent);
+  pChar = (unsigned char *)&nseqSent; //Esto seguro se puede hacer mejor
+  //Relleno el nseq en el adv
+  //TODO: REVISAR ENDIANESS DEL NORDIC AQUÍ
+  adv_PDU.adv_pdu[APP_MINOR_POSITION] = pChar[0];
+  adv_PDU.adv_pdu[APP_MINOR_POSITION-1] = pChar[1];
+  adv_PDU.adv_pdu[APP_MAJOR_POSITION] = pChar[2];
+  adv_PDU.adv_pdu[APP_MAJOR_POSITION-1] = pChar[3];
+
+  //Msg type (indiceAuxiliar me viene posicionado de SacaLong).
+  msgTypeSent = UART_PC.data[indiceAuxiliar];
+  NRF_LOG_INFO("Msg type: %02X", msgTypeSent);
+  adv_PDU.adv_pdu[APP_MSG_TYPE_POSITION] = msgTypeSent;
+
+  //slaveID
+  incrementaIndice(indiceAuxiliar, 1);
+  slaveID = UART_PC.data[indiceAuxiliar];
+  NRF_LOG_INFO("Al esclavo: %d", slaveID);
+  adv_PDU.adv_pdu[APP_MSG_TYPE_POSITION] = slaveID;
+
+  //Num advertisements 
+  incrementaIndice(indiceAuxiliar, 1);
+  num_adv_2_send = UART_PC.data[indiceAuxiliar];
+  NRF_LOG_INFO("Mandare %d advertisements", num_adv_2_send);
+
+  //Time between Adv (ms)
+  incrementaIndice(indiceAuxiliar, 1);
+  auxInt = SacaInt_Modbus(&indiceAuxiliar);
+  time_between_advs = MSEC_TO_UNITS(auxInt, UNIT_0_625_MS);
+  NRF_LOG_INFO("Esperare %dms entre Advs. Que son %d ud 0.625ms", auxInt, time_between_advs);
+
+  NRF_LOG_INFO("Si todo esto esta bien, deberiamos llamar a adv_init y luego adv_start");
+  set_current_adv_params_and_start_advertising();
+
 }
 
 void AnalizaBufferUART(void) {
@@ -60,7 +141,7 @@ void AnalizaBufferUART(void) {
         {
             //Si lo que tengo entre manos es un paquete MODBUS correcto, aqu� debo de tener el tipo de funci�n. Si la reconozco, pues bien. Pero si no la reconozco paso del paquete 				
             case MODBUS_PRUEBA_PC:
-              NRF_LOG_INFO("MODBUS_PRUEBA_PC");
+              NRF_LOG_INFO("\n\rMODBUS_PRUEBA_PC");
               //Aqui indicar el tamaño mínimo conocido para este paquete
               if (ocupadosBufferUART(UART_PC) >= 5) {
                 paquetesLeidos++;
@@ -70,6 +151,7 @@ void AnalizaBufferUART(void) {
                 //Reviso si me han llegado todos los bytes que indica la cabecera
                 if (ocupadosBufferUART(UART_PC) >= longPaquete) {
                   if(1/*TODO: aqui va el chequeo de CRC*/) {
+                    UART_PC.tiempoSinLlegarPaquete = 0;
                     NRF_LOG_INFO("RECIBO PAQUETE COMPLETO!");
                     echoPacketUART(longPaquete, UART_PC.indiceLeido);
                     incrementaIndice(UART_PC.indiceLeido, longPaquete);
@@ -82,6 +164,11 @@ void AnalizaBufferUART(void) {
                 } 
                 else
                 {
+                  NRF_LOG_INFO("Todavia quedan bytes %d", UART_PC.tiempoSinLlegarPaquete);
+                  if (++UART_PC.tiempoSinLlegarPaquete > TIMEOUT_MODBUS) {
+                    incrementaIndice(UART_PC.indiceLeido, 1);
+                    UART_PC.tiempoSinLlegarPaquete = 0;
+                  }
                   return; //Todavia no ha llegado
                 }
               } 
@@ -91,7 +178,7 @@ void AnalizaBufferUART(void) {
               }
               break;
             case MODBUS_INICIO_PING_PONG:
-              NRF_LOG_INFO("MODBUS_INICIO_PING_PONG");
+              NRF_LOG_INFO("\n\rMODBUS_INICIO_PING_PONG");
               //Aqui indicar el tamaño mínimo conocido para este paquete
               if (ocupadosBufferUART(UART_PC) >= 5) {
                 paquetesLeidos++;
@@ -100,9 +187,14 @@ void AnalizaBufferUART(void) {
 
                 //Reviso si me han llegado todos los bytes que indica la cabecera
                 if (ocupadosBufferUART(UART_PC) >= longPaquete) {
-                  if(1) {
+                  if(1 /* Aquí iría chequeo CRC de los últimos 2 bytes */) {
+                    UART_PC.tiempoSinLlegarPaquete = 0;
                     NRF_LOG_INFO("RECIBO PAQUETE. Procedo a iniciar advertisement con los datos recibidos");
-                    echoPacketUART(longPaquete, UART_PC.indiceLeido);
+                    
+                    Trata_Modbus_Inicio_PingPong(indiceAuxiliar);
+                    
+                    
+                    //echoPacketUART(longPaquete, UART_PC.indiceLeido);
                     incrementaIndice(UART_PC.indiceLeido, longPaquete);
                   }
                   else {
@@ -113,6 +205,11 @@ void AnalizaBufferUART(void) {
                 } 
                 else
                 {
+                  NRF_LOG_INFO("Todavia quedan bytes %d", UART_PC.tiempoSinLlegarPaquete);
+                  if (++UART_PC.tiempoSinLlegarPaquete > TIMEOUT_MODBUS) {
+                    incrementaIndice(UART_PC.indiceLeido, 1);
+                    UART_PC.tiempoSinLlegarPaquete = 0;
+                  }
                   return; //Todavia no ha llegado
                 }
               } 
@@ -121,6 +218,11 @@ void AnalizaBufferUART(void) {
                 return; //Todavia no ha llegado
               }
               break;
+            default:
+              //O no es un paquete MODBUS o no es una funci�n v�lida, sea como sea no me vale como paquete MODBUS 
+              incrementaIndice(UART_PC.indiceLeido, 1); //Lo descarto y sigo
+              bytesDescartados++;
+              break;
         }
       }
       else {
@@ -128,11 +230,19 @@ void AnalizaBufferUART(void) {
         bytesDescartados++;
       }
     }
+
+    if ((ocupadosBufferUART(UART_PC) > 0) && (paquetesLeidos == 0)) {
+      if (++UART_PC.tiempoSinLlegarPaquete > ((uint16_t) TIMEOUT_MODBUS * 2)) {
+        incrementaIndice(UART_PC.indiceLeido, 1);
+        UART_PC.tiempoSinLlegarPaquete = 0;
+      }
+      
+    }
 }
 
-void uart_evt_handle(app_uart_evt_type_t *p) {
+void uart_evt_handle(app_uart_evt_t *p) {
   uint8_t byte;
-  switch (*p) {
+  switch (p->evt_type) {
   case APP_UART_DATA_READY:
     app_uart_get(&byte);
     UART_PC.data[UART_PC.indiceMetido] = byte;
@@ -161,12 +271,13 @@ void uart_evt_handle(app_uart_evt_type_t *p) {
 
     // Msg info (type, nseq, nadv, len)
     app_uart_put(downlinkMsgType);
+    app_uart_put(m_output_power_selected);
     pChar = (unsigned char *)&nseqSent;
     app_uart_put(pChar[3]);
     app_uart_put(pChar[2]);
     app_uart_put(pChar[1]);
     app_uart_put(pChar[0]);
-    app_uart_put(NUM_ADVERTISEMENTS);
+    app_uart_put(num_adv_2_send);
     app_uart_put(packetBLESize);
 
     // DOWNLINK metrics

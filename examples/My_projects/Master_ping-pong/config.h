@@ -3,7 +3,7 @@
   #include "boards.h"
   #include "bsp.h"
 
-  
+  #define AUTONOMO 1
 
   #define APP_BLE_CONN_CFG_TAG 1 /**< A tag identifying the SoftDevice BLE configuration. */
 
@@ -28,8 +28,11 @@
       0x11, 0x11, 0x11, 0x11})
 
   // Posición de dichos valores en la estructura de advertisements
-  #define APP_MAJOR_POSITION 19
-  #define APP_MINOR_POSITION 21
+  #define APP_MAJOR_POSITION    19
+  #define APP_MINOR_POSITION    21
+  #define APP_MSG_TYPE_POSITION 23
+  #define APP_COORD_ID_POSITION 24
+  #define APP_SLAVE_ID_POSITION 25
 
   #define APP_BEACON_UUID 0x11, 0x11, 0x11, 0x11, \
                           0x11, 0x11, 0x11, 0x11, \
@@ -58,7 +61,7 @@
   #define BUTTON_NOT_IN_USE_EVENT BSP_EVENT_KEY_0
   // ********************************************************
 
-
+  #define MAX_NUM_ADVERTISEMENTS 30
   // ************ NEW PING PONG MODE DEFINITIONS ***********
   #define MESSAGE_TEST_TYPE 0xAE
   #define COORDINATOR_ID 255

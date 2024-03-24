@@ -12,10 +12,11 @@
   extern uint16_t majorValue;
   extern uint16_t minorValue;
   extern uint32_t nseqSent;
+  extern uint8_t msgTypeSent;
   extern uint8_t slaveID;
   extern uint8_t countAdvReceived;
   extern uint32_t nSeqReceived;
-  extern int8_t rssiValues[NUM_ADVERTISEMENTS];
+  extern int8_t rssiValues[MAX_NUM_ADVERTISEMENTS];
 
   extern ble_gap_addr_t slaveAddr;
   extern uint8_t downlinkMsgType;

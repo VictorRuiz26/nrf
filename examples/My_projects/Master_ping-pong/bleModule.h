@@ -5,12 +5,20 @@
   #include "ble_gap.h"
   #include "ble_advdata.h"
   
-  #define TIME_MS_1ADV(x) ((80 + 256 + 16 + 24 + 8 * 8 * (x + 5 + 8) + 192 + 24) / 1000) // Due to const definition problems, use const CODEC_DATA_SIZE_50B at first tests
-  #define TIME_10MS_1ADV(x) (TIME_MS_1ADV(x) * 10)
+  #define TIME_MS_1ADV(size) ((80 + 256 + 16 + 24 + 8 * 8 * (size + 5 + 8) + 192 + 24) / 1000) // Due to const definition problems, use const CODEC_DATA_SIZE_50B at first tests
+  #define TIME_10MS_1ADV(size) (TIME_MS_1ADV(size) * 10)
   #define EXTRA_SCAN_DURATION 500 // Extra 5s for scanning (in 10ms units)
+
+  #define TIMEOUT_SCAN_ADV(num, size) (TIME_10MS_1ADV(size)*num+EXTRA_SCAN_DURATION)
 
   #define APP_BLE_CONN_CFG_TAG 1  /**< A tag that refers to the BLE stack configuration. */
   #define APP_BLE_OBSERVER_PRIO 3 /**< Application's BLE observer priority. You shouldn't need to modify this value. */
+
+  #define MODBUS_DATA_SIZE_50    0
+  #define MODBUS_DATA_SIZE_100   1
+  #define MODBUS_DATA_SIZE_150   2
+  #define MODBUS_DATA_SIZE_200   3
+  #define MODBUS_DATA_SIZE_250   4
 
   // Type holding the two output power options for this application.
   typedef enum {
@@ -39,6 +47,13 @@
     CODEC_DATA_SIZE_250B = 250 - APP_BEACON_INFO_LENGTH - AD_TYPE_MANUF_SPEC_DATA_ID_SIZE
   } adv_codec_phy_data_size_t;
 
+  typedef struct {
+    uint8_t *adv_pdu;
+    uint16_t size;
+  } adv_pdu_t;
+
+  extern adv_pdu_t adv_PDU;
+
   extern adv_scan_type_seclection_t m_adv_scan_type_selected; /**< Global variable holding the current scan selection mode. */
   extern adv_scan_phy_seclection_t m_adv_scan_phy_selected;         /**< Global variable holding the current phy selection. */
   extern output_power_seclection_t m_output_power_selected;             /**< Global variable holding the current output power selection. */
@@ -61,6 +76,9 @@
   extern ble_gap_scan_params_t m_scan_param_1MBps;
   extern ble_gap_scan_params_t m_scan_param_coded_phy;
 
+  extern uint8_t time_between_advs;
+  extern uint8_t num_adv_2_send;
+
   extern uint8_t m_beacon_info[APP_BEACON_INFO_LENGTH];
   extern uint8_t m_beacon_info_50B[CODEC_DATA_SIZE_50B + APP_BEACON_INFO_LENGTH];
   extern uint8_t m_beacon_info_100B[CODEC_DATA_SIZE_100B + APP_BEACON_INFO_LENGTH];
@@ -82,5 +100,7 @@
   void set_current_adv_params_and_start_advertising(void);
 
   void disconnect_stop_adv(void);
+
+  void getAdvPDU (uint8_t dataSize, adv_pdu_t *PDU);
 
 #endif
