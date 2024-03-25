@@ -292,6 +292,7 @@ ble_gap_adv_data_t m_adv_data =
           pLong[1] = p_adv_report->data.p_data[IDX_MINOR_RX];
           pLong[2] = p_adv_report->data.p_data[IDX_MAJOR_RX + 1];
           pLong[3] = p_adv_report->data.p_data[IDX_MAJOR_RX];
+          NRF_LOG_INFO("nseq rx 0X%08X", nSeqReceived);
           minorValue = nSeqReceived & 0x00FF;
           majorValue = (nSeqReceived & 0xFF00) >> 8;
 
@@ -324,7 +325,7 @@ ble_gap_adv_data_t m_adv_data =
             NRF_LOG_INFO("Recibo adv para nseq %d. Llevo %d", nSeqReceived, countAdvReceived);
 
           } else {
-            NRF_LOG_INFO("el nseq no me coincide! recibo %d y mandé %d", nseq, nseqSent);
+            NRF_LOG_INFO("el nseq no me coincide! recibo %d y mandé %d", nSeqReceived, nseqSent);
           }
         } else {
           NRF_LOG_INFO("UUID does not match the defined UUID.");

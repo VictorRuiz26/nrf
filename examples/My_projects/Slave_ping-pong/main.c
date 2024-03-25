@@ -913,8 +913,8 @@ static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
                     pLong[1] = p_adv_report->data.p_data[IDX_MINOR_RX];
                     pLong[2] = p_adv_report->data.p_data[IDX_MAJOR_RX+1];
                     pLong[3] = p_adv_report->data.p_data[IDX_MAJOR_RX];
-                    minorValue = nseq & 0x00FF;
-                    majorValue = (nseq & 0xFF00) >> 8;
+                    minorValue = nseq & 0xFFFF;
+                    majorValue = (nseq & 0xFFFF0000) >> 16;
 
                     coordinatorID = p_adv_report->data.p_data[IDX_COORD_ID_RX];
 
