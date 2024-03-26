@@ -99,7 +99,7 @@ void Trata_Modbus_Inicio_PingPong (uint8_t indiceAuxiliar) {
   incrementaIndice(indiceAuxiliar, 1);
   slaveID = UART_PC.data[indiceAuxiliar];
   NRF_LOG_INFO("Al esclavo: %d", slaveID);
-  adv_PDU.adv_pdu[APP_MSG_TYPE_POSITION] = slaveID;
+  adv_PDU.adv_pdu[APP_SLAVE_ID_POSITION] = slaveID;
 
   //Num advertisements 
   incrementaIndice(indiceAuxiliar, 1);

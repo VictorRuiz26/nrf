@@ -917,6 +917,7 @@ static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
                     majorValue = (nseq & 0xFFFF0000) >> 16;
 
                     coordinatorID = p_adv_report->data.p_data[IDX_COORD_ID_RX];
+                    messageType = p_adv_report->data.p_data[IDX_MSG_TYPE_RX];
 
                     if (nSeqReceived != nseq) {
                         int16_t acum = 0;

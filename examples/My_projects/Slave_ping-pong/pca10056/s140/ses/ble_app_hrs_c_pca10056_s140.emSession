@@ -67,7 +67,7 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="1400" useTextEdit="1" folds0="479" path="../../../main.c" left="0" selected="1" top="1373" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="919" useTextEdit="1" folds0="479" path="../../../main.c" left="0" selected="1" top="834" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="37" y="8005" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/Scanner_ping-pong/main.c" path="../config/sdk_config.h" left="0" top="7983" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="26" y="1018" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_log_UART/main.c" path="../../../../../../components/ble/nrf_ble_scan/nrf_ble_scan.c" left="0" top="1018" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="8" y="193" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_scanner_filterUUID_BUENO/main.c" path="../../../../../../components/ble/nrf_ble_scan/nrf_ble_scan.h" left="0" top="182" codecName="Default"/>

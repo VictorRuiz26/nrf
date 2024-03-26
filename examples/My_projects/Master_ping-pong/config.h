@@ -3,7 +3,7 @@
   #include "boards.h"
   #include "bsp.h"
 
-  #define AUTONOMO 1
+  //#define AUTONOMO 1
 
   #define APP_BLE_CONN_CFG_TAG 1 /**< A tag identifying the SoftDevice BLE configuration. */
 
