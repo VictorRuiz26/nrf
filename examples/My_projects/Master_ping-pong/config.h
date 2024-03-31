@@ -66,8 +66,9 @@
   #define MESSAGE_TEST_TYPE 0xAE
   #define COORDINATOR_ID 255
   #define DEFAULT_SLAVE_ID 0x01
+  #define DEFAULT_TX_POWER 8
   #define MAX_SLAVES 10
-  #define PDU_EXTRA_BYTES 0x03 // For mantaining previous structure, add these bytes to final (packet type, MasterID)
+  #define PDU_EXTRA_BYTES 0x04 // For mantaining previous structure, add these bytes to final (packet type, MasterID and txpower)
     //BLE data indexes
   #define IDX_MAJOR_RX 25 // 8 bytes de inicio y 16 del uuid
   #define IDX_MINOR_RX 27

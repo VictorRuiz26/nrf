@@ -52,6 +52,7 @@
 #define IDX_MSG_TYPE_RX   30
 #define IDX_COORD_ID_RX   31
 #define IDX_SLAVE_ID_RX   32
+#define IDX_TX_POWER_RX   33
 
 
 // ********************** CONFIGURACION UART **********************
@@ -179,6 +180,7 @@ typedef enum
     SELECTION_0_dBm = 0, 
     SELECTION_8_dBm = 8
 } output_power_seclection_t;
+static void output_power_selection_set(output_power_seclection_t output_power);
 
 
 // Type holding the two scan selection modes.
@@ -919,6 +921,24 @@ static void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
                     coordinatorID = p_adv_report->data.p_data[IDX_COORD_ID_RX];
                     messageType = p_adv_report->data.p_data[IDX_MSG_TYPE_RX];
 
+                    if (m_output_power_selected != p_adv_report->data.p_data[IDX_TX_POWER_RX]) {
+                      output_power_selection_set(p_adv_report->data.p_data[IDX_TX_POWER_RX]);
+                    }
+
+                    if (p_adv_report->data.len == 55) {
+                      m_codec_phy_data_size = CODEC_DATA_SIZE_50B;
+                    } else if (p_adv_report->data.len == 105) {
+                      m_codec_phy_data_size = CODEC_DATA_SIZE_100B;
+                    } else if (p_adv_report->data.len == 155) {
+                      m_codec_phy_data_size = CODEC_DATA_SIZE_150B;
+                    } else if (p_adv_report->data.len == 205) {
+                      m_codec_phy_data_size = CODEC_DATA_SIZE_200B;
+                    } else if (p_adv_report->data.len == 255) {
+                      m_codec_phy_data_size = CODEC_DATA_SIZE_250B;
+                    } else {
+                      NRF_LOG_INFO("FALLO AL INFERIR DATA SIZE");
+                    }
+
                     if (nSeqReceived != nseq) {
                         int16_t acum = 0;
                         for (uint8_t i = 0; i < countAdvReceived; i++) {
@@ -1180,6 +1200,15 @@ static void output_power_selection_set(output_power_seclection_t output_power)
     	bsp_board_led_on(OUTPUT_POWER_SELECTION_LED);
     	
     	
+    } break;
+
+    default:
+    {
+      NRF_LOG_INFO("TX POWER NO VALIDA (%d) paso a 8dBm", m_output_power_selected); 
+      m_output_power_selected = SELECTION_8_dBm;
+      bsp_board_led_off(OUTPUT_POWER_SELECTION_LED); // not necessary because the LED should start to blink. 
+      err_code = app_timer_start(m_8dBm_led_slow_blink_timer_id, SLOW_BLINK_INTERVAL, NULL);
+      APP_ERROR_CHECK(err_code);
     } break;
   }
 }

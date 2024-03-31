@@ -77,7 +77,7 @@
       <folder Name="Header files">
         <file file_name="../../../bleModule.h" />
         <file file_name="../../../buttons.h" />
-        <file file_name="config.h" />
+        <file file_name="../../../config.h" />
         <file file_name="../../../data.h" />
         <file file_name="../config/sdk_config.h" />
         <file file_name="../../../timers.h" />

@@ -97,7 +97,8 @@ ble_gap_adv_data_t m_adv_data =
       APP_MAJOR_VALUE,     // Major arbitrary value that can be used to distinguish between Beacons.
       APP_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
       APP_MEASURED_RSSI,   // Manufacturer specific information. The Beacon's measured TX power in
-                           // this implementation.
+                           // this implementation.,
+      DEFAULT_TX_POWER,
   };
 
   uint8_t m_beacon_info_50B[CODEC_DATA_SIZE_50B + APP_BEACON_INFO_LENGTH] = //< Information advertised by the Beacon.
@@ -114,6 +115,7 @@ ble_gap_adv_data_t m_adv_data =
       MESSAGE_TEST_TYPE,
       COORDINATOR_ID,
       DEFAULT_SLAVE_ID,
+      DEFAULT_TX_POWER,
 
       [APP_BEACON_INFO_LENGTH... CODEC_DATA_SIZE_50B + APP_BEACON_INFO_LENGTH - 1] = 0 // Dummy data for filling the array size
   };
@@ -132,6 +134,7 @@ ble_gap_adv_data_t m_adv_data =
       0,
       0,
       0,
+      DEFAULT_TX_POWER,
       [APP_BEACON_INFO_LENGTH... CODEC_DATA_SIZE_100B + APP_BEACON_INFO_LENGTH - 1] = 0 // Dummy data for filling the array size
   };
 
@@ -149,6 +152,7 @@ ble_gap_adv_data_t m_adv_data =
       0,
       0,
       0,
+      DEFAULT_TX_POWER,
       [APP_BEACON_INFO_LENGTH... CODEC_DATA_SIZE_150B + APP_BEACON_INFO_LENGTH - 1] = 0 // Dummy data for filling the array size
   };
 
@@ -166,6 +170,7 @@ ble_gap_adv_data_t m_adv_data =
       0,
       0,
       0,
+      DEFAULT_TX_POWER,
       [APP_BEACON_INFO_LENGTH... CODEC_DATA_SIZE_200B + APP_BEACON_INFO_LENGTH - 1] = 0 // Dummy data for filling the array size
   };
 
@@ -183,6 +188,7 @@ ble_gap_adv_data_t m_adv_data =
       0,
       0,
       0,
+      DEFAULT_TX_POWER,
       [APP_BEACON_INFO_LENGTH... CODEC_DATA_SIZE_250B + APP_BEACON_INFO_LENGTH - 1] = 0 // Dummy data for filling the array size
   };
 
