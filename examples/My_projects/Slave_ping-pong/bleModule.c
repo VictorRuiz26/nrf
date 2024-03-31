@@ -7,6 +7,7 @@
 #include "timers.h"
 #include "nrf_log.h"
 #include "app_timer.h"
+#include "data.h"
 
 adv_codec_phy_data_size_t m_codec_phy_data_size = CODEC_DATA_SIZE_50B; //Default value, could be changed depending on the data size received
 
@@ -410,35 +411,37 @@ void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
                       output_power_selection_set(p_adv_report->data.p_data[IDX_TX_POWER_RX]);
                     }
 
+                    uint8_t aux_data_size;
                     if (p_adv_report->data.len == 55) {
-                      m_codec_phy_data_size = CODEC_DATA_SIZE_50B;
+                      aux_data_size = CODEC_DATA_SIZE_50B;
                     } else if (p_adv_report->data.len == 105) {
-                      m_codec_phy_data_size = CODEC_DATA_SIZE_100B;
+                      aux_data_size = CODEC_DATA_SIZE_100B;
                     } else if (p_adv_report->data.len == 155) {
-                      m_codec_phy_data_size = CODEC_DATA_SIZE_150B;
+                      aux_data_size = CODEC_DATA_SIZE_150B;
                     } else if (p_adv_report->data.len == 205) {
-                      m_codec_phy_data_size = CODEC_DATA_SIZE_200B;
+                      aux_data_size = CODEC_DATA_SIZE_200B;
                     } else if (p_adv_report->data.len == 255) {
-                      m_codec_phy_data_size = CODEC_DATA_SIZE_250B;
+                      aux_data_size = CODEC_DATA_SIZE_250B;
                     } else {
                       NRF_LOG_INFO("FALLO AL INFERIR DATA SIZE");
                     }
                     
                     uint8_t *pChar;
                     pChar = (unsigned char*)&time_between_advs;
-                    pChar[0] = p_adv_report->data.p_data[IDX_TIME_BETW_ADV_LSB];
-                    pChar[1] = p_adv_report->data.p_data[IDX_TIME_BETW_ADV_LSB-1];
+                    pChar[0] = p_adv_report->data.p_data[IDX_TIME_BETW_ADV_LSB_RX];
+                    pChar[1] = p_adv_report->data.p_data[IDX_TIME_BETW_ADV_LSB_RX-1];
                     NRF_LOG_INFO("Time ms betw advs %dms", time_between_advs);
 
-                    num_adv_2_send = p_adv_report->data.p_data[IDX_NUM_ADV_SENT];
+                    num_adv_2_send = p_adv_report->data.p_data[IDX_NUM_ADV_SENT_RX];
 
-                    if (nSeqReceived != nseq) {
+                    if (nSeqReceived != nseq || aux_data_size != m_codec_phy_data_size) {
                         int16_t acum = 0;
                         for (uint8_t i = 0; i < countAdvReceived; i++) {
                           acum += rssiValues[i];
                         }
-                        NRF_LOG_INFO("OJO, Nuevo nseq recibido: %d. Antes: %d con rssi media de %d", nseq, nSeqReceived, acum/countAdvReceived);
+                        NRF_LOG_INFO("OJO, Nuevo nseq recibido: %d. O diferente tamaño %d vs %d. Antes: %d con rssi media de %d", nseq, aux_data_size, m_codec_phy_data_size, nSeqReceived, acum/countAdvReceived);
                         nSeqReceived = nseq;
+                        m_codec_phy_data_size = aux_data_size;
                         countAdvReceived = 0; //If a new nseq is received, reset the count of adv of the same nseq.
                     }
 
@@ -530,6 +533,7 @@ void advertising_init(void)
     adv_pdu[APP_MAJOR_POSITION-1]   = (uint8_t)((majorValue & 0xFF00) >> 8);
     adv_pdu[IDX_MESSAGE_TYPE]     = messageType;
     adv_pdu[IDX_COORDINATOR_ID]   = coordinatorID;
+    adv_pdu[IDX_SLAVE_ID] = SLAVE_ID;
     //The SLAVE_ID is always sent as the default value (it is flashed).
     //adv_pdu[IDX_NSEQ]             = nSeqReceived; //So, as i response with the same nseq (in major/minor fields), this field is not necessary
     adv_pdu[IDX_NUM_ADV_RECIEVED] = countAdvReceived;

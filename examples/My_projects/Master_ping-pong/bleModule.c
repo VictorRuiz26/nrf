@@ -358,6 +358,9 @@ ble_gap_adv_data_t m_adv_data =
         } else {
           NRF_LOG_INFO("UUID does not match the defined UUID.");
         }
+      } else {
+        NRF_LOG_INFO("Segun esto, el coord no soy yo: 0x%02X", p_adv_report->data.p_data[IDX_COORD_ID_RX]);
+        NRF_LOG_RAW_HEXDUMP_INFO(p_adv_report->data.p_data, p_adv_report->data.len);
       }
       // Continue scanning
       err_code = sd_ble_gap_scan_start(NULL, &m_scan_buffer);
@@ -485,7 +488,8 @@ ble_gap_adv_data_t m_adv_data =
     }
     nseqSent = (adv_pdu[APP_MAJOR_POSITION - 1] << 24) | (adv_pdu[APP_MAJOR_POSITION] << 16) | (adv_pdu[APP_MINOR_POSITION - 1] << 8) | (adv_pdu[APP_MINOR_POSITION]);
 */
-    #ifdef AUTONOMO 
+    #ifdef AUTONOMO
+      adv_PDU.adv_pdu[APP_COORD_ID_POSITION] = COORDINATOR_ID;
       nseqSent++;
       pChar = (unsigned char *)&nseqSent; //Esto seguro se puede hacer mejor
       adv_PDU.adv_pdu[APP_MINOR_POSITION] = pChar[0];

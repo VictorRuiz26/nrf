@@ -48,6 +48,7 @@
   //Indexes for the packet to sent
   #define IDX_MESSAGE_TYPE      23
   #define IDX_COORDINATOR_ID    24
+  #define IDX_SLAVE_ID          25
   #define IDX_NUM_ADV_RECIEVED  26
   #define IDX_MEAN_RSSI         27
 
@@ -59,8 +60,8 @@
   #define IDX_COORD_ID_RX   31
   #define IDX_SLAVE_ID_RX   32
   #define IDX_TX_POWER_RX   33
-  #define IDX_TIME_BETW_ADV_LSB 35
-  #define IDX_NUM_ADV_SENT  36
+  #define IDX_TIME_BETW_ADV_LSB_RX 35
+  #define IDX_NUM_ADV_SENT_RX  36
  
 
   // *************** DEFINES Y VARIABLES PARA EL ESCANEO *************

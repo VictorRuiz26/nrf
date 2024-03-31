@@ -7,6 +7,8 @@
   
   #define TIME_MS_1ADV(size) ((80 + 256 + 16 + 24 + 8 * 8 * (size + 5 + 8) + 192 + 24) / 1000) // Due to const definition problems, use const CODEC_DATA_SIZE_50B at first tests
   #define TIME_10MS_1ADV(size) (TIME_MS_1ADV(size) * 10)
+  //TODO: PARA SER MAS EXACTOS, METER AQUÍ EL TIEMPO ENTRE ADV QUE ES UNA VARIABLE CONOCIDA, Y SON ms QUE, 
+  //      CON ESTOS CAMBIOS, EL ESCLAVO PARAMETRIZA
   #define EXTRA_SCAN_DURATION 500 // Extra 5s for scanning (in 10ms units)
 
   #define TIMEOUT_SCAN_ADV(num, size) (TIME_10MS_1ADV(size)*num+EXTRA_SCAN_DURATION)

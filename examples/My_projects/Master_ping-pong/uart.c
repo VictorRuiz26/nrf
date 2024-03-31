@@ -70,6 +70,9 @@ void Trata_Modbus_Inicio_PingPong (uint8_t indiceAuxiliar) {
   //Data size
   incrementaIndice(indiceAuxiliar, 1);
   getAdvPDU(UART_PC.data[indiceAuxiliar], &adv_PDU);
+
+  //This coordID is fixed
+  adv_PDU.adv_pdu[APP_COORD_ID_POSITION] = COORDINATOR_ID;
   
   //Tx power (output_power_seclection_t 0 or 8 dBm)
   incrementaIndice(indiceAuxiliar, 1);
