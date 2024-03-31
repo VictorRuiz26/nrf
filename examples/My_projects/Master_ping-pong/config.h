@@ -33,6 +33,10 @@
   #define APP_MSG_TYPE_POSITION 23
   #define APP_COORD_ID_POSITION 24
   #define APP_SLAVE_ID_POSITION 25
+  #define APP_TX_POWER_POSITION 26
+  #define APP_TIME_BETW_ADV_MSB 27
+  #define APP_TIME_BETW_ADV_LSB 28
+  #define APP_NUM_ADV_POSITION  29
 
   #define APP_BEACON_UUID 0x11, 0x11, 0x11, 0x11, \
                           0x11, 0x11, 0x11, 0x11, \
@@ -68,7 +72,7 @@
   #define DEFAULT_SLAVE_ID 0x01
   #define DEFAULT_TX_POWER 8
   #define MAX_SLAVES 10
-  #define PDU_EXTRA_BYTES 0x04 // For mantaining previous structure, add these bytes to final (packet type, MasterID and txpower)
+  #define PDU_EXTRA_BYTES 0x06 // For mantaining previous structure, add these bytes to final (packet type, MasterID, slaveID, txpower and 2 for time between advs)
     //BLE data indexes
   #define IDX_MAJOR_RX 25 // 8 bytes de inicio y 16 del uuid
   #define IDX_MINOR_RX 27

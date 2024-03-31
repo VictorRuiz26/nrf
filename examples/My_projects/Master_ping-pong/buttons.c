@@ -10,18 +10,24 @@
     ret_code_t err_code;
     m_output_power_selected = output_power;
     switch (m_output_power_selected) {
-    case SELECTION_8_dBm: {
-      NRF_LOG_INFO("Power selection set to 8dBm");
-      // 8 dBm is the current output power, off LED.
-      bsp_board_led_off(OUTPUT_POWER_SELECTION_LED); // not necessary because the LED should start to blink.
-    } break;
+      case SELECTION_8_dBm: {
+        NRF_LOG_INFO("Power selection set to 8dBm");
+        // 8 dBm is the current output power, off LED.
+        bsp_board_led_off(OUTPUT_POWER_SELECTION_LED); // not necessary because the LED should start to blink.
+      } break;
 
-    case SELECTION_0_dBm: {
-      NRF_LOG_INFO("Power selection set to 0dBm");
-      // 0 dBm is the current output power, turn on LED.
-      bsp_board_led_on(OUTPUT_POWER_SELECTION_LED);
+      case SELECTION_0_dBm: {
+        NRF_LOG_INFO("Power selection set to 0dBm");
+        // 0 dBm is the current output power, turn on LED.
+        bsp_board_led_on(OUTPUT_POWER_SELECTION_LED);
 
-    } break;
+      } break;
+      default: {
+        NRF_LOG_INFO("Tx power not supported (%d). Restarting to 8dBm...", m_output_power_selected);
+        m_output_power_selected = SELECTION_8_dBm;
+        // 8 dBm is the current output power, off LED.
+        bsp_board_led_off(OUTPUT_POWER_SELECTION_LED); // not necessary because the LED should start to blink.
+      } break;
     }
   }
 

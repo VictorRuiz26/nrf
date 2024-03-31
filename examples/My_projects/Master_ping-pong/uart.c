@@ -65,7 +65,6 @@ uint16_t SacaInt_Modbus (uint8_t *indice) {
 
 void Trata_Modbus_Inicio_PingPong (uint8_t indiceAuxiliar) {
   uint8_t *pChar;
-  uint16_t auxInt;
   output_power_seclection_t txPower;
 
   //Data size
@@ -77,6 +76,7 @@ void Trata_Modbus_Inicio_PingPong (uint8_t indiceAuxiliar) {
   txPower = UART_PC.data[indiceAuxiliar];
   NRF_LOG_INFO("Recibo %ddBm txPower", txPower);
   output_power_selection_set(txPower);
+  adv_PDU.adv_pdu[APP_TX_POWER_POSITION] = m_output_power_selected;
 
   //Nseq
   incrementaIndice(indiceAuxiliar, 1);
@@ -105,12 +105,16 @@ void Trata_Modbus_Inicio_PingPong (uint8_t indiceAuxiliar) {
   incrementaIndice(indiceAuxiliar, 1);
   num_adv_2_send = UART_PC.data[indiceAuxiliar];
   NRF_LOG_INFO("Mandare %d advertisements", num_adv_2_send);
+  adv_PDU.adv_pdu[APP_NUM_ADV_POSITION] = num_adv_2_send;
 
   //Time between Adv (ms)
   incrementaIndice(indiceAuxiliar, 1);
-  auxInt = SacaInt_Modbus(&indiceAuxiliar);
-  time_between_advs = MSEC_TO_UNITS(auxInt, UNIT_0_625_MS);
-  NRF_LOG_INFO("Esperare %dms entre Advs. Que son %d ud 0.625ms", auxInt, time_between_advs);
+  time_between_advs = SacaInt_Modbus(&indiceAuxiliar);
+  NRF_LOG_INFO("Esperare %dms entre Advs", time_between_advs);
+  pChar = (unsigned char *)&time_between_advs;
+  adv_PDU.adv_pdu[APP_TIME_BETW_ADV_MSB] = pChar[1];
+  adv_PDU.adv_pdu[APP_TIME_BETW_ADV_LSB] = pChar[0];
+
 
   NRF_LOG_INFO("Si todo esto esta bien, deberiamos llamar a adv_init y luego adv_start");
   set_current_adv_params_and_start_advertising();

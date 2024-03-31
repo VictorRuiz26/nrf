@@ -76,7 +76,7 @@
   extern ble_gap_scan_params_t m_scan_param_1MBps;
   extern ble_gap_scan_params_t m_scan_param_coded_phy;
 
-  extern uint8_t time_between_advs;
+  extern uint16_t time_between_advs;
   extern uint8_t num_adv_2_send;
 
   extern uint8_t m_beacon_info[APP_BEACON_INFO_LENGTH];

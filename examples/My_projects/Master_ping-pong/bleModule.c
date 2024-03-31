@@ -84,7 +84,7 @@ ble_gap_adv_data_t m_adv_data =
       .filter_policy = BLE_GAP_SCAN_FP_ACCEPT_ALL,
   };
 
-  uint8_t time_between_advs = TIME_BETWEEN_EACH_ADV;
+  uint16_t time_between_advs = ADV_INTERVAL_MS;
   uint8_t num_adv_2_send = NUM_ADVERTISEMENTS;
 
   uint8_t m_beacon_info[APP_BEACON_INFO_LENGTH] = //< Information advertised by the Beacon.
@@ -99,6 +99,9 @@ ble_gap_adv_data_t m_adv_data =
       APP_MEASURED_RSSI,   // Manufacturer specific information. The Beacon's measured TX power in
                            // this implementation.,
       DEFAULT_TX_POWER,
+      (ADV_INTERVAL_MS&0xFF00)>>8,
+      ADV_INTERVAL_MS&0xFF,
+      NUM_ADVERTISEMENTS,
   };
 
   uint8_t m_beacon_info_50B[CODEC_DATA_SIZE_50B + APP_BEACON_INFO_LENGTH] = //< Information advertised by the Beacon.
@@ -116,6 +119,9 @@ ble_gap_adv_data_t m_adv_data =
       COORDINATOR_ID,
       DEFAULT_SLAVE_ID,
       DEFAULT_TX_POWER,
+      (ADV_INTERVAL_MS&0xFF00)>>8,
+      ADV_INTERVAL_MS&0xFF,
+      NUM_ADVERTISEMENTS,
 
       [APP_BEACON_INFO_LENGTH... CODEC_DATA_SIZE_50B + APP_BEACON_INFO_LENGTH - 1] = 0 // Dummy data for filling the array size
   };
@@ -135,6 +141,10 @@ ble_gap_adv_data_t m_adv_data =
       0,
       0,
       DEFAULT_TX_POWER,
+      (ADV_INTERVAL_MS&0xFF00)>>8,
+      ADV_INTERVAL_MS&0xFF,
+      NUM_ADVERTISEMENTS,
+
       [APP_BEACON_INFO_LENGTH... CODEC_DATA_SIZE_100B + APP_BEACON_INFO_LENGTH - 1] = 0 // Dummy data for filling the array size
   };
 
@@ -153,6 +163,10 @@ ble_gap_adv_data_t m_adv_data =
       0,
       0,
       DEFAULT_TX_POWER,
+      (ADV_INTERVAL_MS&0xFF00)>>8,
+      ADV_INTERVAL_MS&0xFF,
+      NUM_ADVERTISEMENTS,
+
       [APP_BEACON_INFO_LENGTH... CODEC_DATA_SIZE_150B + APP_BEACON_INFO_LENGTH - 1] = 0 // Dummy data for filling the array size
   };
 
@@ -171,6 +185,10 @@ ble_gap_adv_data_t m_adv_data =
       0,
       0,
       DEFAULT_TX_POWER,
+      (ADV_INTERVAL_MS&0xFF00)>>8,
+      ADV_INTERVAL_MS&0xFF,
+      NUM_ADVERTISEMENTS,
+
       [APP_BEACON_INFO_LENGTH... CODEC_DATA_SIZE_200B + APP_BEACON_INFO_LENGTH - 1] = 0 // Dummy data for filling the array size
   };
 
@@ -189,6 +207,10 @@ ble_gap_adv_data_t m_adv_data =
       0,
       0,
       DEFAULT_TX_POWER,
+      (ADV_INTERVAL_MS&0xFF00)>>8,
+      ADV_INTERVAL_MS&0xFF,
+      NUM_ADVERTISEMENTS,
+
       [APP_BEACON_INFO_LENGTH... CODEC_DATA_SIZE_250B + APP_BEACON_INFO_LENGTH - 1] = 0 // Dummy data for filling the array size
   };
 
@@ -484,7 +506,7 @@ ble_gap_adv_data_t m_adv_data =
                 },
             .p_peer_addr = NULL,
             .filter_policy = BLE_GAP_ADV_FP_ANY,
-            .interval = time_between_advs,
+            .interval = MSEC_TO_UNITS(time_between_advs, UNIT_0_625_MS),
             .duration = 0,
             .max_adv_evts = num_adv_2_send,
 
