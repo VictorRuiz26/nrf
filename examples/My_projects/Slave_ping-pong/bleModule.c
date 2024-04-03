@@ -135,12 +135,11 @@ uint8_t m_beacon_info_100B[CODEC_DATA_SIZE_100B+APP_BEACON_INFO_LENGTH] =       
     DEF_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
     APP_MEASURED_RSSI,    // Manufacturer specific information. The Beacon's measured TX power in
                          // this implementation.
-    0,
-    0,
-    0,
-    //0,
-    0,
-    0,
+    MESSAGE_TEST_TYPE,   // 23 
+    COORDINATOR_ID,      // 24 
+    SLAVE_ID,            // 25
+    DEF_NUM_ADV_RECEIVED,// 26
+    DEF_MEAN_RSSI,       // 27
     [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_100B+APP_BEACON_INFO_LENGTH-1] = 0 //Dummy data for filling the array size
 };
 
@@ -155,12 +154,11 @@ uint8_t m_beacon_info_150B[CODEC_DATA_SIZE_150B+APP_BEACON_INFO_LENGTH] =       
     DEF_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
     APP_MEASURED_RSSI,    // Manufacturer specific information. The Beacon's measured TX power in
                          // this implementation.
-    0,
-    0,
-    0,
-    //0,
-    0,
-    0,
+    MESSAGE_TEST_TYPE,   // 23 
+    COORDINATOR_ID,      // 24 
+    SLAVE_ID,            // 25
+    DEF_NUM_ADV_RECEIVED,// 26
+    DEF_MEAN_RSSI,       // 27
     [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_150B+APP_BEACON_INFO_LENGTH-1] = 0 //Dummy data for filling the array size
 };
 
@@ -175,12 +173,11 @@ uint8_t m_beacon_info_200B[CODEC_DATA_SIZE_200B+APP_BEACON_INFO_LENGTH] =       
     DEF_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
     APP_MEASURED_RSSI,    // Manufacturer specific information. The Beacon's measured TX power in
                          // this implementation.
-    0,
-    0,
-    0,
-   // 0,
-    0,
-    0,
+    MESSAGE_TEST_TYPE,   // 23 
+    COORDINATOR_ID,      // 24 
+    SLAVE_ID,            // 25
+    DEF_NUM_ADV_RECEIVED,// 26
+    DEF_MEAN_RSSI,       // 27
     [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_200B+APP_BEACON_INFO_LENGTH-1] = 0 //Dummy data for filling the array size
 };
 
@@ -195,12 +192,11 @@ uint8_t m_beacon_info_250B[CODEC_DATA_SIZE_250B+APP_BEACON_INFO_LENGTH] =       
     DEF_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
     APP_MEASURED_RSSI,    // Manufacturer specific information. The Beacon's measured TX power in
                          // this implementation.
-    0,
-    0,
-    0,
-   // 0,
-    0,
-    0,
+    MESSAGE_TEST_TYPE,   // 23 
+    COORDINATOR_ID,      // 24 
+    SLAVE_ID,            // 25
+    DEF_NUM_ADV_RECEIVED,// 26
+    DEF_MEAN_RSSI,       // 27
     [APP_BEACON_INFO_LENGTH ... CODEC_DATA_SIZE_250B+APP_BEACON_INFO_LENGTH-1] = 0 //Dummy data for filling the array size
 };
 
@@ -252,7 +248,7 @@ void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
             m_adv_sent_led_show(NULL, false, NULL);
             /*err_code = app_timer_stop(m_adv_sent_led_show_timer_id); 
             APP_ERROR_CHECK(err_code);*/
-
+            countAdvReceived = 0; //Por seguridad para evitar desborde rssiValues...
             scan_start();
             break;
 
@@ -297,8 +293,6 @@ void scan_start(void)
    // Set the correct TX power.
    err_code = sd_ble_gap_tx_power_set(BLE_GAP_TX_POWER_ROLE_SCAN_INIT, NULL, m_output_power_selected);
    APP_ERROR_CHECK(err_code);
-   
-   NRF_LOG_INFO("Output power set to %d dBm", m_output_power_selected);
 
    switch(m_adv_scan_phy_selected)
    {
@@ -383,16 +377,25 @@ void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
 
                     // Mando paquete por UART -> not now! the scan will obtain info that will be sent once timer expired
                     //send_adv(p_adv_report);
+                    
+                    //Antes de nada, saber cuántos adv tengo en este ciclo ping-pong, y cómo vienen de espaciados. Cuando lo sepa, puedo hilar fino en timers
+                    num_adv_2_send = p_adv_report->data.p_data[IDX_NUM_ADV_SENT_RX];
+                    uint8_t *pChar;
+                    pChar = (unsigned char*)&time_between_advs;
+                    pChar[0] = p_adv_report->data.p_data[IDX_TIME_BETW_ADV_LSB_RX];
+                    pChar[1] = p_adv_report->data.p_data[IDX_TIME_BETW_ADV_LSB_RX-1];
+
                     if (advReceived == false)
                     {
                         advReceived = true;
                         uint16_t timeExpected = (80 + 256 + 16 + 24 + 8*8*(p_adv_report->data.len+8) + 192 + 24)/1000; //Time expected for receiving one adv
                         uint16_t extraTime = 1000;
-                        m_timeout_for_advertise(APP_TIMER_TICKS(timeExpected*NUM_ADVERTISEMENTS+extraTime), true, NULL);
+                        m_timeout_for_advertise(APP_TIMER_TICKS(timeExpected*num_adv_2_send + (num_adv_2_send-1)*time_between_advs + extraTime), true, NULL);
                         /*err_code = app_timer_start(m_timeout_for_advertise, APP_TIMER_TICKS(timeExpected*NUM_ADVERTISEMENTS+extraTime), NULL);
                         APP_ERROR_CHECK(err_code);*/
                         NRF_LOG_INFO("Time expected for 1 adv: %dms.", timeExpected);
-                        NRF_LOG_INFO("Primer ADV recibido, arranco timer que dura %dms!", timeExpected*NUM_ADVERTISEMENTS+extraTime);
+                        NRF_LOG_INFO("Time ms betw advs %dms", time_between_advs);
+                        NRF_LOG_INFO("Primer ADV recibido, arranco timer que dura %dms!", timeExpected*num_adv_2_send + (num_adv_2_send-1)*time_between_advs + extraTime);
                     }
                     uint8_t * pLong;
                     uint32_t nseq;
@@ -407,9 +410,7 @@ void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
                     coordinatorID = p_adv_report->data.p_data[IDX_COORD_ID_RX];
                     messageType = p_adv_report->data.p_data[IDX_MSG_TYPE_RX];
 
-                    if (m_output_power_selected != p_adv_report->data.p_data[IDX_TX_POWER_RX]) {
-                      output_power_selection_set(p_adv_report->data.p_data[IDX_TX_POWER_RX]);
-                    }
+                    output_power_seclection_t aux_tx_power = p_adv_report->data.p_data[IDX_TX_POWER_RX];
 
                     uint8_t aux_data_size;
                     if (p_adv_report->data.len == 55) {
@@ -426,22 +427,28 @@ void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
                       NRF_LOG_INFO("FALLO AL INFERIR DATA SIZE");
                     }
                     
-                    uint8_t *pChar;
-                    pChar = (unsigned char*)&time_between_advs;
-                    pChar[0] = p_adv_report->data.p_data[IDX_TIME_BETW_ADV_LSB_RX];
-                    pChar[1] = p_adv_report->data.p_data[IDX_TIME_BETW_ADV_LSB_RX-1];
-                    NRF_LOG_INFO("Time ms betw advs %dms", time_between_advs);
 
-                    num_adv_2_send = p_adv_report->data.p_data[IDX_NUM_ADV_SENT_RX];
 
-                    if (nSeqReceived != nseq || aux_data_size != m_codec_phy_data_size) {
+                    if (nSeqReceived != nseq || aux_data_size != m_codec_phy_data_size || m_output_power_selected != aux_tx_power) {
+                        if (m_output_power_selected != p_adv_report->data.p_data[IDX_TX_POWER_RX]) {
+                          output_power_selection_set(p_adv_report->data.p_data[IDX_TX_POWER_RX]);
+                        }
+                        
+                        if (aux_data_size != m_codec_phy_data_size) {
+                          /* As the change adv size is supported, it is needed to restart the .len byte of m_adv_data_ext, because in ble_advdata_encode
+                             a pointer to .len is passed, so next time the function is called, the size is setted to before len array. It is needed to restart
+                             each time the adv data size is changed.
+                          */
+                          m_adv_data_ext.adv_data.len = BLE_GAP_ADV_SET_DATA_SIZE_EXTENDED_MAX_SUPPORTED;
+                          m_codec_phy_data_size = aux_data_size;
+                        }
+
                         int16_t acum = 0;
                         for (uint8_t i = 0; i < countAdvReceived; i++) {
                           acum += rssiValues[i];
                         }
                         NRF_LOG_INFO("OJO, Nuevo nseq recibido: %d. O diferente tamaño %d vs %d. Antes: %d con rssi media de %d", nseq, aux_data_size, m_codec_phy_data_size, nSeqReceived, acum/countAdvReceived);
                         nSeqReceived = nseq;
-                        m_codec_phy_data_size = aux_data_size;
                         countAdvReceived = 0; //If a new nseq is received, reset the count of adv of the same nseq.
                     }
 
@@ -546,7 +553,7 @@ void advertising_init(void)
     adv_pdu[IDX_MEAN_RSSI] = (int8_t) (acumRssi/countAdvReceived);
 
 
-    NRF_LOG_INFO("Inicializo advertising. Major: %04X, Minor %04X. Size %d. RSSI: %d (0x%02X)", majorValue, minorValue, size, (int8_t) (acumRssi/countAdvReceived), (int8_t) (acumRssi/countAdvReceived));
+    NRF_LOG_INFO("Inicializo advertising. Major: %04X, Minor %04X. Size %d. RSSI: %d (0x%02X). Data size: %d", majorValue, minorValue, size, (int8_t) (acumRssi/countAdvReceived), (int8_t) (acumRssi/countAdvReceived), m_codec_phy_data_size);
     /*for (uint8_t i = 0; i < size; i++) {
       NRF_LOG_INFO("%02X ", adv_pdu[i]);
     }*/

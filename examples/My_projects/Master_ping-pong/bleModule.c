@@ -79,7 +79,7 @@ ble_gap_adv_data_t m_adv_data =
       .active = 0x01,
       .interval = NRF_BLE_SCAN_SCAN_INTERVAL,
       .window = NRF_BLE_SCAN_SCAN_WINDOW,
-      .timeout = TIMEOUT_SCAN_ADV(NUM_ADVERTISEMENTS,CODEC_DATA_SIZE_50B), //(TIME_10MS_1ADV(CODEC_DATA_SIZE_50B) * NUM_ADVERTISEMENTS) + EXTRA_SCAN_DURATION,
+      .timeout = TIMEOUT_SCAN_ADV(NUM_ADVERTISEMENTS,CODEC_DATA_SIZE_50B, ADV_INTERVAL_MS), //(TIME_10MS_1ADV(CODEC_DATA_SIZE_50B) * NUM_ADVERTISEMENTS) + EXTRA_SCAN_DURATION,
       .scan_phys = BLE_GAP_PHY_CODED,
       .filter_policy = BLE_GAP_SCAN_FP_ACCEPT_ALL,
   };
@@ -137,9 +137,9 @@ ble_gap_adv_data_t m_adv_data =
       APP_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
       APP_MEASURED_RSSI,   // Manufacturer specific information. The Beacon's measured TX power in
                            // this implementation.
-      0,
-      0,
-      0,
+      MESSAGE_TEST_TYPE,
+      COORDINATOR_ID,
+      DEFAULT_SLAVE_ID,
       DEFAULT_TX_POWER,
       (ADV_INTERVAL_MS&0xFF00)>>8,
       ADV_INTERVAL_MS&0xFF,
@@ -159,9 +159,9 @@ ble_gap_adv_data_t m_adv_data =
       APP_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
       APP_MEASURED_RSSI,   // Manufacturer specific information. The Beacon's measured TX power in
                            // this implementation.
-      0,
-      0,
-      0,
+      MESSAGE_TEST_TYPE,
+      COORDINATOR_ID,
+      DEFAULT_SLAVE_ID,
       DEFAULT_TX_POWER,
       (ADV_INTERVAL_MS&0xFF00)>>8,
       ADV_INTERVAL_MS&0xFF,
@@ -181,9 +181,9 @@ ble_gap_adv_data_t m_adv_data =
       APP_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
       APP_MEASURED_RSSI,   // Manufacturer specific information. The Beacon's measured TX power in
                            // this implementation.
-      0,
-      0,
-      0,
+      MESSAGE_TEST_TYPE,
+      COORDINATOR_ID,
+      DEFAULT_SLAVE_ID,
       DEFAULT_TX_POWER,
       (ADV_INTERVAL_MS&0xFF00)>>8,
       ADV_INTERVAL_MS&0xFF,
@@ -203,9 +203,9 @@ ble_gap_adv_data_t m_adv_data =
       APP_MINOR_VALUE,     // Minor arbitrary value that can be used to distinguish between Beacons.
       APP_MEASURED_RSSI,   // Manufacturer specific information. The Beacon's measured TX power in
                            // this implementation.
-      0,
-      0,
-      0,
+      MESSAGE_TEST_TYPE,
+      COORDINATOR_ID,
+      DEFAULT_SLAVE_ID,
       DEFAULT_TX_POWER,
       (ADV_INTERVAL_MS&0xFF00)>>8,
       ADV_INTERVAL_MS&0xFF,
@@ -244,7 +244,7 @@ ble_gap_adv_data_t m_adv_data =
     switch (m_adv_scan_phy_selected) {
     case SELECTION_CODED_PHY: {
     //Now, as num_adv and other params are variable, the timeout is needed to be adjusted
-      m_scan_param_coded_phy.timeout = TIMEOUT_SCAN_ADV(num_adv_2_send, m_codec_phy_data_size);
+      m_scan_param_coded_phy.timeout = TIMEOUT_SCAN_ADV(num_adv_2_send, m_codec_phy_data_size, time_between_advs);
       NRF_LOG_INFO("Starting scan on coded phy. Timeout %d/10ms", m_scan_param_coded_phy.timeout);
       err_code = sd_ble_gap_scan_start(&m_scan_param_coded_phy, &m_scan_buffer);
       APP_ERROR_CHECK(err_code);
@@ -252,7 +252,7 @@ ble_gap_adv_data_t m_adv_data =
     }
     case SELECTION_1M_PHY: {
       NRF_LOG_INFO("Starting scan on 1Mbps.");
-      m_scan_param_1MBps.timeout = TIMEOUT_SCAN_ADV(num_adv_2_send, m_codec_phy_data_size);
+      m_scan_param_1MBps.timeout = TIMEOUT_SCAN_ADV(num_adv_2_send, m_codec_phy_data_size, time_between_advs);
       err_code = sd_ble_gap_scan_start(&m_scan_param_1MBps, &m_scan_buffer);
       APP_ERROR_CHECK(err_code);
     } break;
@@ -332,11 +332,11 @@ ble_gap_adv_data_t m_adv_data =
               advReceived = true;
               uint16_t timeExpected = (80 + 256 + 16 + 24 + 8 * 8 * (p_adv_report->data.len + 8) + 192 + 24) / 1000; // Time expected for receiving one adv
               uint16_t extraTime = 1000;
-              time_for_metrics_packet(APP_TIMER_TICKS(timeExpected * num_adv_2_send + extraTime), true, NULL);
+              time_for_metrics_packet(APP_TIMER_TICKS(timeExpected * num_adv_2_send + (num_adv_2_send-1)*time_between_advs + extraTime), true, NULL);
               /*err_code = app_timer_start(m_time_for_metrics_packet, APP_TIMER_TICKS(timeExpected * NUM_ADVERTISEMENTS + extraTime), NULL);
               APP_ERROR_CHECK(err_code);*/
               NRF_LOG_INFO("Time expected for 1 adv: %dms.", timeExpected);
-              NRF_LOG_INFO("Primer ADV recibido, arranco timer que dura %dms!", timeExpected * num_adv_2_send + extraTime);
+              NRF_LOG_INFO("Primer ADV recibido, arranco timer que dura %dms!", timeExpected * num_adv_2_send + (num_adv_2_send-1)*time_between_advs + extraTime);
             }
 
             // Fulfilling all variables of uplink that will be sent in metrics (overwritten in each adv received)
