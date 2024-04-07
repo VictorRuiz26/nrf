@@ -298,7 +298,12 @@ void uart_evt_handle(app_uart_evt_t *p) {
     for (uint8_t i = 0; i < countAdvReceived; i++) {
       acumRssi += rssiValues[i];
     }
-    app_uart_put((int8_t)(acumRssi / countAdvReceived));
+
+    if (countAdvReceived > 0) {
+      app_uart_put((int8_t)(acumRssi / countAdvReceived));
+    } else {
+      app_uart_put(0);
+    }
 
     app_uart_put(0xFF);
 

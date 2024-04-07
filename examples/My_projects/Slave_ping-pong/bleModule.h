@@ -87,4 +87,6 @@
 
   void set_current_scan_params_and_start_scanning(void);
 
+  unsigned char getRealPDUSize(adv_codec_phy_data_size_t data_size);
+
 #endif

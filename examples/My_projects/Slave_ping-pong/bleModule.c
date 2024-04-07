@@ -447,7 +447,7 @@ void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
                         for (uint8_t i = 0; i < countAdvReceived; i++) {
                           acum += rssiValues[i];
                         }
-                        NRF_LOG_INFO("OJO, Nuevo nseq recibido: %d. O diferente tamaño %d vs %d. Antes: %d con rssi media de %d", nseq, aux_data_size, m_codec_phy_data_size, nSeqReceived, acum/countAdvReceived);
+                        NRF_LOG_INFO("OJO, Nuevo nseq recibido: %d. O diferente tamaño %d vs %d. Antes: %d con rssi media de %d", nseq, aux_data_size, getRealPDUSize(m_codec_phy_data_size), nSeqReceived, acum/countAdvReceived);
                         nSeqReceived = nseq;
                         countAdvReceived = 0; //If a new nseq is received, reset the count of adv of the same nseq.
                     }
@@ -553,7 +553,7 @@ void advertising_init(void)
     adv_pdu[IDX_MEAN_RSSI] = (int8_t) (acumRssi/countAdvReceived);
 
 
-    NRF_LOG_INFO("Inicializo advertising. Major: %04X, Minor %04X. Size %d. RSSI: %d (0x%02X). Data size: %d", majorValue, minorValue, size, (int8_t) (acumRssi/countAdvReceived), (int8_t) (acumRssi/countAdvReceived), m_codec_phy_data_size);
+    NRF_LOG_INFO("Inicializo advertising. Major: %04X, Minor %04X. Size %d. RSSI: %d (0x%02X). Data size: %d", majorValue, minorValue, size, (int8_t) (acumRssi/countAdvReceived), (int8_t) (acumRssi/countAdvReceived), getRealPDUSize(m_codec_phy_data_size));
     /*for (uint8_t i = 0; i < size; i++) {
       NRF_LOG_INFO("%02X ", adv_pdu[i]);
     }*/
@@ -667,4 +667,6 @@ void set_current_scan_params_and_start_scanning(void)
 
 }
 
-
+unsigned char getRealPDUSize(adv_codec_phy_data_size_t data_size) {
+  return (unsigned char) (data_size + APP_BEACON_INFO_LENGTH + AD_TYPE_MANUF_SPEC_DATA_ID_SIZE + 5); //El +5Por tema de flags
+}

@@ -6,12 +6,12 @@
   #include "ble_advdata.h"
   
   #define TIME_MS_1ADV(size) ((80 + 256 + 16 + 24 + 8 * 8 * (size + 8) + 192 + 24) / 1000) // Due to const definition problems, use const CODEC_DATA_SIZE_50B at first tests
-  #define TIME_10MS_1ADV(size) (TIME_MS_1ADV(size) * 10)
+  #define TIME_10MS_1ADV(size) (TIME_MS_1ADV(size) / 10)
   #define EXTRA_SCAN_DURATION 500 // Extra 5s for scanning (in 10ms units)
 
   //TODO: PARA SER MAS EXACTOS, METER AQUÍ EL TIEMPO ENTRE ADV QUE ES UNA VARIABLE CONOCIDA, Y SON ms QUE, 
-  //      CON ESTOS CAMBIOS, EL ESCLAVO PARAMETRIZA
-  #define TIMEOUT_SCAN_ADV(num, size, time_between) (TIME_10MS_1ADV(size)*num + (num-1)*time_between + EXTRA_SCAN_DURATION)
+  //      CON ESTOS CAMBIOS, EL ESCLAVO PARAMETRIZA. time between viene dado en ms, tengo que pasaro a ud 10ms
+  #define TIMEOUT_SCAN_ADV(num, size, time_between) (TIME_10MS_1ADV(size)*num + (num-1)*(time_between/10) + EXTRA_SCAN_DURATION)
 
   #define APP_BLE_CONN_CFG_TAG 1  /**< A tag that refers to the BLE stack configuration. */
   #define APP_BLE_OBSERVER_PRIO 3 /**< Application's BLE observer priority. You shouldn't need to modify this value. */
@@ -104,5 +104,7 @@
   void disconnect_stop_adv(void);
 
   void getAdvPDU (uint8_t dataSize, adv_pdu_t *PDU);
+
+  unsigned char getRealPDUSize(adv_codec_phy_data_size_t data_size);
 
 #endif

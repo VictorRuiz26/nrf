@@ -244,7 +244,7 @@ ble_gap_adv_data_t m_adv_data =
     switch (m_adv_scan_phy_selected) {
     case SELECTION_CODED_PHY: {
     //Now, as num_adv and other params are variable, the timeout is needed to be adjusted
-      m_scan_param_coded_phy.timeout = TIMEOUT_SCAN_ADV(num_adv_2_send, m_codec_phy_data_size, time_between_advs);
+      m_scan_param_coded_phy.timeout = TIMEOUT_SCAN_ADV(num_adv_2_send, getRealPDUSize(m_codec_phy_data_size), time_between_advs);
       NRF_LOG_INFO("Starting scan on coded phy. Timeout %d/10ms", m_scan_param_coded_phy.timeout);
       err_code = sd_ble_gap_scan_start(&m_scan_param_coded_phy, &m_scan_buffer);
       APP_ERROR_CHECK(err_code);
@@ -252,7 +252,7 @@ ble_gap_adv_data_t m_adv_data =
     }
     case SELECTION_1M_PHY: {
       NRF_LOG_INFO("Starting scan on 1Mbps.");
-      m_scan_param_1MBps.timeout = TIMEOUT_SCAN_ADV(num_adv_2_send, m_codec_phy_data_size, time_between_advs);
+      m_scan_param_1MBps.timeout = TIMEOUT_SCAN_ADV(num_adv_2_send, APP_BEACON_INFO_LENGTH, time_between_advs);
       err_code = sd_ble_gap_scan_start(&m_scan_param_1MBps, &m_scan_buffer);
       APP_ERROR_CHECK(err_code);
     } break;
@@ -401,13 +401,20 @@ ble_gap_adv_data_t m_adv_data =
       break;
 
     case BLE_GAP_EVT_TIMEOUT: // The scanner timeout expired, so wait some seconds, and start again the adv process
-      NRF_LOG_INFO("Scan timeout Expired!!! UPLINK-DOWNLIK metrics are sent.");
-      //TODO: Enviar siempre un paquete de métricas cuando no recibo nada????
-      //send_metrics();
+      NRF_LOG_INFO("Scan timeout Expired!!! empty UPLINK-DOWNLIK metrics are sent.");
       #ifdef AUTONOMO 
         adv_interval(ADV_EVT_INTERVAL, true, NULL);
         NRF_LOG_INFO("Arranco timer de %ds antes de start adv de nuevo", SEGUNDOS_DELAY);
       #endif
+
+      //TODO: Aqui generar una función de inicialización de campos, que se llame tanto en el main como aquí. Y sea más estructurado el código
+      for (int i = 0; i < BLE_GAP_ADDR_LEN; i++) {
+        slaveAddr.addr[i] = '\0';
+      }
+      countAdvReceived = 0;
+      downlinkMeanRSSI = 0;
+      downlinkNAdvRx = 0;
+      send_metrics();
       break;
 
     default: {
@@ -699,5 +706,9 @@ void getAdvPDU (uint8_t dataSize, adv_pdu_t *PDU) {
       break;
   }
 
+}
+
+unsigned char getRealPDUSize(adv_codec_phy_data_size_t data_size) {
+  return (unsigned char)(data_size + APP_BEACON_INFO_LENGTH + AD_TYPE_MANUF_SPEC_DATA_ID_SIZE + 5); //El +5Por tema de flags
 }
 
