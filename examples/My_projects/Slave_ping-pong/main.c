@@ -29,10 +29,7 @@
 
  static void instructions_print(void)
 {
-    NRF_LOG_INFO("Button 1: switch between coded phy and 1Mbps");
-    NRF_LOG_INFO("Button 2: switch between 0 dbm and 8 dBm output power.");
-    NRF_LOG_INFO("LED3 -> receiving advertisements; LED4 -> sending adv");
-   // NRF_LOG_INFO("Button 3: switch between scanning modes.");
+    NRF_LOG_INFO("Slave %d nrf52840 started! Passive scanning until a sequence of Master adv are received. Then, this slave will response", SLAVE_ID);
 }
 
 /**@brief Function for initializing logging. */

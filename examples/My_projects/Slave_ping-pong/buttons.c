@@ -167,12 +167,12 @@ void bsp_evt_handler(bsp_event_t event)
         {
           case PHY_SELECTION_BUTTON_EVENT:
           {
-            on_phy_selection_button();
+     //       on_phy_selection_button();
           } break;
 						
 	  case OUTPUT_POWER_SELECTION_BUTTON_EVENT:
 	  {
-	  	on_output_power_selection_button();
+     //       on_output_power_selection_button();
 	  } break;
 
           case SCAN_SELECTION_BUTTON_EVENT:

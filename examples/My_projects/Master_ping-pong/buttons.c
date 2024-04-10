@@ -325,26 +325,26 @@
       // Set the correct parameters, depending on the button pushed.
       switch (event) {
       case PHY_SELECTION_BUTTON_EVENT: {
-        on_phy_selection_button();
+    //    on_phy_selection_button();
       } break;
 
       case OUTPUT_POWER_SELECTION_BUTTON_EVENT: {
-        on_output_power_selection_button();
+    //    on_output_power_selection_button();
       } break;
 
       case NON_CONN_OR_CONN_ADV_BUTTON_EVENT: // Esto ahora actúa como modificador del tamaño de los datos!
       {
         // on_non_conn_or_conn_adv_selection();
-        on_adv_data_size_selection();
+    //    on_adv_data_size_selection();
       } break;
 
       default:
         break;
       }
 
-      disconnect_stop_adv();
-      advertising_init();
-      advertising_start();
+    //  disconnect_stop_adv();
+    //  advertising_init();
+    //  advertising_start();
     }
   }
 

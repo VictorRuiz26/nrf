@@ -30,11 +30,13 @@
 #include "buttons.h"
 
   static void instructions_print(void) {
-    NRF_LOG_INFO("Press the buttons to set up the advertiser in wanted mode:");
-    NRF_LOG_INFO("Button 2: switch between coded phy (LED2 setted on) and 1Mbps (LED2 blinking)");
-    NRF_LOG_INFO("Button 3: switch between 0 dbm (LED3 setted on) and 8 dBm output power (LED3 blinkink).");
-    // NRF_LOG_INFO("Button 4: switch between non-connectable (slow blink LED 4) and connectable advertising (fast blink LED4).");
-    NRF_LOG_INFO("Button 4: rotate between 50B (LED4 Off), 100B(LED4 slow blinking), 150B(LED4 medium blinking), 200B(LED4 fast blinking) and 250B(LED4 on) adv data size (only codec PHY!)");
+    NRF_LOG_INFO("Master nrf52840 id: %d started!", COORDINATOR_ID);
+    #ifdef AUTONOMO
+      NRF_LOG_INFO("Autonomous behaviour");
+      NRF_LOG_INFO("It will start sending 10 advertisements (with 55 data size, 8dBm tx power and 100ms between advs) with same nseq. Then, wait for response from slave and restart the cicle with next nseq (+1)");
+    #else
+      NRF_LOG_INFO("Following orders by UART Modbus packet behaviour");
+    #endif
   }
 
   
