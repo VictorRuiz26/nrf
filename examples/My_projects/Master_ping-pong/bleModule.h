@@ -7,10 +7,9 @@
   
   #define TIME_MS_1ADV(size) ((80 + 256 + 16 + 24 + 8 * 8 * (size + 8) + 192 + 24) / 1000) // Due to const definition problems, use const CODEC_DATA_SIZE_50B at first tests
   #define TIME_10MS_1ADV(size) (TIME_MS_1ADV(size) / 10)
-  #define EXTRA_SCAN_DURATION 500 // Extra 5s for scanning (in 10ms units)
+  #define EXTRA_SCAN_DURATION 300 // Extra 5s for scanning (in 10ms units)
 
-  //TODO: PARA SER MAS EXACTOS, METER AQUÍ EL TIEMPO ENTRE ADV QUE ES UNA VARIABLE CONOCIDA, Y SON ms QUE, 
-  //      CON ESTOS CAMBIOS, EL ESCLAVO PARAMETRIZA. time between viene dado en ms, tengo que pasaro a ud 10ms
+  //Incluir params variables con el fin de parametrizar el tiempo a esperar. time_between viene dado en ms, tengo que pasar a ud 10ms
   #define TIMEOUT_SCAN_ADV(num, size, time_between) (TIME_10MS_1ADV(size)*num + (num-1)*(time_between/10) + EXTRA_SCAN_DURATION)
 
   #define APP_BLE_CONN_CFG_TAG 1  /**< A tag that refers to the BLE stack configuration. */

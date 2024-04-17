@@ -72,7 +72,7 @@
   #define DEFAULT_SLAVE_ID 0x01
   #define DEFAULT_TX_POWER 8
   #define MAX_SLAVES 10
-  #define PDU_EXTRA_BYTES 0x06 // For mantaining previous structure, add these bytes to final (packet type, MasterID, slaveID, txpower and 2 for time between advs)
+  #define PDU_EXTRA_BYTES 0x07 // For mantaining previous structure, add these bytes to final (packet type, MasterID, slaveID, txpower and 2 for time between advs)
     //BLE data indexes
   #define IDX_MAJOR_RX 25 // 8 bytes de inicio y 16 del uuid
   #define IDX_MINOR_RX 27

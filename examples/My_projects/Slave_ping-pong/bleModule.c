@@ -553,7 +553,7 @@ void advertising_init(void)
     adv_pdu[IDX_MEAN_RSSI] = (int8_t) (acumRssi/countAdvReceived);
 
 
-    NRF_LOG_INFO("Inicializo advertising. Major: %04X, Minor %04X. Size %d. RSSI: %d (0x%02X). Data size: %d", majorValue, minorValue, size, (int8_t) (acumRssi/countAdvReceived), (int8_t) (acumRssi/countAdvReceived), getRealPDUSize(m_codec_phy_data_size));
+    NRF_LOG_INFO("Inicializo advertising con %d advs. Nseq %d. Size %d. RSSI: %d (0x%02X). Data size: %d", num_adv_2_send, nSeqReceived, size, (int8_t) (acumRssi/countAdvReceived), (int8_t) (acumRssi/countAdvReceived), getRealPDUSize(m_codec_phy_data_size));
     /*for (uint8_t i = 0; i < size; i++) {
       NRF_LOG_INFO("%02X ", adv_pdu[i]);
     }*/

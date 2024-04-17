@@ -33,7 +33,7 @@ void led_8dBm_slow_blink_timeout_handler(void * p_context)
 void timeout_for_advertise_timeout_handler(void * p_context)
 {
     UNUSED_PARAMETER(p_context);
-    //TODO: Stop the scan and start the advertising stage
+    //Stop the scan and start the advertising stage
     scan_stop();
     advReceived = false; //Reset this flag, for starting again when i change to scan stage
     advertising_stop(); 

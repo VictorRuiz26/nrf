@@ -505,7 +505,7 @@ ble_gap_adv_data_t m_adv_data =
       adv_PDU.adv_pdu[APP_MAJOR_POSITION-1] = pChar[3];
     #endif
 
-    NRF_LOG_INFO("ARRANCO ADVERTISEMENT nSeq %d", nseqSent);
+    NRF_LOG_INFO("ARRANCO ADVERTISEMENT nSeq %d, numAdv %d (en Paq %d)", nseqSent, num_adv_2_send, adv_PDU.adv_pdu[APP_NUM_ADV_POSITION]);
     manuf_specific_data.data.p_data = (uint8_t *)adv_PDU.adv_pdu;
     manuf_specific_data.data.size = adv_PDU.size;
 

@@ -2,7 +2,7 @@
 <solution Name="Master_ping-pong" target="8" version="2">
   <configuration Name="100ms-10adv-1min" />
   <configuration Name="100ms-10adv-1seg" />
-  <configuration Name="100ms-10adv-4seg" />
+  <configuration Name="100ms-10adv-xseg" />
   <configuration Name="1adv_seg" />
   <configuration
     Name="Debug"
@@ -22,9 +22,9 @@
       c_preprocessor_definitions="ADV_INTERVAL_MS=100;NUM_ADVERTISEMENTS=10;SEGUNDOS_DELAY=1" />
     <configuration
       LIBRARY_IO_TYPE="RTT"
-      Name="100ms-10adv-4seg"
+      Name="100ms-10adv-xseg"
       arm_compiler_variant="gcc"
-      c_preprocessor_definitions="ADV_INTERVAL_MS=100;NUM_ADVERTISEMENTS=10;SEGUNDOS_DELAY=4"
+      c_preprocessor_definitions="ADV_INTERVAL_MS=100;NUM_ADVERTISEMENTS=10;SEGUNDOS_DELAY=60"
       c_user_include_directories="C:\\nrf_sdk\\components\\libraries\\uart\\;C:\\nrf_sdk\\components\\libraries\\fifo\\" />
     <configuration
       Name="1adv_seg"
@@ -127,7 +127,7 @@
           Name="100ms-10adv-1seg"
           build_exclude_from_build="Yes" />
         <configuration
-          Name="100ms-10adv-4seg"
+          Name="100ms-10adv-xseg"
           build_exclude_from_build="Yes" />
         <configuration Name="1adv_seg" build_exclude_from_build="Yes" />
       </file>
