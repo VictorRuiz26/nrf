@@ -70,6 +70,7 @@ void Trata_Modbus_Inicio_PingPong (uint8_t indiceAuxiliar) {
   //Data size
   incrementaIndice(indiceAuxiliar, 1);
   getAdvPDU(UART_PC.data[indiceAuxiliar], &adv_PDU);
+  packetBLESize = getRealPDUSize(m_codec_phy_data_size);
 
   //This coordID is fixed
   adv_PDU.adv_pdu[APP_COORD_ID_POSITION] = COORDINATOR_ID;
@@ -95,6 +96,7 @@ void Trata_Modbus_Inicio_PingPong (uint8_t indiceAuxiliar) {
 
   //Msg type (indiceAuxiliar me viene posicionado de SacaLong).
   msgTypeSent = UART_PC.data[indiceAuxiliar];
+  downlinkMsgType = msgTypeSent;
   NRF_LOG_INFO("Msg type: %02X", msgTypeSent);
   adv_PDU.adv_pdu[APP_MSG_TYPE_POSITION] = msgTypeSent;
 
