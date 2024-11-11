@@ -307,7 +307,9 @@ ble_gap_adv_data_t m_adv_data =
 
         // Comparar el UUID almacenado con el UUID definido
         if (memcmp(uuid_data, APP_BEACON_UUID_POINTER, sizeof(uuid_data)) == 0) {
+          #if TIMERS_LEDS
           bsp_board_led_invert(ADV_REPORT_LED);
+          #endif
 
           NRF_LOG_INFO("************************************************************");
           NRF_LOG_RAW_HEXDUMP_INFO(p_adv_report->data.p_data, p_adv_report->data.len);
@@ -333,8 +335,6 @@ ble_gap_adv_data_t m_adv_data =
               uint16_t timeExpected = (80 + 256 + 16 + 24 + 8 * 8 * (p_adv_report->data.len + 8) + 192 + 24) / 1000; // Time expected for receiving one adv
               uint16_t extraTime = 1000;
               time_for_metrics_packet(APP_TIMER_TICKS(timeExpected * num_adv_2_send + (num_adv_2_send-1)*time_between_advs + extraTime), true, NULL);
-              /*err_code = app_timer_start(m_time_for_metrics_packet, APP_TIMER_TICKS(timeExpected * NUM_ADVERTISEMENTS + extraTime), NULL);
-              APP_ERROR_CHECK(err_code);*/
               NRF_LOG_INFO("Time expected for 1 adv: %dms.", timeExpected);
               NRF_LOG_INFO("Primer ADV recibido, arranco timer que dura %dms!", timeExpected * num_adv_2_send + (num_adv_2_send-1)*time_between_advs + extraTime);
             }
@@ -382,32 +382,21 @@ ble_gap_adv_data_t m_adv_data =
 
     switch (p_ble_evt->header.evt_id) {
     case BLE_GAP_EVT_ADV_SET_TERMINATED:
-      // disconnect_stop_adv();
-      // NRF_LOG_INFO("Advertisement terminado. Motivo: %d", p_ble_evt->evt.gap_evt.params.adv_set_terminated.reason);
-      // NRF_LOG_INFO("Enviados %d adv de %d configurados (max)", p_ble_evt->evt.gap_evt.params.adv_set_terminated.num_completed_adv_events, NUM_ADVERTISEMENTS);
-      // bsp_board_led_off(SENDING_ADV_LED);
-
       adv_sent_led_show(NULL, false, NULL);
-      /*err_code = app_timer_stop(m_adv_sent_led_show_timer_id);
-      APP_ERROR_CHECK(err_code);*/
-
       scan_start();
-
-      /*ret_code_t err_code = app_timer_start(m_timer_ble, ADV_EVT_INTERVAL, NULL);
-      APP_ERROR_CHECK(err_code);*/
       break;
+
     case BLE_GAP_EVT_ADV_REPORT:
       on_adv_report(&p_gap_evt->params.adv_report);
       break;
 
-    case BLE_GAP_EVT_TIMEOUT: // The scanner timeout expired, so wait some seconds, and start again the adv process
+    case BLE_GAP_EVT_TIMEOUT: // The scanner timeout expired, so wait some seconds, and start again the adv process in case of autonomous
       NRF_LOG_INFO("Scan timeout Expired!!! empty UPLINK-DOWNLIK metrics are sent.");
       #ifdef AUTONOMO 
         adv_interval(ADV_EVT_INTERVAL, true, NULL);
-        NRF_LOG_INFO("Arranco timer de %ds antes de start adv de nuevo", SEGUNDOS_DELAY);
+        NRF_LOG_INFO("Start %ds timer before starting adv", SEGUNDOS_DELAY);
       #endif
-
-      //TODO: Aqui generar una función de inicialización de campos, que se llame tanto en el main como aquí. Y sea más estructurado el código
+      //Fill with null values this metrics packet
       for (int i = 0; i < BLE_GAP_ADDR_LEN; i++) {
         slaveAddr.addr[i] = '\0';
       }

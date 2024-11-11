@@ -72,7 +72,7 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="16" y="255" useTextEdit="1" path="../../../main.c" left="0" selected="1" top="232" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="35" y="1194" useTextEdit="1" path="../../../main.c" left="0" selected="1" top="1335" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="8" y="7650" useTextEdit="1" path="../config/sdk_config.h" left="0" top="7626" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="464" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/libraries/bsp/bsp.c" left="0" top="446" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="511" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/ble/common/ble_advdata.c" left="0" top="487" codecName="Default"/>
@@ -81,11 +81,11 @@
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="115" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/libraries/bsp/bsp.h" left="0" top="102" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="8" y="83" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/ble/common/ble_advdata.h" left="0" top="58" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="17" y="154" useTextEdit="1" path="../../../../../../components/ble/common/ble_srv_common.h" left="0" top="137" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="202" useTextEdit="1" openedFrom="C:/nrf_sdk/components/softdevice/s140/headers/ble_gap.h" path="../../../../../../components/softdevice/s140/headers/ble_types.h" left="0" top="157" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="202" useTextEdit="1" openedFrom="C:/nrf_sdk/components/softdevice/s140/headers/ble_gap.h" path="../../../../../../components/softdevice/s140/headers/ble_types.h" left="0" top="164" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="30" y="189" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/libraries/timer/app_timer.h" left="0" top="170" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="124" useTextEdit="1" path="../../../../../../modules/nrfx/mdk/ses_startup_nrf_common.s" left="0" top="98" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="99" useTextEdit="1" path="../../../../../../components/libraries/util/app_error_weak.c" left="0" top="52" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="207" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/libraries/util/nordic_common.h" left="0" top="157" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="99" useTextEdit="1" path="../../../../../../components/libraries/util/app_error_weak.c" left="0" top="61" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="207" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/libraries/util/nordic_common.h" left="0" top="169" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="50" y="987" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/libraries/timer/app_timer.c" left="0" top="987" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="61" y="180" useTextEdit="1" openedFrom="C:/nrf_sdk/components/libraries/timer/app_timer.c" path="../../../../../../components/libraries/util/sdk_macros.h" left="0" top="159" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="218" useTextEdit="1" openedFrom="C:/nrf_sdk/examples/My_projects/ble_app_beacon/main.c" path="../../../../../../components/softdevice/s140/headers/ble.h" left="0" top="193" codecName="Default"/>

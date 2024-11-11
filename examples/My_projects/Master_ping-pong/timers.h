@@ -4,6 +4,8 @@
   #include "data.h"
   #include <time.h>
 
+  #define TIMERS_LEDS 0
+
     // ******* TIMER DEFINITIONS *******
   #define ADV_EVT_INTERVAL APP_TIMER_TICKS(SEGUNDOS_DELAY * 1000)
   #define FAST_BLINK_INTERVAL APP_TIMER_TICKS(300)

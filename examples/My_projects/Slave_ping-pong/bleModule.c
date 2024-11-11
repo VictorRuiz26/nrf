@@ -391,8 +391,7 @@ void on_adv_report(ble_gap_evt_adv_report_t const * p_adv_report)
                         uint16_t timeExpected = (80 + 256 + 16 + 24 + 8*8*(p_adv_report->data.len+8) + 192 + 24)/1000; //Time expected for receiving one adv
                         uint16_t extraTime = 1000;
                         m_timeout_for_advertise(APP_TIMER_TICKS(timeExpected*num_adv_2_send + (num_adv_2_send-1)*time_between_advs + extraTime), true, NULL);
-                        /*err_code = app_timer_start(m_timeout_for_advertise, APP_TIMER_TICKS(timeExpected*NUM_ADVERTISEMENTS+extraTime), NULL);
-                        APP_ERROR_CHECK(err_code);*/
+
                         NRF_LOG_INFO("Time expected for 1 adv: %dms.", timeExpected);
                         NRF_LOG_INFO("Time ms betw advs %dms", time_between_advs);
                         NRF_LOG_INFO("Primer ADV recibido, arranco timer que dura %dms!", timeExpected*num_adv_2_send + (num_adv_2_send-1)*time_between_advs + extraTime);

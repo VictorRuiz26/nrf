@@ -90,6 +90,7 @@
     err_code = app_timer_create(&m_timer_ble, APP_TIMER_MODE_SINGLE_SHOT, adv_interval_timeout_handler);
     APP_ERROR_CHECK(err_code);
 
+#if TIMERS_LEDS
     err_code = app_timer_create(&m_adv_sent_led_show_timer_id, APP_TIMER_MODE_REPEATED, adv_sent_led_show_timeout_handler);
     APP_ERROR_CHECK(err_code);
 
@@ -101,7 +102,7 @@
 
     err_code = app_timer_create(&m_adv_data_size_200_codec_timer_id, APP_TIMER_MODE_REPEATED, adv_data_size_200_codec_timeout_handler);
     APP_ERROR_CHECK(err_code);
-
+#endif
     err_code = app_timer_create(&m_time_for_metrics_packet, APP_TIMER_MODE_SINGLE_SHOT, time_for_metrics_packet_handler);
     APP_ERROR_CHECK(err_code);
 
@@ -120,6 +121,7 @@
     APP_ERROR_CHECK(err_code);
   }
   void adv_sent_led_show(uint32_t timer_ticks, bool start, void * p_context) {
+  #if TIMERS_LEDS
     uint32_t err_code;
     if (start) {
       err_code = app_timer_start(m_adv_sent_led_show_timer_id, timer_ticks, p_context);
@@ -127,6 +129,7 @@
       err_code = app_timer_stop(m_adv_sent_led_show_timer_id);
     }
     APP_ERROR_CHECK(err_code);
+  #endif
   }
   void time_for_metrics_packet(uint32_t timer_ticks, bool start, void * p_context) {
     uint32_t err_code;
@@ -147,6 +150,7 @@
     APP_ERROR_CHECK(err_code);
   }
   void adv_data_size_100_codec(uint32_t timer_ticks, bool start, void * p_context) {
+  #if TIMERS_LEDS
     uint32_t err_code;
     if (start) {
       err_code = app_timer_start(m_adv_data_size_100_codec_timer_id, timer_ticks, p_context);
@@ -154,8 +158,10 @@
       err_code = app_timer_stop(m_adv_data_size_100_codec_timer_id);
     }
     APP_ERROR_CHECK(err_code);
+  #endif
   }
   void adv_data_size_150_codec(uint32_t timer_ticks, bool start, void * p_context) {
+  #if TIMERS_LEDS
     uint32_t err_code;
     if (start) {
       err_code = app_timer_start(m_adv_data_size_150_codec_timer_id, timer_ticks, p_context);
@@ -163,8 +169,10 @@
       err_code = app_timer_stop(m_adv_data_size_150_codec_timer_id);
     }
     APP_ERROR_CHECK(err_code);
+  #endif
   }
   void adv_data_size_200_codec(uint32_t timer_ticks, bool start, void * p_context) {
+#if TIMERS_LEDS
     uint32_t err_code;
     if (start) {
       err_code = app_timer_start(m_adv_data_size_200_codec_timer_id, timer_ticks, p_context);
@@ -172,4 +180,5 @@
       err_code = app_timer_stop(m_adv_data_size_200_codec_timer_id);
     }
     APP_ERROR_CHECK(err_code);
+#endif    
   }

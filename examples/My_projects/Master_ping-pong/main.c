@@ -54,6 +54,7 @@
 
     err_code = bsp_init(BSP_INIT_LEDS | BSP_INIT_BUTTONS, bsp_evt_handler);
     APP_ERROR_CHECK(err_code);
+    bsp_board_led_on(PHY_SELECTION_LED);
   }
 
   /**@brief Function for initializing power management.
